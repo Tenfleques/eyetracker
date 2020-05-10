@@ -43,8 +43,9 @@ Root:
     chkbx_save_images: chkbx_save_images
     chkbx_preprocess_video: chkbx_preprocess_video
 
-    BoxLayout:
-        orientation: 'vertical'
+    AnchorLayout:
+        anchor_x:'left'
+        anchor_y:'top'
         BoxLayout:
             orientation: 'horizontal'
             BoxLayout:
@@ -353,41 +354,50 @@ Root:
                 RstDocument:
                     id: gaze_log
                     text: ''
-                    font_size: dp(12)
+                    font_size: dp(9)
                     show_errors: False
                     halign: 'left'
                     color: (0,0,0,1)
                     background_color: (1, 1, 1, 1)
-
+    AnchorLayout:
+        anchor_x:'left'
+        anchor_y:'bottom'
         BackgroundBoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height:'30dp'
+            padding_x: 5
             background_color: (0, .196, .313, 1)
             Label:
                 id: stimuli_video_log
                 text: ''
-                color: (0,0,0,1)
+                color: (1,1,1,1)
                 show_errors: False
                 size_hint_y: None
+                height:'30dp'
+                font_size: dp(11)
                 halign: 'left'
                 valign: 'bottom'
                 padding_x: 5
             Label:
                 id: app_log
                 text: ''
-                color: (0,0,0,1)
+                color: (1,1,1,1)
                 show_errors: False
                 size_hint_y: None
+                height:'30dp'
+                font_size: dp(11)
                 halign: 'left'
                 valign: 'bottom'
                 padding_x: 5
             Label:
                 id: camera_log
                 text: ''
-                color: (0,0,0,1)
+                color: (1,1,1,1)
                 show_errors: False
                 size_hint_y: None
+                height:'30dp'
+                font_size: dp(11)
                 halign: 'right'
                 valign: 'bottom'
                 padding_x: 5

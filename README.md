@@ -32,8 +32,18 @@ From async the methods  exposed are:
 
 ### Requirements 
 kivy
+
 numpy
+
 opencv
+
+moviepy
+
+Pillow
+
+json
+
+ctypes
 
 ### Setup 
    Setting up kivy for the GUI app

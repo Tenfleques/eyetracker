@@ -315,13 +315,22 @@ struct TobiiCtrl {
     // status flag
     tobii_error_t result = tobii_api_create(&api, NULL, NULL);
     // updates thread 
-
+    bool continue_updating = false;
+    
     ~TobiiCtrl() {
         stop();
     }
 
+    bool get_continue_updating() {
+        return continue_updating;
+    }
+
+    void stop_updating() {
+        continue_updating = false;
+    }
+
     void updateRecords() {
-        while (sessionRecord.is_recording_tracker()) {
+        while (this->get_continue_updating()) {
             // Optionally block this thread until data is available. Especially useful if running in a separate thread.
             result = tobii_wait_for_callbacks(1, &device);
 
@@ -339,6 +348,13 @@ struct TobiiCtrl {
         }
     }
     int start() {
+        continue_updating = true;
+
+        if (api != NULL && device != NULL) {
+            // device has started already
+            return 0;
+        }
+
         if (assert_tobii_error(result))
             return -1;
 
@@ -372,6 +388,7 @@ struct TobiiCtrl {
 
 
     int stop() {
+        this->stop_updating();
         if (device != NULL) {
             result = tobii_gaze_point_unsubscribe(device);
             if (assert_tobii_error(result, "unsubscribed"))
@@ -405,11 +422,12 @@ std::map<size_t, const char*> map_results;
 
 void stop() {
     sessionRecord.stop();
+    tobiiCtrl.stop_updating();
 
     if (update_thread.joinable()) {
         update_thread.join();
     }
-    std::cout << "[INFO] stopped..." << std::endl;
+    std::cout << "[INFO] stopped recording, device connection still alive" << std::endl;
 }
 
 void kill() {
@@ -427,7 +445,7 @@ void kill() {
     if (update_thread.joinable()) {
         update_thread.join();
     }
-    std::cout << "[INFO] stopped..." << std::endl;
+    std::cout << "[INFO] stopped the device connection" << std::endl;
 }
 
 int start() {

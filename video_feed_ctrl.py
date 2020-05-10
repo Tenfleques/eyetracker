@@ -42,6 +42,8 @@ class VideoFeedCtrl:
     video_frames = deque()
     camera_frames = deque()
     stop_session = True
+    camera_is_up = False
+    frame_buffer = deque()
     video_meta = {
         "factual_fps": -1.0,
         "requested_fps": -1.0
@@ -77,11 +79,15 @@ class VideoFeedCtrl:
               camera_index=0, preprocess=True, save_images=False):
         self.stop_session = False
         print("[INFO] starting the video feed {}    ".format(time.strftime("%H:%M:%S")))
+
         self.video_meta["factual_fps"] = self.__video_thread(video_path, output_path, video_fps,
                                                              camera_fps, camera_index, preprocess, save_images)
         self.stop_session = True
         print("[INFO] closed the video feed {}    ".format(time.strftime("%H:%M:%S")))
         return self.stop_session
+
+    def __get_camera_is_up(self):
+        return self.camera_is_up
 
     def stop(self):
         self.stop_session = True
@@ -130,12 +136,13 @@ class VideoFeedCtrl:
 
         delay = 1000.0 / fps
         out = self.__video_output(output_path, fps, frame_width, frame_height)
-
+        self.camera_meta["requested_fps"] = fps
         print("[INFO] starting the camera feed {}    ".format(time.strftime("%H:%M:%S")))
         sys.stdout.flush()
         st = time.time()
         while cap.isOpened() and not self.__halt_recording():
             ret, frame = cap.read()
+            self.camera_is_up = True
             if ret:
                 if save_images:
                     self.camera_frames.append(Frame(frame_id, frame))
@@ -154,56 +161,73 @@ class VideoFeedCtrl:
             self.camera_meta["factual_fps"] = (frame_id + 1) / time_diff
         cap.release()
         out.release()
+        self.camera_is_up = False
         return frame_id
 
-    def __preprocessed_video(self, cap, win_name, fps, preprocess_only=False):
-        frame_id = 0
-        factual_rate = fps
-        bg_frame = np.zeros(size=(self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
-        bg_frame[:, :, :] = 255
-        fps = max(fps, 1)
-        delay = int(1000.0 / fps)
+    def __get_frame_buffer_front(self):
+        if len(self.frame_buffer) > 0:
+            frame = self.frame_buffer.popleft()
+            return frame
+        return None
 
+    def __mem_queue_frames(self, cap, store_frames_in_memory=False):
         in_memory_already = False
         if len(self.video_frames):
             in_memory_already = self.video_frames[0].img_data is not None
+        if in_memory_already:
+            return
 
         print("[INFO] copying video frames to memory {}    ".format(time.strftime("%H:%M:%S")))
         sys.stdout.flush()
+        bg_frame = np.zeros(shape=(self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
+        bg_frame[:, :, :] = 255
+        font = cv2.FONT_HERSHEY_PLAIN
+        color = (20, 20, 120)
+        font_size = 1.1
 
-        while cap.isOpened() and not in_memory_already:
+        frame_id = 0
+        while cap.isOpened():
             # Capture frame-by-frame
             ret, frame = cap.read()
             if ret:
-                self.video_frames.append(Frame(frame_id, frame))
+                bg_frame = np.zeros(shape=(self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
+                bg_frame[:, :, :] = 255
+                bg_frame[:frame.shape[0], :frame.shape[1], :] = frame
+                cv2.putText(bg_frame, get_local_str_util("_press_q_to_quit"), (50, 80), font, font_size, color, 1, cv2.LINE_AA)
+
+                self.frame_buffer.append(bg_frame)
+
+                if store_frames_in_memory:
+                    self.video_frames.append(Frame(frame_id, bg_frame))
             else:
                 break
             frame_id += 1
         cap.release()
 
-        print("[INFO] video frames loaded to memory {}    ".format(time.strftime("%H:%M:%S")))
-        sys.stdout.flush()
+    def __preprocessed_video(self, cap, win_name, fps, preprocess_only=False):
+        factual_rate = fps
+
+        fps = max(fps, 1)
+        delay = int(1000.0 / fps)
+        queue_thread = Thread(target=self.__mem_queue_frames, args=(cap, preprocess_only))
+        queue_thread.start()
 
         if preprocess_only:
             return factual_rate
 
-        print("[INFO] showing video frames from memory, going fullscreen... {}    ".format(time.strftime("%H:%M:%S")))
-        sys.stdout.flush()
-
         st = time.time()
         frame_id = 0
-        font = cv2.FONT_HERSHEY_PLAIN
-        color = (20, 20, 120)
-        font_size = 1.1
 
-        for (i, frame) in enumerate(self.video_frames):
+        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        while True:
             if self.__halt_recording():
                 break
-
-            bg_frame[:frame.img_data.shape[0], :frame.img_data.shape[1], :] = frame.img_data
-            cv2.putText(bg_frame, get_local_str_util("_press_q_to_quit"), (50, 80), font, font_size, color, 1, cv2.LINE_AA)
-            cv2.imshow(win_name, bg_frame)
-            self.video_frames[i].update()
+            frame = self.__get_frame_buffer_front()
+            if frame is None:
+                break
+            cv2.imshow(win_name, frame)
+            # self.video_frames[frame_id].update()
             key = cv2.waitKey(delay)
             # signal stop if user press Q, or q
             if key == ord('Q') or key == ord('q'):
@@ -214,14 +238,13 @@ class VideoFeedCtrl:
         if time_diff:
             factual_rate = (frame_id + 1) / time_diff
 
+        queue_thread.join()
+
         return self.__video_show_end(win_name, factual_rate)
 
     @staticmethod
     def __init_video_capture(video_path, video_fps):
         cap = cv2.VideoCapture(video_path)
-        win_name = video_path.split(os.sep)[-1]
-        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
         if not cap.isOpened():
             print("[ERROR] reading video {}    ".format(time.strftime("%H:%M:%S")))
@@ -230,10 +253,12 @@ class VideoFeedCtrl:
             # determine from video
             video_fps = max(cap.get(cv2.CAP_PROP_FPS), 1)
 
-        return cap, video_fps, win_name
+        return cap, video_fps
 
     def play_video(self, video_path, video_fps=0):
-        cap, video_fps, win_name = self.__init_video_capture(video_path, video_fps)
+        cap, video_fps = self.__init_video_capture(video_path, video_fps)
+        win_name = video_path.split(os.sep)[-1]
+
         self.__inline_video(cap, win_name, video_fps, save_frame=False)
 
     def __inline_video(self, cap, win_name, fps, save_frame=True):
@@ -247,13 +272,15 @@ class VideoFeedCtrl:
         print("[INFO] showing video frames from file, going fullscreen... {}    "
               .format(time.strftime("%H:%M:%S")))
         sys.stdout.flush()
-        st = time.time()
+
         font = cv2.FONT_HERSHEY_PLAIN
         color = (20, 20, 120)
         font_size = 1.1
 
+        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        st = time.time()
         while cap.isOpened():
-            # Capture frame-by-frame
             ret, frame = cap.read()
             if not ret:
                 break
@@ -281,7 +308,7 @@ class VideoFeedCtrl:
 
     @staticmethod
     def __video_show_end(win_name, factual_rate):
-        print("[INFO] finished playing video. Factual Frame rate used: {} {}    "
+        print("[INFO] finished playing video. Factual Frame rate used: {:.4} {}    "
               .format(factual_rate, time.strftime("%H:%M:%S")))
         sys.stdout.flush()
 
@@ -303,16 +330,30 @@ class VideoFeedCtrl:
         :param save_images:
         :return:
         """
-        cap, video_fps, win_name = self.__init_video_capture(video_path, video_fps)
+        cap, video_fps = self.__init_video_capture(video_path, video_fps)
         # start camera thread
         cam_th = Thread(target=self.__camera_thread, args=(output_path, camera_index, camera_fps, save_images))
-
+        self.video_meta["requested_fps"] = video_fps
+        factual_rate = video_fps
+        win_name = video_path.split(os.sep)[-1]
         try:
             cam_th.start()
+            # wait till camera is up
+            polling_camera_times = 0
+            while not self.__get_camera_is_up():
+                print("[INFO] waiting for camera {}     ".format(time.strftime("%H:%M:%S")))
+                time.sleep(1)
+                polling_camera_times += 1
+                if polling_camera_times > 5:
+                    print("[INFO] got tired of waiting for camera {}    ".format(time.strftime("%H:%M:%S")))
+                    return -1.0
+
             # preprocess video for higher fps
             if preprocess:
                 print("[INFO] preprocessing video {}    ".format(time.strftime("%H:%M:%S")))
-                factual_rate = self.__preprocessed_video(cap, win_name, video_fps)
+                # failing _preprocessing method. TODO better optimisation
+                # factual_rate = self.__preprocessed_video(cap, win_name, video_fps)
+                factual_rate = self.__inline_video(cap, win_name, video_fps)
             else:
                 print("[INFO] processing video and showing inline {}    ".format(time.strftime("%H:%M:%S")))
                 # user want to minimise memory log, slower fps due to read video, process and show
@@ -363,6 +404,7 @@ if __name__ == "__main__":
     # preprocess=True, \
     # save_images=False
 
-    video_feed_ctrl.start(video_path="./data/stimulus_sample.mp4", output_path="./data", preprocess=False)
+    video_feed_ctrl.start(video_path="./data/stimulus_sample.mp4",
+                          output_path="./data", preprocess=True)
     video_feed_ctrl.stop()
-    print(video_feed_ctrl.get_json())
+    # print(video_feed_ctrl.get_json())

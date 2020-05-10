@@ -1,0 +1,102 @@
+{
+    "_appname" : {
+        "en" : "",
+        "ru" : ""
+    },
+    "_select_directory": {
+        "en" : "select output directory",
+        "ru" : "выберите выходной каталог"
+    },
+    "_press_q_to_quit": {
+        "en" : "press q/Q to quit",
+        "ru" : "нажмите q/Q чтобы выйти"
+    },
+    "_log": {
+        "en" : "log",
+        "ru" : "отчеты"
+    },
+    "_logs": {
+        "en" : "logs",
+        "ru" : "логи"
+    },
+    "_cancel": {
+        "en" : "cancel",
+        "ru" : "отмена"
+    },
+    "_select": {
+        "en" : "select",
+        "ru" : "выберите"
+    },
+    "_select_src_video": {
+        "en" : "select video",
+        "ru" : "выберите видео"
+    },
+    "_load_stimuli_video": {
+        "en" : "please load the stimuli video",
+        "ru" : "пожалуйста загрузите видео стимулов"
+    },
+    "_video_error": {
+        "en" : "video error",
+        "ru" : "ошибка с видео"
+    },
+    "_directory_not_selected" : {
+        "en" : "directory not selected",
+        "ru" : "каталог не выбран"
+    },
+    "_save_directory_set": {
+        "en" : "output directory set",
+        "ru" : "каталог выбран"
+    },
+    "_frequency_in_use" : {
+        "en" : "stimuli FPS in use",
+        "ru" : "FPS стимулы"
+    },
+    "_start" : {
+        "en" : "start",
+        "ru" : "пуск"
+    },
+    "_stop" : {
+        "en" : "stop",
+        "ru" : "стоп"
+    },
+    "_save" : {
+        "en" : "save",
+        "ru" : "сохранить"
+    },
+    "_use_video_freq" : {
+        "en" : "use video FPS",
+        "ru" : "воспользуйте FPS видео"
+    },
+    "_reset_session" : {
+        "en" : "new session",
+        "ru" : "новая сеанса"
+    },
+    "_session" : {
+        "en" : "session",
+        "ru" : "сеанса"
+    },
+    "_session_saved": {
+        "en" : "session saved",
+        "ru" : "сеанса сохранена"
+    },
+    "_session_empty": {
+        "en" : "",
+        "ru" : ""
+    },
+    "_session_in_progress": {
+        "en" : "please stop the session first",
+        "ru" : "пожалуйста, остановите сессию первым"
+    },
+    "_gaze_device_ready": {
+        "en" : "tracker device ready",
+        "ru" : "трейкер готов"
+    },
+    "_gaze_device_not_ready" : {
+        "en" : "tracker device not yet ready",
+        "ru" : "трейкер пока не готов"
+    },
+    "_gaze_device_out_of_sync" : {
+        "en" : "tracker device out of sync",
+        "ru" : "трейкер пока не синхронизирован"
+    }
+}

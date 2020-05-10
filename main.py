@@ -11,13 +11,14 @@ from kivy.graphics.texture import Texture
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
-from kivy.clock import Clock, mainthread
+from kivy.clock import Clock
 import json
-from threading import Thread
 import time
+from multiprocessing import Process
+from threading import Thread
 
 from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps
-from process_result import gaze_stimuli, create_timeline
+from process_result import gaze_stimuli, process_demo_video
 
 import os
 from io import StringIO
@@ -29,8 +30,6 @@ from kivy.core.window import Window
 
 Window.size = (1200, 800)
 Window.clearcolor = (1, 1, 1, 1)
-
-APP_THREADS = {}
 
 # load user previous session settings
 try:
@@ -65,6 +64,8 @@ class Root(FloatLayout):
     video_ctrl = None
     tracker_ctrl = None
     session_timeline = None
+    processes = []
+
     session_meta = {
         "camera": {},
         "video": {},
@@ -79,6 +80,14 @@ class Root(FloatLayout):
 
     def init_listeners(self):
         pass
+
+    def stop_all(self):
+        print("[INFO] closing processes and devices")
+        if self.tracker_ctrl is not None:
+            self.tracker_ctrl.kill()
+        for p in self.processes:
+            p.join()
+        print("[INFO] closed all processes and devices ")
 
     @staticmethod
     def get_default_from_prev_session(key, default=''):
@@ -122,7 +131,6 @@ class Root(FloatLayout):
 
     def __tracker_app_log(self, text, log_label='app_log'):
         log = create_log(text)
-        print(log)
         self.ids[log_label].text = log
 
     def btn_play_click(self):
@@ -192,28 +200,32 @@ class Root(FloatLayout):
 
                     self.tracker_ctrl.save_json(tracker_json_path)
                     self.video_ctrl.save_json(video_json_path)
-                    APP_THREADS["timeline_thread"] = Thread(target=self.load_session_timeline,
-                                                            args=(tracker_json_path, video_json_path))
-                    APP_THREADS["timeline_thread"].start()
+
+                    p = Thread(target=self.load_session_timeline, args=(tracker_json_path,
+                                                                        video_json_path, False, True,))
+                    p.start()
+
+                    self.processes.append(p)
+
                     self.session_meta["tracker"]["output_file"] = tracker_json_path
-                except Exception as e:
-                    print("[ERROR] a possible segmentation error from stopping the tracker {}{}    "
-                          .format(e, time.strftime("%H:%M:%S")))
+                except Exception as ex:
+                    print("[ERROR] an error occurred {}{}    "
+                          .format(ex, time.strftime("%H:%M:%S")))
                     del self.tracker_ctrl
                     self.tracker_ctrl = None
 
                 self.ids['btn_capture'].text = self.get_local_str("_start")
 
-                lcl_string_fps = self.get_local_str("_requested_fps") + ": {} ".format(
+                lcl_string_fps = self.get_local_str("_requested_video_fps") + ": {:.4} ".format(
                     self.video_ctrl.get_video_meta("requested_fps"))
-                lcl_string_fps += self.get_local_str("_factual_fps") + ": {} ".format(
+                lcl_string_fps += self.get_local_str("_actual_video_fps") + ": {:.4} ".format(
                     self.video_ctrl.get_video_meta("factual_fps"))
 
                 self.__tracker_app_log(lcl_string_fps, "stimuli_video_log")
 
-                lcl_string_fps = self.get_local_str("_requested_fps") + ": {} ".format(
+                lcl_string_fps = self.get_local_str("_requested_camera_fps") + ": {:.4} ".format(
                     self.video_ctrl.get_camera_meta("requested_fps"))
-                lcl_string_fps += self.get_local_str("_factual_fps") + ": {} ".format(
+                lcl_string_fps += self.get_local_str("_factual_camera_fps") + ": {:.4} ".format(
                     self.video_ctrl.get_camera_meta("factual_fps"))
 
                 self.__tracker_app_log(lcl_string_fps, "camera_log")
@@ -221,22 +233,23 @@ class Root(FloatLayout):
                 lcl_string = self.get_local_str("_demonstration_preparing")
                 self.__tracker_app_log(lcl_string)
 
-    def load_session_timeline(self, tracker_json_path, video_json_path):
+    def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=True):
         print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
         lcl_string = self.get_local_str("_preparing_session_timeline")
         self.__tracker_app_log(lcl_string)
+        selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
+                                         "out-video.avi")
+        lcl_video_finished_str = self.get_local_str("_demonstration_video_ready")
+
         self.session_timeline = gaze_stimuli(tracker_json_path,
                                              video_json_path,
                                              self.ids['lbl_src_video'].text,
-                                             selfie_video_path=os.path.join(self.ids['lbl_output_dir'].text,
-                                                                            "out-video.avi"),
-                                             video_fps=float(self.ids['txt_box_video_rate'].text))
-
-        lcl_string = self.get_local_str("_session_timeline_ready")
-        self.__tracker_app_log(lcl_string)
+                                             selfie_video_path=selfie_video_path,
+                                             timeline_exist=timeline_exist, process_video=process_video,
+                                             session_timeline_cb=self.load_session_results,
+                                             video_cb=lambda: self.__tracker_app_log(lcl_video_finished_str))
 
     def load_session_results(self):
-        k = 0
 
         if self.session_timeline is None:
             timeline_path = None
@@ -253,11 +266,21 @@ class Root(FloatLayout):
 
         if self.session_timeline is None:
             return
+        self.__load_main_view_rows(0, 10)
 
+    def __load_main_view_rows(self, start_index=0, max_elements=10):
         self.ids["view_stage"].bind(minimum_height=self.ids["view_stage"].setter('height'))
-
         bg_color = ((), ())
+        k = 0
+        rows = GridLayout(cols=1)
+        self.ids["view_stage"].clear_widgets()
         for key, record in self.session_timeline.items():
+            if k < start_index:
+                continue
+
+            if k > max_elements + start_index:
+                break
+
             gaze = "-"
             cam = "-"
             vid = "-"
@@ -281,8 +304,10 @@ class Root(FloatLayout):
             l_v = Label(text=str(vid), font_size='12sp', color=(0, 0, 0, 1))
             row.add_widget(l_v)
 
-            self.ids["view_stage"].add_widget(row)
+            rows.add_widget(row)
             k += 1
+
+        self.ids["view_stage"].add_widget(rows)
 
     def result_video_ready(self, path=None):
         if path is None:
@@ -307,14 +332,12 @@ class Root(FloatLayout):
         if not self.result_video_ready(video_path):
             return
 
-        APP_THREADS["session_timeline_thread"] = Thread(target=self.load_session_results)
-        APP_THREADS["session_timeline_thread"].start()
+        Clock.schedule_once(lambda dt: self.load_session_results(), 0.5)
 
         if self.video_ctrl is None:
             self.video_ctrl = VideoFeedCtrl()
 
         self.video_ctrl.play_video(video_path, video_fps=1000)
-        APP_THREADS["session_timeline_thread"].join()
 
     def btn_preprocess_video_click(self):
         # load frames to memory for faster fps
@@ -328,8 +351,7 @@ class Root(FloatLayout):
             lcl_string = self.get_local_str("_preprocessing_video")
             self.__tracker_app_log(lcl_string)
 
-            APP_THREADS["prep_thread"] = Thread(target=self.preprocessing_src_video)
-            APP_THREADS["prep_thread"].start()
+            Clock.schedule_once(lambda dt: self.preprocessing_src_video(), 0.5)
         else:
             lcl_string = self.get_local_str("_preprocessed_already")
             self.__tracker_app_log(lcl_string)
@@ -389,8 +411,8 @@ class Tracker(App):
         Factory.register('LoadDialog', cls=LoadDialog)
 
     def on_stop(self):
-        for k, app_thread in APP_THREADS.items():
-            app_thread.join()
+        app = App.get_running_app()
+        app.root.stop_all()
 
         with open(prev_session_file_path, "w") as session_f:
             session_f.write(json.dumps(SESSION_PREFS))

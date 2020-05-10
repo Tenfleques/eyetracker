@@ -10,6 +10,8 @@ struct SessionRecord;
 
 extern "C" TOBIEYELIB_API void stop();
 
+extern "C" TOBIEYELIB_API void kill();
+
 extern "C" TOBIEYELIB_API int start();
 
 extern "C" TOBIEYELIB_API size_t get_json(char* buffer, size_t buffer_size);

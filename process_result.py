@@ -6,6 +6,9 @@ from collections import deque
 import numpy as np
 from PIL import ImageGrab
 import copy
+from threading import Thread
+from multiprocessing import Process
+import sys
 
 
 def create_timeline(tracker_data, video_data):
@@ -54,7 +57,8 @@ def create_timeline(tracker_data, video_data):
     return sess_timeline
 
 
-def process_demo_video(video_path, session_timeline,cam_video_path=""):
+def process_demo_video(video_path, session_timeline, cam_video_path="", cb=lambda: print("[INFO] finished processing "
+                                                                                         "video")):
     timestamp_keys = session_timeline.keys()
     len_keys = len(timestamp_keys)
     if len_keys == 0:
@@ -73,9 +77,9 @@ def process_demo_video(video_path, session_timeline,cam_video_path=""):
     fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
     out = cv2.VideoWriter()
 
-    diff = max(timestamp_keys)- min(timestamp_keys)
+    diff = max(timestamp_keys) - min(timestamp_keys)
 
-    video_fps = max(len_keys/diff, 30)
+    video_fps = max(len_keys / diff, 30)
     print(video_fps)
 
     demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
@@ -147,7 +151,7 @@ def process_demo_video(video_path, session_timeline,cam_video_path=""):
                             c_frame = cv2.resize(c_frame, (c_width, c_height))
 
         if c_frame is not None:
-            bg_frame[:c_height, c_start_x:c_start_x+c_width, :] = c_frame
+            bg_frame[:c_height, c_start_x:c_start_x + c_width, :] = c_frame
         out.write(bg_frame)
 
     total_time = time.time() - st
@@ -157,11 +161,16 @@ def process_demo_video(video_path, session_timeline,cam_video_path=""):
         cap_camera.release()
     out.release()
     if success:
-        print("[INFO] written demonstration video {} {}    ".format(demo_video_path.replace("\\", "/"), time.strftime("%H:%M:%S")))
+        print("[INFO] written demonstration video {} {}    ".format(demo_video_path.replace("\\", "/"),
+                                                                    time.strftime("%H:%M:%S")))
+    cb()
     return total_time
 
 
-def gaze_stimuli(tracker_json_path, video_json_path, video_path, selfie_video_path=None, video_fps=0):
+def gaze_stimuli(tracker_json_path, video_json_path, video_path, selfie_video_path=None,
+                 timeline_exist=False, process_video=True,
+                 session_timeline_cb=lambda: print("[INFO] finished creating session timeline"),
+                 video_cb=lambda: print("[INFO] finished demonstration video ")):
     with open(tracker_json_path, "r") as read_file:
         tracker_data = json.load(read_file)
         read_file.close()
@@ -170,19 +179,40 @@ def gaze_stimuli(tracker_json_path, video_json_path, video_path, selfie_video_pa
         video_data = json.load(v_read_file)
         v_read_file.close()
 
-    sess_timeline = create_timeline(tracker_data, video_data)
-    process_demo_video(video_path, sess_timeline, selfie_video_path)
+    sess_timeline_file = tracker_json_path.replace(".json", "-timeline.json")
 
-    with open(tracker_json_path.replace(".json", "-timeline.json"), "w") as write_sess:
-        json.dump(sess_timeline, write_sess)
-        write_sess.close()
+    if timeline_exist and os.path.isfile(sess_timeline_file):
+        with open(sess_timeline_file, "r") as read_sess:
+            sess_timeline = json.load(read_sess)
+            read_sess.close()
+    else:
+        sess_timeline = create_timeline(tracker_data, video_data)
+        with open(sess_timeline_file, "w") as write_sess:
+            json.dump(sess_timeline, write_sess)
+            write_sess.close()
+
+    session_timeline_cb()
+
+    if process_video:
+        p = Thread(target=process_demo_video, args=(video_path, sess_timeline, selfie_video_path, ))
+        p.start()
+        p.join()
+        video_cb()
 
     return sess_timeline
 
 
-if __name__ == "__main__":
+def info(title):
+    print(title)
+    print('module name:', __name__)
+    print('parent process:', os.getppid())
+    print('process id:', os.getpid())
+
+
+if __name__ == '__main__':
+    info('main line')
+    # p = Process(target=f, args=('bob',))
     timeline = gaze_stimuli("./data/tracker.json",
                             "./data/video_camera.json",
                             "./data/stimulus_sample.mp4",
-                            "./data/out-video.avi")
-
+                            "./data/out-video.avi", False, True, )
