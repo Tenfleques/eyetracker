@@ -3,6 +3,7 @@ import locale
 import json
 import os
 import cv2
+import filecmp
 
 ERROR = -1
 WARNING = 2
@@ -63,3 +64,28 @@ def get_video_fps(path):
     fps = video.get(cv2.CAP_PROP_FPS)
     video.release()
     return fps
+
+
+def check_talon_directory():
+    talon_home = os.path.expanduser("~/.talon/user")
+    filename = os.path.join(talon_home, "launcher.py")
+
+    launcher_exists = os.path.exists(filename)
+    launcher_isfile = os.path.isfile(filename)
+
+    if not (launcher_exists and launcher_isfile):
+        with open("./launcher.py", 'r') as src, open(filename, 'w') as dst:
+            dst.write(src.read())
+            dst.close()
+            src.close()
+
+    force_update = not filecmp.cmp("./launcher.py", filename, shallow=False)
+    print("[INFO] forcing update? {}".format(force_update))
+    # force_update = True
+
+    if force_update:
+        with open("./launcher.py", 'r') as src, open(filename, 'w') as dst:
+            dst.write(src.read())
+            dst.close()
+            src.close()
+

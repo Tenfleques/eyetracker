@@ -5,144 +5,179 @@ import socketserver
 import struct
 import select
 import time
-from threading import Thread, current_thread
+from threading import Thread
 import sys
-import socket
-from tracker_record import Record
-
-from ctypes import cdll, c_int, POINTER
+import json
 
 from collections import deque
+from eye_utilities.helpers import check_talon_directory
 
-QUEUE_SIZE = 10 
+check_talon_directory()
 
-def props(cls):   
-  return [i for i in cls.__dict__.keys() if i[:1] != '_']
 
-tobii_dll_path = "TobiiEyeLib\\x64\\Debug\\TobiiEyeLib.dll"
-tobiiEyeLib = cdll.LoadLibrary(tobii_dll_path)
-class TobiiWinGazeWatcher():
+class LogRecordStreamHandler(socketserver.StreamRequestHandler):
+    """Handler for a streaming logging request.
     """
-        simple API to the gaze watcher on windows platforms
-    """
-    recent_gazes = deque(QUEUE_SIZE*"", QUEUE_SIZE)
-    
-    def __init__(self):
-        self.tobiiEyeLib = tobiiEyeLib
-        self.tobiiEyeLib.stop.restype = c_int
-        self.tobiiEyeLib.start.restype = c_int
-        self.tobiiEyeLib.getLatest.restype = POINTER(Record)
-        self.tobiiEyeLib.start()
-        
+    def handle(self):
+        """
+        Handle multiple requests - each expected to be a 4-byte length,
+        followed by the LogRecord in pickle format.
+        """
+        while self.server.play:
+            chunk = self.connection.recv(4)
 
-    def getTopRecords(self):
-        return self.recent_gazes
+            if len(chunk) < 4:
+                break
 
-    def server_close(self):
-        stopped = self.tobiiEyeLib.stop()
-        print("listener stopped", stopped)
-        self.play = 0
+            slen = struct.unpack(">L", chunk)[0]
+            chunk = self.connection.recv(slen)
 
-    def serve_until_stopped(self, stop):
-        while not stop():
-            try :
-                output = self.tobiiEyeLib.getLatest()
-                self.recent_gazes.appendleft(output.contents)
-                del output
-            except OSError as msg:
-                print(msg)
-                continue
-            self.play = not stop()
+            while len(chunk) < slen:
+                if not self.server.play:
+                    break
+                chunk = chunk + self.connection.recv(slen - len(chunk))
+            obj = self.un_pickle(chunk)
+
+            record = logging.makeLogRecord(obj)
+
+            self.handle_log_record(record)
+
+    @staticmethod
+    def un_pickle(data):
+        return pickle.loads(data)
+
+    def handle_log_record(self, record):
+        if record.name == self.server.log_name:
+            row = json.loads(record.getMessage())
+            self.server.TrackerLOG["gaze"].append(row["gaze"])
+            self.server.TrackerLOG["pos"].append(row["pos"])
+            self.server.TrackerLOG["origin"].append(row["origin"])
+
+        # logger = logging.getLogger(name)
+        # logger.handle(record)
 
 
-
-class WindowsRecordSocketReceiver(socketserver.ThreadingTCPServer):
+class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
     """
         simple TCP socket-based logging receiver.
     """
+
     allow_reuse_address = 1
     timeout = 3
-    recent_gazes = deque(QUEUE_SIZE*"", QUEUE_SIZE)
-    
-    def __init__(self,host = 'localhost',    # The remote host
-                      port = 11000):   
-        self.s = None
-        self.update_thread = None
-        self.stop = lambda : False
+    TrackerLOG = {
+        "pos": deque(),
+        "gaze": deque(),
+        "origin": deque()
+    }
 
-        for res in socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM):
-            af, socktype, proto, canonname, sa = res
-            try:
-                self.s = socket.socket(af, socktype, proto)
-            except OSError as msg:
-                self.s = None
-                print(msg)
-                continue
-            try:
-                self.s.connect(sa)
-            except OSError as msg:
-                self.s.close()
-                self.s = None
-                continue
-            break
-     
-    def getTopRecords(self):
-        return self.recent_gazes
+    play = 0
+    recording = 0
 
-    def server_close(self):
-        if self.update_thread:
-            self.update_thread._stop()
-        self.s.close()
-        self.s = None
+    def __init__(self, host='localhost',
+                 port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+                 handler=LogRecordStreamHandler):
 
-    def continuousUpdate(self, stop):
-        while (not stop()) and self.s:
-            data = self.s.recv(1024)
-            print(data, " received")
-            record = repr(data)
-            self.recent_gazes.append(record)
-            self.play = not stop()
+        self.handler = handler
+        socketserver.ThreadingTCPServer.__init__(self, (host, port), self.handler)
+        self.log_name = "gaze_logger"
 
-    def serve_until_stopped(self, stop):
-         if self.s is None:
-            print('could not open socket')
-            return
-         self.stop = stop
+    def __clear_tracker_log(self):
+        for i, v in self.TrackerLOG.items():
+            self.TrackerLOG[i].clear()
 
-         with self.s:
-            self.s.sendall(b'stream')
-            self.update_thread = Thread(self.continuousUpdate)
-            self.update_thread.start()
+    def init(self):
+        self.play = 1
+        self.serve_until_stopped()
+
+    def start(self):
+        self.__clear_tracker_log()
+        self.recording = 1
+        return self.__is_recording()
+
+    def stop(self):
+        self.recording = 0
+
+    def kill(self):
+        self.recording = 0
+        self.play = 0
+        self.__clear_tracker_log()
+        # self.shutdown()
+        # self.server_close()
+
+    def __is_recording(self):
+        return self.recording
+
+    def __is_listening(self):
+        return self.play
+
+    def save_json(self, path):
+        with open(path, "w") as fp:
+            fp.write(json.dumps(self.__make_json()))
+
+    def __make_json(self):
+        data = {}
+        for i, v in self.TrackerLOG.items():
+            data[i] = list(self.TrackerLOG[i])
+
+        return data
+
+    def get_json(self):
+        return self.__make_json()
+
+    def serve_until_stopped(self):
+        while self.__is_listening():
+            rd, wr, ex = select.select([self.socket.fileno()],
+                                       [], [],
+                                       self.timeout)
+
+            if rd:
+                if self.__is_recording():
+                    self.handle_request()
 
 
-def winEyeGazeListener():
-    tcpserver = TobiiWinGazeWatcher()
-    print("About to start TCP server...")
-    socket_thread_alive = True
-    socket_thread = Thread(target=tcpserver.serve_until_stopped, args=(lambda : not socket_thread_alive, ))
+def talon_gaze_listener():
+
+    tcp_server = LogRecordSocketReceiver()
+    socket_thread = Thread(target=tcp_server.init,)
     try:
         # Start the thread
         socket_thread.start()
-        for i in range(120):
-            RECENT_GAZES = tcpserver.getTopRecords()
-            if len(RECENT_GAZES):
-                print(RECENT_GAZES[0].toString())
-
-            print("sleeping {}".format(i))
-            
+        tcp_server.start()
+        tracker_log = tcp_server.get_json()
+        for i in range(10):
+            tracker_log = tcp_server.get_json()
             time.sleep(1)
 
-        socket_thread_alive = False
-        tcpserver.server_close()
-        print("waiting to close")
+        times = [i["timestamp"] for i in tracker_log["gaze"] if "timestamp" in i]
+
+        if len(times) > 0:
+            frame_rate = len(times)/(max(times) - min(times))
+            print("[INFO] frame rate of the tracker {} ".format(frame_rate))
+        else:
+            print("[INFO] nothing recorded")
+
+        # print(tcp_server.get_json())
+
+        tcp_server.stop()
+        tcp_server.kill()
         sys.exit(0)
-        print("should be closed now")
+
     # When ctrl+c is received
     except KeyboardInterrupt as e:
         # Set the alive attribute to false
-        socket_thread_alive = False
+        tcp_server.stop()
+        tcp_server.kill()
+        print("Done")
         # Exit with error code
         sys.exit(e)
+    except Exception as ex:
+        print("Exception ", ex)
+        tcp_server.stop()
+        tcp_server.kill()
+        print("Done")
+        # Exit with error code
+        sys.exit(ex)
 
-if __name__ == '__main__':
-    winEyeGazeListener()
+
+if __name__ == "__main__":
+    talon_gaze_listener()

@@ -218,8 +218,8 @@ class VideoFeedCtrl:
         st = time.time()
         frame_id = 0
 
-        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        # cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+        # cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         while True:
             if self.__halt_recording():
                 break
@@ -277,8 +277,8 @@ class VideoFeedCtrl:
         color = (20, 20, 120)
         font_size = 1.1
 
-        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        # cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+        # cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         st = time.time()
         while cap.isOpened():
             ret, frame = cap.read()

@@ -1,16 +1,40 @@
 from ctypes import cdll, c_int, POINTER, c_char_p, c_char, create_string_buffer, c_size_t
 import time
+import platform
+from threading import Thread
+from gaze_listener import LogRecordSocketReceiver
 
 CString = POINTER(c_char)
 
 
 class TrackerCtrl:
     def __init__(self, dll_path="./TobiiEyeLib.dll"):
-        self.tracker_lib = cdll.LoadLibrary(dll_path)
-        self.tracker_lib.start.restype = c_int
+        if platform.system() == 'Windows':
+            self.tracker_lib = cdll.LoadLibrary(dll_path)
+            self.tracker_lib.start.restype = c_int
 
-        self.tracker_lib.save_json.restype = c_size_t
-        self.tracker_lib.save_json.argtypes =[CString]
+            self.tracker_lib.save_json.restype = c_size_t
+            self.tracker_lib.save_json.argtypes =[CString]
+
+            self.save_json = self.__save_json_win
+            self.get_json = self.__get_json_win
+
+        if platform.system() == 'Darwin':
+            self.tracker_lib = LogRecordSocketReceiver()
+            self.socket_thread = Thread(target=self.tracker_lib.init,)
+            try:
+                # Start the thread
+                self.socket_thread.start()
+            # When ctrl+c is received
+            except KeyboardInterrupt as e:
+                # Set the alive attribute to false
+                self.kill()
+            except Exception as ex:
+                self.kill()
+                print("[ERROR] an error connecting to the tracker log server occurred {}     ".format(ex))
+
+            self.save_json = self.__save_json_mac
+            self.get_json = self.__get_json_mac
 
     def start(self):
         started = self.tracker_lib.start()
@@ -18,6 +42,7 @@ class TrackerCtrl:
             print("[INFO] started the tracker device {}    ".format(time.strftime("%H:%M:%S")))
         else:
             print("[ERROR] failed to start the tracker device {}    ".format(time.strftime("%H:%M:%S")))
+        return started
 
     def stop(self):
         print("[INFO] stopping the recording of tracker device data {}    ".format(time.strftime("%H:%M:%S")))
@@ -33,16 +58,22 @@ class TrackerCtrl:
         except Exception as e:
             print("[ERROR] an error occurred while stopping the tracker device {}    ".format(e))
 
-    def save_json(self, path="./data/results.json"):
+    def __save_json_win(self, path="./data/results.json"):
         path = path.encode()
         return self.tracker_lib.save_json(path)
 
-    def get_json(self):
+    def __get_json_win(self):
         required_size = self.tracker_lib.get_json(c_char_p(None), -1)
         print(required_size)
         buf = create_string_buffer(required_size)
         self.tracker_lib.get_json(buf, required_size)
         return buf
+
+    def __save_json_mac(self, path="./data/results.json"):
+        self.tracker_lib.save_json(path)
+
+    def __get_json_mac(self):
+        return self.tracker_lib.get_json()
 
 
 if __name__ == "__main__":

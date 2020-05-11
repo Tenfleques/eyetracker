@@ -5,8 +5,8 @@ from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from floatInput import FloatInput
-from kivy.uix.image import Image
-from kivy.graphics.texture import Texture
+# from kivy.uix.image import Image
+# from kivy.graphics.texture import Texture
 
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
@@ -18,7 +18,7 @@ from multiprocessing import Process
 from threading import Thread
 
 from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps
-from process_result import gaze_stimuli, process_demo_video
+from process_result import gaze_stimuli
 
 import os
 from io import StringIO
@@ -27,6 +27,8 @@ import sys
 from tracker_ctrl import TrackerCtrl
 from video_feed_ctrl import VideoFeedCtrl
 from kivy.core.window import Window
+
+import platform
 
 Window.size = (1200, 800)
 Window.clearcolor = (1, 1, 1, 1)
@@ -77,6 +79,10 @@ class Root(FloatLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        if platform.system() == 'Darwin':
+            print("[INFO] Running on Mac OS")
+            pass
 
     def init_listeners(self):
         pass
