@@ -18,6 +18,9 @@
 <BackgroundLabel@Label+BackgroundColor>
     background_color: 1, 1, 1, 1
 
+<BackgroundButton@Button+BackgroundColor>
+    background_color: 1, 1, 1, 1
+
 <-VideoImage>:
     canvas:
         Color:
@@ -69,14 +72,18 @@ Root:
                         height: '30dp'
                         size_hint_y: None
                         text_size: self.size
+                        font_size: dp(13)
                         padding_x: 10
-                    Button:
+                    BackgroundButton:
                         text: root.get_local_str("_select_directory")
                         on_release: root.show_load()
                         size_hint: (None, None)
-                        height: '30dp'
                         width: '220dp'
-                        padding_y: 5
+                        height: '25dp'
+                        padding: (5, 5)
+                        halign: 'center'
+                        text_size: self.size
+                        font_size: dp(14)
                 GridLayout:
                     rows: 1
                     cols: 2
@@ -92,14 +99,19 @@ Root:
                         height: '30dp'
                         size_hint_y: None
                         text_size: self.size
+                        font_size: dp(13)
                         padding_x: 10
-                    Button:
+                    BackgroundButton:
                         text: root.get_local_str("_select_src_video")
                         on_release: root.show_load_video()
                         size_hint: (None, None)
-                        height: '30dp'
                         width: '220dp'
-                        padding_y: 5
+                        height: '25dp'
+                        padding: (5, 5)
+                        halign: 'center'
+                        text_size: self.size
+                        font_size: dp(14)
+                        background_color: (.8,.8,.8,1)
                 BackgroundGridLayout:
                     id: view_stage_header
                     size_hint_y: None
@@ -117,6 +129,7 @@ Root:
                         height: '30dp'
                         size_hint_y: None
                         text_size: self.size
+                        font_size: dp(13)
                         padding_x: 10
                     Label:
                         id:lbl_gaze
@@ -128,6 +141,7 @@ Root:
                         height: '30dp'
                         size_hint_y: None
                         text_size: self.size
+                        font_size: dp(13)
                         padding_x: 10
                     Label:
                         id:lbl_camera
@@ -139,6 +153,7 @@ Root:
                         height: '30dp'
                         size_hint_y: None
                         text_size: self.size
+                        font_size: dp(13)
                         padding_x: 10
                     Label:
                         id:lbl_video
@@ -150,6 +165,7 @@ Root:
                         height: '30dp'
                         size_hint_y: None
                         text_size: self.size
+                        font_size: dp(13)
                         padding_x: 10
                 ScrollView:
                     do_scroll_x: False
@@ -179,6 +195,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(13)
                         color: (0,0,0,1)
                     Label:
                         text: root.txt_box_video_rate.text
@@ -191,6 +208,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(12)
                         color: (0,0,0,1)
                 FloatInput:
                     id: txt_box_video_rate
@@ -198,6 +216,7 @@ Root:
                     size_hint: (.9, None)
                     height: 30
                     multiline:False
+                    font_size: dp(14)
                 GridLayout:
                     cols: 2
                     rows: 3
@@ -214,6 +233,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(13)
                         color: (0,0,0,1)
                     CheckBox:
                         id: chkbx_use_video_fps
@@ -231,6 +251,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(13)
                         color: (0,0,0,1)
                     CheckBox:
                         id: chkbx_preprocess_video
@@ -248,6 +269,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(13)
                         color: (0,0,0,1)
                     CheckBox:
                         id: chkbx_save_images
@@ -268,6 +290,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(13)
                         color: (0,0,0,1)
                     Label:
                         text: root.txt_box_camera_rate.text
@@ -280,6 +303,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(13)
                         color: (0,0,0,1)
                 FloatInput:
                     id: txt_box_camera_rate
@@ -288,6 +312,7 @@ Root:
                     height: 30
                     multiline:False
                     text: root.get_video_fps(0)
+                    font_size: dp(13)
                 GridLayout:
                     cols: 2
                     size_hint: (.9, None)
@@ -302,6 +327,7 @@ Root:
                         padding_x: 5
                         padding_y: 5
                         text_size: self.size
+                        font_size: dp(13)
                         color: (0,0,0,1)
                     CheckBox:
                         id: chkbx_use_camera_fps
@@ -316,30 +342,34 @@ Root:
                     height: '50dp'
                     padding_y: 5
                     margin_y: 5
-                    Button:
-                        id: btn_preprocess_video
-                        text: root.get_local_str("_preprocess_video")
-                        on_release: root.btn_preprocess_video_click()
-                        size_hint_y: None
-                        height: '30dp'
-                        padding_y: 5
-                        halign: 'right'
-                    Button:
+                    # BackgroundButton:
+                    #     id: btn_preprocess_video
+                    #     text: root.get_local_str("_preprocess_video")
+                    #     on_release: root.btn_preprocess_video_click()
+                    #     size_hint_y: None
+                    #     height: '30dp'
+                    #     padding_y: 5
+                    #     halign: 'right'
+                    BackgroundButton:
                         id: btn_capture
                         text: root.get_local_str("_start")
                         on_release: root.btn_play_click()
                         size_hint_y: None
-                        height: '30dp'
-                        padding_y: 5
-                        halign: 'right'
-                    Button:
+                        height: '25dp'
+                        padding: (5, 5)
+                        halign: 'center'
+                        text_size: self.size
+                        font_size: dp(14)
+                    BackgroundButton:
                         id: btn_replay
                         text: root.get_local_str("_replay")
                         on_release: root.btn_replay_click()
                         size_hint_y: None
-                        height: '30dp'
-                        padding_y: 5
-                        halign: 'right'
+                        height: '25dp'
+                        padding: (5, 5)
+                        halign: 'center'
+                        text_size: self.size
+                        font_size: dp(14)
                 Label:
                     id:lbl_gaze_log
                     text: root.get_local_str("_log")
@@ -349,7 +379,7 @@ Root:
                     halign: 'left'
                     valign: 'middle'
                     text_size: self.size
-                    font_size: dp(16)
+                    font_size: dp(13)
                     padding_x: 5
                 RstDocument:
                     id: gaze_log
@@ -375,7 +405,7 @@ Root:
                 show_errors: False
                 size_hint_y: None
                 height:'30dp'
-                font_size: dp(11)
+                font_size: dp(12)
                 halign: 'left'
                 valign: 'bottom'
                 padding_x: 5
@@ -386,7 +416,7 @@ Root:
                 show_errors: False
                 size_hint_y: None
                 height:'30dp'
-                font_size: dp(11)
+                font_size: dp(12)
                 halign: 'left'
                 valign: 'bottom'
                 padding_x: 5
@@ -397,7 +427,7 @@ Root:
                 show_errors: False
                 size_hint_y: None
                 height:'30dp'
-                font_size: dp(11)
+                font_size: dp(12)
                 halign: 'right'
                 valign: 'bottom'
                 padding_x: 5
@@ -410,15 +440,36 @@ Root:
         FileChooserListView:
             id: filechooser
             dirselect: True
+            path: root.get_default_from_prev_session('filechooser', default="~")
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            BackgroundButton:
+                text: root.get_local_str("_cancel")
+                on_release: root.cancel()
+
+            BackgroundButton:
+                text: root.get_local_str("_select")
+                on_release: root.load(filechooser.path, filechooser.selection)
+
+<SettingsDialog>:
+    BackgroundBoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            dirselect: True
             path: "~"
 
         BoxLayout:
             size_hint_y: None
             height: 30
-            Button:
+            BackgroundButton:
                 text: root.get_local_str("_cancel")
                 on_release: root.cancel()
 
-            Button:
+            BackgroundButton:
                 text: root.get_local_str("_select")
                 on_release: root.load(filechooser.path, filechooser.selection)

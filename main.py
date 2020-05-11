@@ -58,6 +58,7 @@ except Exception as e:
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
+    get_default_from_prev_session = ObjectProperty(None)
     get_local_str = ObjectProperty(None)
 
 
@@ -153,6 +154,7 @@ class Root(FloatLayout):
 
         old_stdout = sys.stdout
         sys.stdout = str_stdout = StringIO()
+        self.session_name =
         self.__run_session()
         self.ids['gaze_log'].text = "\n".join(str_stdout.getvalue().split("   "))
 
@@ -376,12 +378,16 @@ class Root(FloatLayout):
         self._popup.dismiss()
 
     def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup, get_local_str=self.get_local_str)
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup,
+                             get_local_str=self.get_local_str,
+                             get_default_from_prev_session=self.get_default_from_prev_session)
         self._popup = Popup(title=self.get_local_str("_select_directory"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
     def show_load_video(self):
-        content = LoadDialog(load=self.load_video, cancel=self.dismiss_popup, get_local_str=self.get_local_str)
+        content = LoadDialog(load=self.load_video, cancel=self.dismiss_popup,
+                             get_local_str=self.get_local_str,
+                             get_default_from_prev_session=self.get_default_from_prev_session)
         self._popup = Popup(title=self.get_local_str("_select_src_video"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
@@ -390,6 +396,7 @@ class Root(FloatLayout):
 
     def load_video(self, path, filenames):
         lbl_src_video = self.ids['lbl_src_video']
+        self.set_default_from_prev_session('filechooser', path)
 
         if len(filenames):
             if not filenames[0] == path:
@@ -406,6 +413,7 @@ class Root(FloatLayout):
         lbl_output_dir = self.ids['lbl_output_dir']
         lbl_output_dir.text = path
         self.set_default_from_prev_session('lbl_output_dir', path)
+        self.set_default_from_prev_session('filechooser', path)
         self.dismiss_popup()
 
         self.save_dir_ready()

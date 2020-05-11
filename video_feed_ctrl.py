@@ -8,7 +8,7 @@ import numpy as np
 import os
 import sys
 from eye_utilities.helpers import get_local_str_util
-
+import platform
 
 class Frame:
     timestamp = 0  # double
@@ -218,8 +218,8 @@ class VideoFeedCtrl:
         st = time.time()
         frame_id = 0
 
-        # cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
-        # cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         while True:
             if self.__halt_recording():
                 break
@@ -239,6 +239,10 @@ class VideoFeedCtrl:
             factual_rate = (frame_id + 1) / time_diff
 
         queue_thread.join()
+
+        if platform.system() == 'Darwin':
+            cv2.destroyAllWindows()
+            return factual_rate
 
         return self.__video_show_end(win_name, factual_rate)
 
@@ -277,8 +281,8 @@ class VideoFeedCtrl:
         color = (20, 20, 120)
         font_size = 1.1
 
-        # cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
-        # cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         st = time.time()
         while cap.isOpened():
             ret, frame = cap.read()
@@ -315,6 +319,9 @@ class VideoFeedCtrl:
         key = cv2.waitKey(0)
         if key == ord('Q') or key == ord('q'):
             cv2.destroyWindow(win_name)
+
+        cv2.destroyAllWindows()
+
         return factual_rate
 
     def __video_thread(self, video_path, output_path='./', video_fps=0, camera_fps=0,
