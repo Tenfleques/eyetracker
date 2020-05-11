@@ -52,7 +52,7 @@
         "ru": "видео сессии не готово"
     },
     "_preprocessing_video": {
-        "en": "предварительная обработка видео",
+        "en": "обработка видео",
         "ru": "preprocessing video"
     },
     "_preprocessed_already": {
@@ -85,7 +85,7 @@
     },
     "_preprocess_video": {
         "en": "preprocess video",
-        "ru": "предварительно обработать видео"
+        "ru": "обработать видео"
     },
     "_save_images": {
         "en": "save images",
