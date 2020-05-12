@@ -4,6 +4,7 @@ from kivy.app import App
 from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.button import Button
 from floatInput import FloatInput
 # from kivy.uix.image import Image
 # from kivy.graphics.texture import Texture
@@ -16,6 +17,7 @@ import json
 import time
 from multiprocessing import Process
 from threading import Thread
+import math
 
 from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps
 from process_result import gaze_stimuli
@@ -32,6 +34,9 @@ import platform
 
 Window.size = (1200, 800)
 Window.clearcolor = (1, 1, 1, 1)
+
+Window.set_title(get_local_str_util('_appname'))
+# Window.set_icon('./assets/icon.png')
 
 # load user previous session settings
 try:
@@ -80,7 +85,6 @@ class Root(FloatLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         if platform.system() == 'Darwin':
             print("[INFO] Running on Mac OS")
             pass
@@ -154,7 +158,7 @@ class Root(FloatLayout):
 
         old_stdout = sys.stdout
         sys.stdout = str_stdout = StringIO()
-        self.session_name =
+        # self.session_name =
         self.__run_session()
         self.ids['gaze_log'].text = "\n".join(str_stdout.getvalue().split("   "))
 
@@ -274,15 +278,50 @@ class Root(FloatLayout):
 
         if self.session_timeline is None:
             return
-        self.__load_main_view_rows(0, 10)
 
-    def __load_main_view_rows(self, start_index=0, max_elements=10):
+        range_of_values = 10
+        self.__create_pagination_panel(range_of_values, self.session_timeline)
+        self.__load_main_view_rows(self.session_timeline, 0, range_of_values)
+
+    def __create_pagination_panel(self, range_of_values, st):
+        pagination_buttons_count = math.ceil(len(st.keys()) /
+                                             (range_of_values * 1.0))
+        print("[INFO] pagination count {} ".format(pagination_buttons_count))
+
+        self.ids["pagination_zone"].clear_widgets()
+
+        for i in range(pagination_buttons_count):
+            button = Button(text=str(i),
+                            size_hint=(None, None), width='40dp', height='25dp',
+                            padding=(5, 5),
+                            halign='center', font_size=13)
+            button.id = "page-{}".format(i)
+
+            if i == 0:
+                button.state = 'down'
+                self.active_page = button.id
+
+            button_callback = lambda btn: self.__load_main_view_rows(st,
+                                                                 start_index=i * range_of_values,
+                                                                 max_elements=range_of_values, btn=btn)
+
+            button.bind(on_release=button_callback)
+            self.ids["pagination_zone"].add_widget(button)
+
+    def __load_main_view_rows(self, st, start_index=0, max_elements=10, btn=None):
+        k = -1
         self.ids["view_stage"].bind(minimum_height=self.ids["view_stage"].setter('height'))
-        bg_color = ((), ())
-        k = 0
+        if btn is not None:
+            btn.state = 'down'
+            # find the current active button and deactivate it
+            # self.ids["pagination_zone"].children
+            # self.active_page
+            start_index = int(btn.text) * max_elements
         rows = GridLayout(cols=1)
         self.ids["view_stage"].clear_widgets()
-        for key, record in self.session_timeline.items():
+
+        for key, record in st.items():
+            k += 1
             if k < start_index:
                 continue
 
@@ -313,7 +352,7 @@ class Root(FloatLayout):
             row.add_widget(l_v)
 
             rows.add_widget(row)
-            k += 1
+
 
         self.ids["view_stage"].add_widget(rows)
 

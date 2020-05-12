@@ -92,7 +92,8 @@ class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
     def start(self):
         self.__clear_tracker_log()
         self.recording = 1
-        return self.__is_recording()
+        # need to return zero on success
+        return not self.__is_recording()
 
     def stop(self):
         self.recording = 0

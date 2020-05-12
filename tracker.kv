@@ -38,6 +38,7 @@ Root:
     lbl_src_video: lbl_src_video
     view_stage_header: view_stage_header
     view_stage: view_stage
+    pagination_zone:pagination_zone
     txt_box_video_rate: txt_box_video_rate
     txt_box_camera_rate: txt_box_camera_rate
     lbl_video_fps_in_use: lbl_video_fps_in_use
@@ -51,8 +52,9 @@ Root:
         anchor_y:'top'
         BoxLayout:
             orientation: 'horizontal'
-            BoxLayout:
-                orientation: 'vertical'
+            GridLayout:
+                # orientation: 'vertical'
+                rows:5
                 id: main
                 size_hint_x: .65
                 padding: [5, 5, 5, 5]
@@ -175,7 +177,11 @@ Root:
                         size_hint_y: 1
                         cols: 1
                         background_color: (.8, .8, .8, 1)
-
+                BackgroundGridLayout:
+                    id: pagination_zone
+                    rows: 1
+                    size_hint_y: None
+                    height: 80
             GridLayout:
                 id: tools_pane
                 size_hint_x: .35
@@ -384,7 +390,7 @@ Root:
                 RstDocument:
                     id: gaze_log
                     text: ''
-                    font_size: dp(9)
+                    font_size: dp(7)
                     show_errors: False
                     halign: 'left'
                     color: (0,0,0,1)

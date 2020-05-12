@@ -218,8 +218,10 @@ class VideoFeedCtrl:
         st = time.time()
         frame_id = 0
 
-        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        if platform.system() != 'Darwin':
+            cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
         while True:
             if self.__halt_recording():
                 break
@@ -239,10 +241,6 @@ class VideoFeedCtrl:
             factual_rate = (frame_id + 1) / time_diff
 
         queue_thread.join()
-
-        if platform.system() == 'Darwin':
-            cv2.destroyAllWindows()
-            return factual_rate
 
         return self.__video_show_end(win_name, factual_rate)
 
@@ -281,8 +279,10 @@ class VideoFeedCtrl:
         color = (20, 20, 120)
         font_size = 1.1
 
-        cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        if platform.system() != 'Darwin':
+            cv2.namedWindow(win_name, cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty(win_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
         st = time.time()
         while cap.isOpened():
             ret, frame = cap.read()
@@ -307,7 +307,6 @@ class VideoFeedCtrl:
         if time_diff:
             factual_rate = (frame_id + 1) / time_diff
         cap.release()
-
         return self.__video_show_end(win_name, factual_rate)
 
     @staticmethod
@@ -374,8 +373,6 @@ class VideoFeedCtrl:
         except Exception as e:
             print("{} {}    ".format(e, time.strftime("%H:%M:%S")))
             self.stop()
-
-        cv2.destroyWindow(win_name)
         return factual_rate
 
     def save_images(self, path):
