@@ -12,7 +12,7 @@ import json
 from collections import deque
 from eye_utilities.helpers import check_talon_directory
 
-check_talon_directory()
+# check_talon_directory()
 
 
 class LogRecordStreamHandler(socketserver.StreamRequestHandler):

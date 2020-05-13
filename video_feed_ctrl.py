@@ -151,7 +151,7 @@ class VideoFeedCtrl:
                 out.write(frame)
             else:
                 break
-            time.sleep(delay / 1000)
+            # time.sleep(delay / 1000)
             frame_id += 1
 
         time_diff = time.time() - st

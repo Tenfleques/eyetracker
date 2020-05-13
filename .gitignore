@@ -355,3 +355,4 @@ data
 sample
 ._*.py
 user
+.DS_Store

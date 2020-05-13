@@ -261,7 +261,13 @@ class Root(FloatLayout):
                                              session_timeline_cb=self.load_session_results,
                                              video_cb=lambda: self.__tracker_app_log(lcl_video_finished_str))
 
-    def load_session_results(self):
+    def __set_session_timeline(self, st):
+        print("[INFO] set session timeline length: {}    ".format(len(st.keys())))
+        self.session_timeline = st
+
+    def load_session_results(self, st=None):
+        if st is not None:
+            self.__set_session_timeline(st)
 
         if self.session_timeline is None:
             timeline_path = None
@@ -269,6 +275,7 @@ class Root(FloatLayout):
                 if "-timeline.json" in fl:
                     timeline_path = fl
                     break
+
             if timeline_path is not None:
                 timeline_path = os.path.join(self.ids['lbl_output_dir'].text, timeline_path)
                 with open(timeline_path, "r") as fp:

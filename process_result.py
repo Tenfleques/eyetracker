@@ -169,7 +169,7 @@ def process_demo_video(video_path, session_timeline, cam_video_path="", cb=lambd
 
 def gaze_stimuli(tracker_json_path, video_json_path, video_path, selfie_video_path=None,
                  timeline_exist=False, process_video=True,
-                 session_timeline_cb=lambda: print("[INFO] finished creating session timeline"),
+                 session_timeline_cb=lambda x: print("[INFO] finished creating session timeline"),
                  video_cb=lambda: print("[INFO] finished demonstration video ")):
     with open(tracker_json_path, "r") as read_file:
         tracker_data = json.load(read_file)
@@ -191,7 +191,7 @@ def gaze_stimuli(tracker_json_path, video_json_path, video_path, selfie_video_pa
             json.dump(sess_timeline, write_sess)
             write_sess.close()
 
-    session_timeline_cb()
+    session_timeline_cb(sess_timeline)
 
     if process_video:
         p = Thread(target=process_demo_video, args=(video_path, sess_timeline, selfie_video_path, ))
