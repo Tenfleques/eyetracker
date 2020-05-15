@@ -87,6 +87,9 @@ class Root(RelativeLayout):
     video_frame_index = 0
     video_interval = None
 
+    session_name = None
+    initial_window_state = Window.fullscreen
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if platform.system() == 'Darwin':
@@ -96,13 +99,16 @@ class Root(RelativeLayout):
     def stop_all(self):
         print("[INFO] closing processes and devices")
         if self.tracker_ctrl is not None:
+            # the tracker connection 
             self.tracker_ctrl.kill()
         for p in self.processes:
+            # join all other running processes
             p.join()
         print("[INFO] closed all processes and devices ")
 
     @staticmethod
     def get_default_from_prev_session(key, default=''):
+        # loads a variable saved from the last session, directory, stimuli video for example 
         if key in SESSION_PREFS.keys():
             return SESSION_PREFS.get(key)
         else:
@@ -110,46 +116,47 @@ class Root(RelativeLayout):
 
     @staticmethod
     def set_default_from_prev_session(key, value):
+        # set a variable key in this session. e.g the directory of stimuli video
         SESSION_PREFS[key] = value
 
     @staticmethod
     def get_local_str(key):
+        # gets the localized string for litera text on the UI
         return get_local_str_util(key)
 
-    @staticmethod
-    def get_video_fps(path):
-        return str(get_video_fps(path))
-
     def save_dir_ready(self):
-
         lbl_output_dir = self.ids['lbl_output_dir']
 
+        # check the directory in the computeer's filesystem 
         ready = os.path.isdir(lbl_output_dir.text)
-
-        if not ready:
-            lbl_output_dir.color = (1, 0, 0, 1)
+        # directory doesn't exist, scream for attention 
+        if not ready: 
+            lbl_output_dir.color = (1, 0, 0, 1) # red scream 
             self.__tracker_app_log(self.get_local_str("_directory_not_selected"))
         else:
             lbl_output_dir.color = (0, 0, 0, 1)
 
         return ready
 
+    def __get_session_directory(self):
+        # check if directory even exists
+        if not self.save_dir_ready():
+            return None
+        # creates path from session name and chosen catalog
+        return os.path.join(self.ids['lbl_output_dir'].text, self.session_name)
+
     def stimuli_video_ready(self):
         ready = False
+        # checks if video path is a file, if it's even a video file 
         if get_video_fps(self.ids['lbl_src_video'].text):
             return True
 
         self.__tracker_app_log(self.get_local_str("_load_stimuli_video"))
 
-        print(props(self.ids['lbl_src_video']))
-
-        # cap = cv2.VideoCapture(self.ids['lbl_src_video'].text)
-        # self.update_video_canvas(dt, cap)
-        # cap.release()
-
         return ready
 
     def __tracker_app_log(self, text, log_label='app_log'):
+        # give feedback to the user of what is happening behind the scenes
         log = create_log(text)
         self.ids[log_label].text = log
 
@@ -160,44 +167,58 @@ class Root(RelativeLayout):
         runs till stop or end of stimuli video.
         :return:
         """
-        def callback(dt, children, index):
-            for i, child in enumerate(children):
-                str_widget = "{},{},{}".format(child.proxy_ref, child.size, child.pos)
-                if "VideoCanvas" in str_widget:
-                    print(child.size, child.pos)
-                if child.children:
-                    callback(None, child.children, i)
+        # def callback(dt, children, index):
+        #     for i, child in enumerate(children):
+        #         str_widget = "{},{},{}".format(child.proxy_ref, child.size, child.pos)
+        #         if "VideoCanvas" in str_widget:
+        #             print(child.size, child.pos)
+        #         if child.children:
+        #             callback(None, child.children, i)
 
-        Clock.schedule_once(lambda dt: callback(dt, self.children, 0))
+        # Clock.schedule_once(lambda dt: callback(dt, self.children, 0))
 
-        # return 
-        if not self.save_dir_ready():
-            return
-
-        if not self.stimuli_video_ready():
-            return
-
+        # if playing stop 
         if self.video_interval is not None:
             self.stop()
             return
 
+        # can't run session if video stimuli not ready can we?
+        if not self.stimuli_video_ready():
+            return
+
+        # create new session 
+        self.session_name = "exp-{}".format(time.strftime("%Y-%m-%d_%H-%M-%S"))
+        
+        # get new session dir 
+        output_dir = self.__get_session_directory()
+        if output_dir is None:
+            return
+        # create the new session dir 
+        os.makedirs(output_dir,exist_ok=True)
+        
+        # save window fullscreen state 
+        self.initial_window_state = Window.fullscreen
+        
+        # ensures we are full screen 
         Window.fullscreen = 'auto'
-
-        output_dir = self.ids['lbl_output_dir'].text
+        # ensures we are in the experiment tab
         self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_video_item"], do_scroll=True)
-
+        # fires up camera
         camera_up = self.camera_feed_ctrl.start(output_path=output_dir,
               camera_index=0, save_images=False)
-        
+              
+        # cancel everything if camera failed to start 
         if not camera_up:
             self.__tracker_app_log(self.get_local_str("_problem_waiting_camera"))
             return
 
+        # toggle play button to stop 
         self.ids["btn_play"].text = self.get_local_str("_stop")
+        # get path to video
         video_src=self.ids['lbl_src_video'].text
+        # get the desired FPS 
         fps=float(self.ids['txt_box_video_rate'].text)
 
-        # self.session_name =
         self.start(video_src, fps)
     
     def frames_cb(self, frame):
@@ -224,12 +245,6 @@ class Root(RelativeLayout):
         if fps == 0:
             return 
 
-        # start camera thread
-        output_path = self.ids['lbl_output_dir'].text
-        self.poll_count = 0
-        save_images=False
-
-
         if self.tracker_ctrl is None:
             self.tracker_ctrl = TrackerCtrl()
         self.tracker_ctrl.start()
@@ -237,57 +252,66 @@ class Root(RelativeLayout):
         self.video_interval = Clock.schedule_interval(lambda dt: self.update_video_canvas(dt, self.video_capture, cb), 1.0/fps)
 
     def stop(self):
+        # stop camera feed
         self.camera_feed_ctrl.stop()
+        # stop tracker feed
         self.tracker_ctrl.stop()
+        # stop video cpature feed
         self.video_capture.release()
 
         viewpoint_size = (Window.width, Window.height)
-        print(viewpoint_size, self.ids["main_view_parent"].to_window(*self.ids["video_canvas"].pos, False), self.ids["video_canvas"].pos_hint, )
+        # print(viewpoint_size, self.ids["main_view_parent"].to_window(*self.ids["video_canvas"].pos, False), self.ids["video_canvas"].pos_hint, )
         # self.ids["main_view_parent"].to_local(*self.ids["video_canvas"].pos, False), self.ids["video_canvas"].pos
         # print("[INFO] texture updates finished, size is {}, pos".format(self.ids["video_canvas"].texture.size, self.ids["app_log"].to_local(*self.ids["app_log"].pos)))
 
-        Window.fullscreen = False
+        Window.fullscreen = self.initial_window_state
 
         if self.video_interval is not None:
+            # cancel schedule
             self.video_interval.cancel()
+            # nullifies the schedule handle
             self.video_interval = None
+            # get actual FPS details for stimuli video
             info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_frames)
-            # log infor
+            # toggle play button ready for next experiment
             self.ids["btn_play"].text = self.get_local_str("_start")
             
-            self.__after_recording(viewpoint_size)
-
-            log_1, log_2, video_frame_rate = process_fps(self.video_frames)
-
-            if video_frame_rate:
-                lcl_string_fps = self.get_local_str("_actual_video_fps") + ": {:.4} ".format(video_frame_rate)
+            #log the actual video FPS 
+            if self.actual_video_stimuli_fps:
+                lcl_string_fps = self.get_local_str("_actual_video_fps") + ": {:.4} ".format(self.actual_video_stimuli_fps)
 
                 self.__tracker_app_log(lcl_string_fps, "stimuli_video_log")
-
+            # get actual FPS details for camera
             log_1, log_2, camera_frame_rate = process_fps(self.camera_feed_ctrl.get_frames())
-
+            # log actual camera FPS
             if camera_frame_rate:
                 lcl_string_fps = self.get_local_str("_factual_camera_fps") + ": {:.4} ".format(camera_frame_rate)
 
                 self.__tracker_app_log(lcl_string_fps, "camera_log")
-    
+            # process experiment data 
+            self.__after_recording(viewpoint_size)
+
+        # switch view to the results while video is processed
         self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_timeline_item"], do_scroll=True)
 
     def update_video_canvas(self, dt, cap, cb):
+        # get the canavas for drawing
         video_canvas = self.ids["video_canvas"]
+        # read next frame 
         ret, frame = cap.read()
         if not ret:
+            # end of video
             self.stop()
             return 
-        
+        # do the callback for video frame, e.g add some color or some text, real time rendering
         frame = cb(frame)
 
         buf_raw = cv2.flip(frame, 0)
         buf = buf_raw.tostring()
         texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr') 
-     
-        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
+        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        # update video canvas 
         video_canvas.texture = texture
 
     
@@ -321,10 +345,9 @@ class Root(RelativeLayout):
         print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
         lcl_string = self.get_local_str("_preparing_session_timeline")
         self.__tracker_app_log(lcl_string)
-        selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
+        output_dir = self.__get_session_directory()
+        selfie_video_path = os.path.join(output_dir,
                                          "out-video.avi")
-
-        lcl_video_finished_str = self.get_local_str("_demonstration_video_ready")
 
         self.session_timeline = gaze_stimuli(tracker_json_path,
                                              video_json_path,
@@ -333,7 +356,7 @@ class Root(RelativeLayout):
                                              selfie_video_path=selfie_video_path,
                                              timeline_exist=timeline_exist, process_video=process_video,
                                              session_timeline_cb=self.load_session_results,
-                                             video_cb=lambda: self.__tracker_app_log(lcl_video_finished_str))
+                                             video_cb=lambda: self.result_video_ready(os.path.join(output_dir,"out-video-demonstration.avi")))
 
     def __set_session_timeline(self, st):
         print("[INFO] set session timeline length: {}    ".format(len(st.keys())))
@@ -342,16 +365,16 @@ class Root(RelativeLayout):
     def load_session_results(self, st=None):
         if st is not None:
             self.__set_session_timeline(st)
-
+        output_dir = self.__get_session_directory()
         if self.session_timeline is None:
             timeline_path = None
-            for fl in os.listdir(self.ids['lbl_output_dir'].text):
+            for fl in os.listdir(output_dir):
                 if "-timeline.json" in fl:
                     timeline_path = fl
                     break
 
             if timeline_path is not None:
-                timeline_path = os.path.join(self.ids['lbl_output_dir'].text, timeline_path)
+                timeline_path = os.path.join(output_dir, timeline_path)
                 with open(timeline_path, "r") as fp:
                     self.session_timeline = json.load(fp)
             else:
@@ -460,7 +483,7 @@ class Root(RelativeLayout):
         if len(filenames):
             if not filenames[0] == path:
                 video_path = os.path.join(path, filenames[0])
-                this_fps = self.get_video_fps(video_path)
+                this_fps = get_video_fps(video_path)
                 self.ids["txt_box_video_rate"].text = this_fps
                 self.set_default_from_prev_session("txt_box_video_rate", this_fps)
                 lbl_src_video.text = video_path
@@ -481,8 +504,9 @@ class Root(RelativeLayout):
     def __after_recording(self, viewpoint_size):
         try:
             self.tracker_ctrl.stop()
-            tracker_json_path = os.path.join(self.ids['lbl_output_dir'].text, "tracker.json")
-            video_json_path = os.path.join(self.ids['lbl_output_dir'].text, "video_camera.json")
+            output_dir = self.__get_session_directory()
+            tracker_json_path = os.path.join(output_dir, "tracker.json")
+            video_json_path = os.path.join(output_dir, "video_camera.json")
 
             self.tracker_ctrl.save_json(tracker_json_path)
             self.save_json(video_json_path)
