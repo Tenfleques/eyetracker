@@ -18,34 +18,66 @@
 <BackgroundLabel@Label+BackgroundColor>
     background_color: 1, 1, 1, 1
 
-<BackgroundButton@Button+BackgroundColor>
-    background_color: 1, 1, 1, 1
+<NormalButton@Button+BackgroundColor>
+    size_hint: (None, None)
+    height: '25dp'
+    padding: (5, 5)
+    margin: (5,5)
+    halign: 'center'
+    text_size: self.size
+    font_size: dp(13)
+    background_normal: ''
+    background_color: (.8,.8,.8,1)
+    color:(0,0,0,1)
 
-<-VideoImage>:
+<ToggleButton>
+    size_hint: (None, None)
+    height: '25dp'
+    padding: (5, 5)
+    margin: (5,5)
+    halign: 'center'
+    text_size: self.size
+    font_size: dp(13)
+    background_normal: ''
+    background_down: ''
+    background_color: (1,1,1,1)
+    color:(0,0,0,1)
+
+<NormalLabel@Label>
+    color: (0,0,0,1)
+    halign: 'left'
+    valign: 'middle'
+    height: '30dp'
+    size_hint_y: None
+    text_size: self.size
+    font_size: dp(13)
+    padding_x: 10
+
+<TabbedPanelStrip>
     canvas:
         Color:
-            rgb: (1, 1, 1)
+            rgba: (1, 1, 1, 1) # green
         Rectangle:
-            texture: self.texture
+            size: self.size
+            pos: self.pos
 
 Root:
     gaze_log: gaze_log
     lbl_output_dir:lbl_output_dir
     app_log: app_log
     stimuli_video_log: stimuli_video_log
-    btn_capture: btn_capture
+    btn_play: btn_play
     camera_log: camera_log
     lbl_src_video: lbl_src_video
     view_stage_header: view_stage_header
     view_stage: view_stage
     pagination_zone:pagination_zone
     txt_box_video_rate: txt_box_video_rate
-    txt_box_camera_rate: txt_box_camera_rate
     lbl_video_fps_in_use: lbl_video_fps_in_use
-    lbl_camera_fps_in_use: lbl_camera_fps_in_use
-    chkbx_use_video_fps: chkbx_use_video_fps
-    chkbx_save_images: chkbx_save_images
-    chkbx_preprocess_video: chkbx_preprocess_video
+    video_canvas:video_canvas
+    tabbed_main_view:tabbed_main_view
+    tabbed_video_item: tabbed_video_item
+    tabbed_timeline_item:tabbed_timeline_item
 
     AnchorLayout:
         anchor_x:'left'
@@ -53,8 +85,7 @@ Root:
         BoxLayout:
             orientation: 'horizontal'
             GridLayout:
-                # orientation: 'vertical'
-                rows:5
+                rows:3
                 id: main
                 size_hint_x: .65
                 padding: [5, 5, 5, 5]
@@ -64,329 +95,129 @@ Root:
                     size_hint_y: None
                     height:40
                     id: file_ops
-                    Label:
+                    NormalLabel:
                         id:lbl_output_dir
                         text: root.get_default_from_prev_session('lbl_output_dir', root.get_local_str("_directory_not_selected"))
-                        # text: './sample'
-                        color: (0,0,0,1)
-                        halign: 'left'
-                        valign: 'middle'
-                        height: '30dp'
-                        size_hint_y: None
-                        text_size: self.size
-                        font_size: dp(13)
-                        padding_x: 10
-                    BackgroundButton:
+                    NormalButton:
                         text: root.get_local_str("_select_directory")
                         on_release: root.show_load()
                         size_hint: (None, None)
                         width: '220dp'
                         height: '25dp'
-                        padding: (5, 5)
-                        halign: 'center'
-                        text_size: self.size
-                        font_size: dp(14)
                 GridLayout:
                     rows: 1
                     cols: 2
                     size_hint_y: None
                     height: 40
                     id: file_ops
-                    Label:
+                    NormalLabel:
                         id:lbl_src_video
                         text: root.get_default_from_prev_session('lbl_src_video',root.get_local_str("_load_stimuli_video"))
-                        color: (0,0,0,1)
-                        halign: 'left'
-                        valign: 'middle'
-                        height: '30dp'
-                        size_hint_y: None
-                        text_size: self.size
-                        font_size: dp(13)
-                        padding_x: 10
-                    BackgroundButton:
+                    NormalButton:
                         text: root.get_local_str("_select_src_video")
                         on_release: root.show_load_video()
                         size_hint: (None, None)
                         width: '220dp'
                         height: '25dp'
-                        padding: (5, 5)
-                        halign: 'center'
-                        text_size: self.size
-                        font_size: dp(14)
-                        background_color: (.8,.8,.8,1)
-                BackgroundGridLayout:
-                    id: view_stage_header
-                    size_hint_y: None
-                    height: 40
-                    cols: 4
-                    margin_y: 10
-                    background_color: (.5, .5, .5, 1)
-                    Label:
-                        id:lbl_timestamp
-                        markup:True
-                        text: 'timestamp'
+                
+                TabbedPanel:
+                    id: tabbed_main_view
+                    size_hint: 1, 1
+                    do_default_tab: False
+                    TabbedPanelItem:
+                        id: tabbed_video_item
+                        text: root.get_local_str("_video_stage")
                         color: (0,0,0,1)
-                        halign: 'left'
-                        valign: 'middle'
-                        height: '30dp'
-                        size_hint_y: None
-                        text_size: self.size
-                        font_size: dp(13)
-                        padding_x: 10
-                    Label:
-                        id:lbl_gaze
-                        markup:True
-                        text: 'gaze'
-                        color: (0,0,0,1)
-                        halign: 'left'
-                        valign: 'middle'
-                        height: '30dp'
-                        size_hint_y: None
-                        text_size: self.size
-                        font_size: dp(13)
-                        padding_x: 10
-                    Label:
-                        id:lbl_camera
-                        markup:True
-                        text: 'camera'
-                        color: (0,0,0,1)
-                        halign: 'left'
-                        valign: 'middle'
-                        height: '30dp'
-                        size_hint_y: None
-                        text_size: self.size
-                        font_size: dp(13)
-                        padding_x: 10
-                    Label:
-                        id:lbl_video
-                        markup:True
-                        text: 'video'
-                        color: (0,0,0,1)
-                        halign: 'left'
-                        valign: 'middle'
-                        height: '30dp'
-                        size_hint_y: None
-                        text_size: self.size
-                        font_size: dp(13)
-                        padding_x: 10
-                ScrollView:
-                    do_scroll_x: False
-                    do_scroll_y: True
-                    BackgroundGridLayout:
-                        id: view_stage
-                        size_hint_y: 1
-                        cols: 1
-                        background_color: (.8, .8, .8, 1)
-                BackgroundGridLayout:
-                    id: pagination_zone
-                    rows: 1
-                    size_hint_y: None
-                    height: 80
+                        BackgroundBoxLayout:
+                            orientation: 'vertical'
+                            Image:
+                                id: video_canvas
+                                size_hint: (1,1)
+                    TabbedPanelItem:
+                        id: tabbed_timeline_item
+                        text: root.get_local_str("_timeline_stage")
+                        BackgroundGridLayout:
+                            rows: 3
+                            BackgroundGridLayout:
+                                id: view_stage_header
+                                size_hint_y: None
+                                height: 35
+                                cols: 4
+                                margin_y: 10
+                                background_color: (.8,.8,.8,1)
+                                NormalLabel:
+                                    id:lbl_timestamp
+                                    markup:True
+                                    text: 'timestamp'
+                                NormalLabel:
+                                    id:lbl_gaze
+                                    markup:True
+                                    text: 'gaze'
+                                NormalLabel:
+                                    id:lbl_camera
+                                    markup:True
+                                    text: 'camera'
+                                NormalLabel:
+                                    id:lbl_video
+                                    markup:True
+                                    text: 'video'
+                            ScrollView:
+                                do_scroll_x: False
+                                do_scroll_y: True
+                                BackgroundGridLayout:
+                                    id: view_stage
+                                    size_hint_y: 1
+                                    cols: 1
+                            BackgroundGridLayout:
+                                id: pagination_zone
+                                rows: 1
+                                size_hint_y: None
+                                height: 80
             GridLayout:
                 id: tools_pane
                 size_hint_x: .35
                 cols: 1
                 padding: [5, 5, 5, 5]
                 GridLayout:
+                    cols: 4
+                    size_hint_y: None
+                    height: '45dp'
+                    NormalLabel:
+                        id:lbl_space
+                    NormalButton:
+                        margin_x:10
+                        id: btn_play
+                        text: root.get_local_str("_start")
+                        on_release: root.btn_play_click()
+                    NormalButton:
+                        margin_x:10
+                        id: btn_replay
+                        text: root.get_local_str("_replay")
+                        on_release: root.btn_replay_click()
+                GridLayout:
                     cols: 2
                     size_hint_y: None
-                    height: 40
-                    Label:
+                    height: 35
+                    NormalLabel:
                         text: root.get_local_str("_frequency_in_use")
-                        show_errors: False
                         size_hint_y: None
-                        height: 30
-                        halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(13)
-                        color: (0,0,0,1)
-                    Label:
+                    NormalLabel:
                         text: root.txt_box_video_rate.text
                         id: lbl_video_fps_in_use
-                        show_errors: False
-                        size_hint_y: None
-                        height: 30
                         halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(12)
-                        color: (0,0,0,1)
                 FloatInput:
                     id: txt_box_video_rate
                     text: root.get_default_from_prev_session('txt_box_video_rate',"")
                     size_hint: (.9, None)
-                    height: 30
+                    height: 25
                     multiline:False
-                    font_size: dp(14)
-                GridLayout:
-                    cols: 2
-                    rows: 3
-                    size_hint: (.9, None)
-                    padding_y: 10
-                    height: 120
-                    Label:
-                        text: root.get_local_str("_use_video_freq")
-                        show_errors: False
-                        size_hint_y: None
-                        height: 30
-                        halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(13)
-                        color: (0,0,0,1)
-                    CheckBox:
-                        id: chkbx_use_video_fps
-                        active: True
-                        size_hint_y: None
-                        height: 30
-                    Label:
-                        margin_y: 5
-                        text: root.get_local_str("_preprocess_video")
-                        show_errors: False
-                        size_hint_y: None
-                        height: 30
-                        halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(13)
-                        color: (0,0,0,1)
-                    CheckBox:
-                        id: chkbx_preprocess_video
-                        active: False
-                        size_hint_y: None
-                        height: 30
-                    Label:
-                        margin_y: 5
-                        text: root.get_local_str("_save_images")
-                        show_errors: False
-                        size_hint_y: None
-                        height: 30
-                        halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(13)
-                        color: (0,0,0,1)
-                    CheckBox:
-                        id: chkbx_save_images
-                        active: False
-                        size_hint_y: None
-                        height: 30
-                GridLayout:
-                    cols: 2
-                    size_hint_y: None
-                    height: 40
-                    Label:
-                        text: root.get_local_str("_camera_fps_in_use")
-                        show_errors: False
-                        size_hint_y: None
-                        height: 30
-                        halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(13)
-                        color: (0,0,0,1)
-                    Label:
-                        text: root.txt_box_camera_rate.text
-                        id: lbl_camera_fps_in_use
-                        show_errors: False
-                        size_hint_y: None
-                        height: 30
-                        halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(13)
-                        color: (0,0,0,1)
-                FloatInput:
-                    id: txt_box_camera_rate
-                    text: root.get_default_from_prev_session('txt_box_camera_rate',"")
-                    size_hint: (.9, None)
-                    height: 30
-                    multiline:False
-                    text: root.get_video_fps(0)
                     font_size: dp(13)
-                GridLayout:
-                    cols: 2
-                    size_hint: (.9, None)
-                    height: 40
-                    Label:
-                        text: root.get_local_str("_use_camera_freq")
-                        show_errors: False
-                        size_hint_y: None
-                        height: 30
-                        halign: 'left'
-                        valign: 'top'
-                        padding_x: 5
-                        padding_y: 5
-                        text_size: self.size
-                        font_size: dp(13)
-                        color: (0,0,0,1)
-                    CheckBox:
-                        id: chkbx_use_camera_fps
-                        active: True
-                        size_hint_y: None
-                        height: 30
 
-
-                GridLayout:
-                    cols: 3
-                    size_hint: (1,None)
-                    height: '50dp'
-                    padding_y: 5
-                    margin_y: 5
-                    # BackgroundButton:
-                    #     id: btn_preprocess_video
-                    #     text: root.get_local_str("_preprocess_video")
-                    #     on_release: root.btn_preprocess_video_click()
-                    #     size_hint_y: None
-                    #     height: '30dp'
-                    #     padding_y: 5
-                    #     halign: 'right'
-                    BackgroundButton:
-                        id: btn_capture
-                        text: root.get_local_str("_start")
-                        on_release: root.btn_play_click()
-                        size_hint_y: None
-                        height: '25dp'
-                        padding: (5, 5)
-                        halign: 'center'
-                        text_size: self.size
-                        font_size: dp(14)
-                    BackgroundButton:
-                        id: btn_replay
-                        text: root.get_local_str("_replay")
-                        on_release: root.btn_replay_click()
-                        size_hint_y: None
-                        height: '25dp'
-                        padding: (5, 5)
-                        halign: 'center'
-                        text_size: self.size
-                        font_size: dp(14)
-                Label:
+                NormalLabel:
                     id:lbl_gaze_log
                     text: root.get_local_str("_log")
-                    color: (0,0,0,1)
-                    size_hint_y: None
-                    height: '30dp'
                     halign: 'left'
                     valign: 'middle'
-                    text_size: self.size
-                    font_size: dp(13)
-                    padding_x: 5
                 RstDocument:
                     id: gaze_log
                     text: ''
@@ -404,38 +235,25 @@ Root:
             height:'30dp'
             padding_x: 5
             background_color: (0, .196, .313, 1)
-            Label:
+            NormalLabel:
                 id: stimuli_video_log
                 text: ''
                 color: (1,1,1,1)
-                show_errors: False
-                size_hint_y: None
-                height:'30dp'
-                font_size: dp(12)
                 halign: 'left'
-                valign: 'bottom'
-                padding_x: 5
-            Label:
+                valign: 'center'
+            NormalLabel:
                 id: app_log
                 text: ''
                 color: (1,1,1,1)
-                show_errors: False
-                size_hint_y: None
-                height:'30dp'
-                font_size: dp(12)
                 halign: 'left'
-                valign: 'bottom'
+                valign: 'center'
                 padding_x: 5
-            Label:
+            NormalLabel:
                 id: camera_log
                 text: ''
                 color: (1,1,1,1)
-                show_errors: False
-                size_hint_y: None
-                height:'30dp'
-                font_size: dp(12)
                 halign: 'right'
-                valign: 'bottom'
+                valign: 'center'
                 padding_x: 5
 
 <LoadDialog>:
@@ -451,31 +269,10 @@ Root:
         BoxLayout:
             size_hint_y: None
             height: 30
-            BackgroundButton:
+            NormalButton:
                 text: root.get_local_str("_cancel")
                 on_release: root.cancel()
 
-            BackgroundButton:
-                text: root.get_local_str("_select")
-                on_release: root.load(filechooser.path, filechooser.selection)
-
-<SettingsDialog>:
-    BackgroundBoxLayout:
-        size: root.size
-        pos: root.pos
-        orientation: "vertical"
-        FileChooserListView:
-            id: filechooser
-            dirselect: True
-            path: "~"
-
-        BoxLayout:
-            size_hint_y: None
-            height: 30
-            BackgroundButton:
-                text: root.get_local_str("_cancel")
-                on_release: root.cancel()
-
-            BackgroundButton:
+            NormalButton:
                 text: root.get_local_str("_select")
                 on_release: root.load(filechooser.path, filechooser.selection)

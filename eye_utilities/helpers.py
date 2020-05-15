@@ -24,6 +24,34 @@ def props(cls):
     return [i for i in cls.__dict__.keys() if i[:1] != '_']
 
 
+def process_fps(video_frames):
+    times = [i.to_dict()["timestamp"] for i in video_frames]
+    len_records = len(video_frames)
+
+    if not len_records:
+        return None, None, None
+        
+    info_1 = "[INFO] length of recorded frames {}\n\r".format(len_records)
+    print(info_1)
+
+    diff_2 = max(times) - min(times)
+    frame_rate_2 = None
+    if diff_2:
+        frame_rate_2 = len_records/diff_2
+        info_2 = "[INFO] frame rate calculated by recorded frames times is {}\n\r".format(frame_rate_2)
+        print(info_2)
+    
+    return info_1, info_2, frame_rate_2
+
+
+def frame_processing(frame):
+    """
+        for a uniform frame processing while looping across frames 
+        so far doess nothing, TODO add some frame manipulation 
+    """
+    return frame 
+
+
 def get_local_str_util(key):
     lang = "ru"
     local_def = locale.getdefaultlocale()
