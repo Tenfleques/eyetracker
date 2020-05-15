@@ -33,7 +33,7 @@ def process_fps(video_frames):
         
     info_1 = "[INFO] length of recorded frames {}\n\r".format(len_records)
     print(info_1)
-
+    info_2 = ""
     diff_2 = max(times) - min(times)
     frame_rate_2 = None
     if diff_2:

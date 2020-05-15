@@ -57,7 +57,7 @@ def create_timeline(tracker_data, video_data):
     return sess_timeline
 
 
-def process_demo_video(video_path, session_timeline, cam_video_path="", cb=lambda: print("[INFO] finished processing "
+def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_path="", cb=lambda: print("[INFO] finished processing "
                                                                                          "video")):
     timestamp_keys = session_timeline.keys()
     len_keys = len(timestamp_keys)
@@ -83,7 +83,12 @@ def process_demo_video(video_path, session_timeline, cam_video_path="", cb=lambd
     print(video_fps)
 
     demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
-    SCREEN_SIZE = ImageGrab.grab().size
+    
+    print("[INFO] Screen size from viewpoint: {}, screen size from grab: {}".format(viewpoint_size, ImageGrab.grab().size))
+    SCREEN_SIZE = viewpoint_size
+    if viewpoint_size is None:
+        SCREEN_SIZE = ImageGrab.grab().size
+    
     bg_frame = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
 
     success = out.open(demo_video_path, fourcc, video_fps,
@@ -167,7 +172,7 @@ def process_demo_video(video_path, session_timeline, cam_video_path="", cb=lambd
     return total_time
 
 
-def gaze_stimuli(tracker_json_path, video_json_path, video_path, selfie_video_path=None,
+def gaze_stimuli(tracker_json_path, video_json_path, video_path,viewpoint_size, selfie_video_path=None,
                  timeline_exist=False, process_video=True,
                  session_timeline_cb=lambda x: print("[INFO] finished creating session timeline"),
                  video_cb=lambda: print("[INFO] finished demonstration video ")):
@@ -194,7 +199,7 @@ def gaze_stimuli(tracker_json_path, video_json_path, video_path, selfie_video_pa
     session_timeline_cb(sess_timeline)
 
     if process_video:
-        p = Thread(target=process_demo_video, args=(video_path, sess_timeline, selfie_video_path, ))
+        p = Thread(target=process_demo_video, args=(video_path, sess_timeline,viewpoint_size, selfie_video_path, ))
         p.start()
         p.join()
         video_cb()

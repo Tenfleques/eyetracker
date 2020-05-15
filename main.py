@@ -3,6 +3,7 @@ from kivy.app import App
 
 from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from floatInput import FloatInput
@@ -75,7 +76,7 @@ class LoadDialog(FloatLayout):
     get_local_str = ObjectProperty(None)
 
 
-class Root(FloatLayout):
+class Root(RelativeLayout):
     tracker_ctrl = None
     camera_feed_ctrl = CameraFeedCtrl()
     session_timeline = None
@@ -85,8 +86,6 @@ class Root(FloatLayout):
     video_frames = deque()
     video_frame_index = 0
     video_interval = None
-
-    
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -122,6 +121,7 @@ class Root(FloatLayout):
         return str(get_video_fps(path))
 
     def save_dir_ready(self):
+
         lbl_output_dir = self.ids['lbl_output_dir']
 
         ready = os.path.isdir(lbl_output_dir.text)
@@ -160,6 +160,17 @@ class Root(FloatLayout):
         runs till stop or end of stimuli video.
         :return:
         """
+        def callback(dt, children, index):
+            for i, child in enumerate(children):
+                str_widget = "{},{},{}".format(child.proxy_ref, child.size, child.pos)
+                if "VideoCanvas" in str_widget:
+                    print(child.size, child.pos)
+                if child.children:
+                    callback(None, child.children, i)
+
+        Clock.schedule_once(lambda dt: callback(dt, self.children, 0))
+
+        # return 
         if not self.save_dir_ready():
             return
 
@@ -169,7 +180,9 @@ class Root(FloatLayout):
         if self.video_interval is not None:
             self.stop()
             return
-        
+
+        Window.fullscreen = 'auto'
+
         output_dir = self.ids['lbl_output_dir'].text
         self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_video_item"], do_scroll=True)
 
@@ -184,12 +197,9 @@ class Root(FloatLayout):
         video_src=self.ids['lbl_src_video'].text
         fps=float(self.ids['txt_box_video_rate'].text)
 
-        self.old_stdout = sys.stdout
-        sys.stdout = str_stdout = StringIO()
         # self.session_name =
         self.start(video_src, fps)
-        self.ids['gaze_log'].text = "\n".join(str_stdout.getvalue().split("   "))
-
+    
     def frames_cb(self, frame):
         frame = frame_processing(frame)
         self.video_frames.append(Frame(self.video_frame_index))
@@ -206,10 +216,6 @@ class Root(FloatLayout):
             cb = self.frames_cb
         
         self.video_capture = cv2.VideoCapture(video_src)
-        ret, frame = self.video_capture.read()
-
-        # print(frame.shape)
-        # sys.stdout.flush()
 
         em_fps = self.video_capture.get(cv2.CAP_PROP_FPS)
         if fps == 0:
@@ -235,27 +241,36 @@ class Root(FloatLayout):
         self.tracker_ctrl.stop()
         self.video_capture.release()
 
+        viewpoint_size = (Window.width, Window.height)
+        print(viewpoint_size, self.ids["main_view_parent"].to_window(*self.ids["video_canvas"].pos, False), self.ids["video_canvas"].pos_hint, )
+        # self.ids["main_view_parent"].to_local(*self.ids["video_canvas"].pos, False), self.ids["video_canvas"].pos
+        # print("[INFO] texture updates finished, size is {}, pos".format(self.ids["video_canvas"].texture.size, self.ids["app_log"].to_local(*self.ids["app_log"].pos)))
+
+        Window.fullscreen = False
+
         if self.video_interval is not None:
             self.video_interval.cancel()
             self.video_interval = None
             info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_frames)
             # log infor
             self.ids["btn_play"].text = self.get_local_str("_start")
-            self.__after_recording()
+            
+            self.__after_recording(viewpoint_size)
 
             log_1, log_2, video_frame_rate = process_fps(self.video_frames)
 
-            lcl_string_fps = self.get_local_str("_actual_video_fps") + ": {:.4} ".format(video_frame_rate)
+            if video_frame_rate:
+                lcl_string_fps = self.get_local_str("_actual_video_fps") + ": {:.4} ".format(video_frame_rate)
 
-            self.__tracker_app_log(lcl_string_fps, "stimuli_video_log")
+                self.__tracker_app_log(lcl_string_fps, "stimuli_video_log")
 
             log_1, log_2, camera_frame_rate = process_fps(self.camera_feed_ctrl.get_frames())
 
-            lcl_string_fps = self.get_local_str("_factual_camera_fps") + ": {:.4} ".format(camera_frame_rate)
+            if camera_frame_rate:
+                lcl_string_fps = self.get_local_str("_factual_camera_fps") + ": {:.4} ".format(camera_frame_rate)
 
-            self.__tracker_app_log(lcl_string_fps, "camera_log")
-        
-        sys.stdout = self.old_stdout
+                self.__tracker_app_log(lcl_string_fps, "camera_log")
+    
         self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_timeline_item"], do_scroll=True)
 
     def update_video_canvas(self, dt, cap, cb):
@@ -302,17 +317,19 @@ class Root(FloatLayout):
             f.close()
 
     # session timeline view
-    def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=True):
+    def load_session_timeline(self, tracker_json_path, video_json_path, viewpoint_size, timeline_exist=False, process_video=True):
         print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
         lcl_string = self.get_local_str("_preparing_session_timeline")
         self.__tracker_app_log(lcl_string)
         selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
                                          "out-video.avi")
+
         lcl_video_finished_str = self.get_local_str("_demonstration_video_ready")
 
         self.session_timeline = gaze_stimuli(tracker_json_path,
                                              video_json_path,
                                              self.ids['lbl_src_video'].text,
+                                             viewpoint_size=viewpoint_size,
                                              selfie_video_path=selfie_video_path,
                                              timeline_exist=timeline_exist, process_video=process_video,
                                              session_timeline_cb=self.load_session_results,
@@ -461,7 +478,7 @@ class Root(FloatLayout):
         self.save_dir_ready()
 
     
-    def __after_recording(self):
+    def __after_recording(self, viewpoint_size):
         try:
             self.tracker_ctrl.stop()
             tracker_json_path = os.path.join(self.ids['lbl_output_dir'].text, "tracker.json")
@@ -471,7 +488,7 @@ class Root(FloatLayout):
             self.save_json(video_json_path)
 
             p = Thread(target=self.load_session_timeline, args=(tracker_json_path,
-                                                                video_json_path, False, True,))
+                                                                video_json_path, viewpoint_size, False, True,))
             p.start()
 
             self.processes.append(p)
@@ -491,6 +508,7 @@ class Tracker(App):
     def build(self):
         Factory.register('Root', cls=Root)
         Factory.register('LoadDialog', cls=LoadDialog)
+        
 
     def on_stop(self):
         app = App.get_running_app()
