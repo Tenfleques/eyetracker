@@ -39,11 +39,12 @@ i.e
    1. Camera frames 
    2. Video frames
    
- The above frames can be controlled by the VideoCtrl class in `video_feed_ctrl.py` 
+ The camera frames can be controlled by the CameraCtrl class in `camera_feed_ctrl.py` 
+
+ The video frames are controlled by the main module
  
  To process translations, between english and russian languages literals edit the _locale.json
  
-
 
 ### Requirements 
 kivy
@@ -51,8 +52,6 @@ kivy
 numpy
 
 opencv
-
-moviepy
 
 Pillow
 
