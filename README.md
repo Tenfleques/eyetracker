@@ -75,9 +75,9 @@ ctypes
 
 ### TODO 
 
-1. improve the video playback FPS 
-2. add Mac OS support to the tracker and the application 
-3. improve the GUI
+1. improve the video playback FPS  [Done]
+2. add Mac OS support to the tracker and the application [Done]
+3. improve the GUI [Still too technical]
 
 
 
