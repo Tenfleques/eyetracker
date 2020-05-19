@@ -42,6 +42,7 @@ class CameraFeedCtrl:
     camera_frames = deque()
     stop_session = True
     camera_is_up = False
+    cam_th = None
 
     def start(self, output_path='./',
               camera_index=0, save_images=False):
@@ -61,7 +62,7 @@ class CameraFeedCtrl:
                     self.stop()
                     return False
 
-            return True # camera has started 
+            return True # camera has started
         except KeyboardInterrupt:
             self.stop()
         except Exception as e:
@@ -73,7 +74,8 @@ class CameraFeedCtrl:
 
     def stop(self):
         self.stop_session = True
-        self.cam_th.join()
+        if self.cam_th is not None:
+            self.cam_th.join()
 
     def __halt_recording(self):
         return self.stop_session
@@ -118,7 +120,7 @@ class CameraFeedCtrl:
         fps = cap.get(cv2.CAP_PROP_FPS)
 
         out = self.__video_output(output_path, fps, frame_width, frame_height)
-        
+
         print("[INFO] starting the camera feed {}    ".format(time.strftime("%H:%M:%S")))
         sys.stdout.flush()
         st = time.time()

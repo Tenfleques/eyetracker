@@ -60,22 +60,26 @@
         Rectangle:
             size: self.size
             pos: self.pos
-<VideoCanvas@Image>
+
+<VideoCanvas>
     canvas:
         Color:
             rgb: (1, 1, 1)
         Rectangle:
             texture: self.texture
-            # size: self.width , self.height
-            pos: self.x , self.y 
+            # size: self.width + 20, self.height + 20
+            pos: self.x, self.y
+
+
 
 Root:
     main_view_parent:main_view_parent
+    info_bar: info_bar
     lbl_output_dir:lbl_output_dir
-    app_log: app_log
-    stimuli_video_log: stimuli_video_log
+    # app_log: log_panel.app_log
+    # stimuli_video_log: log_panel.stimuli_video_log
+    # camera_log: log_panel.camera_log
     btn_play: btn_play
-    camera_log: camera_log
     lbl_src_video: lbl_src_video
     view_stage_header: view_stage_header
     view_stage: view_stage
@@ -84,17 +88,33 @@ Root:
     lbl_video_fps_in_use: lbl_video_fps_in_use
     video_canvas:video_canvas
     tabbed_main_view:tabbed_main_view
-    tabbed_video_item: tabbed_video_item
     tabbed_timeline_item:tabbed_timeline_item
-    video_canvas_parent: video_canvas_parent
-
     RelativeLayout:
         anchor_x:'left'
         anchor_y:'top'
         id: main_view_parent
-        GridLayout:
-            rows: 3
+        BackgroundGridLayout:
+            rows: 5
             cols: 1
+            BackgroundBoxLayout:
+                background_color: (.3, .3, .3, 1)
+                VideoCanvas:
+                    id: video_canvas
+                    size_hint_y: 1
+                    allow_stretch:False
+                    keep_ratio:True
+
+            TabbedPanel:
+                id: tabbed_main_view
+                size_hint: 1, 1
+                do_default_tab: False
+                TabbedPanelItem:
+                    id: tabbed_timeline_item
+                    text: root.get_local_str("_timeline_stage")
+                    BackgroundGridLayout:
+                        rows: 3
+                        Table:
+                            id: results_table
             GridLayout:
                 rows:1
                 cols:2
@@ -167,108 +187,6 @@ Root:
                 size_hint_y: None
                 height:2
                 background_color: (0, .196, .313, 1)
-            TabbedPanel:
-                id: tabbed_main_view
-                size_hint: 1, 1
-                do_default_tab: False
-                TabbedPanelItem:
-                    id: tabbed_video_item
-                    text: root.get_local_str("_video_stage")
-                    color: (0,0,0,1)
-                    BackgroundBoxLayout:
-                        orientation: 'vertical'
-                        id: video_canvas_parent
-                        VideoCanvas:
-                            id: video_canvas
-                            size_hint: (1,1)
-                TabbedPanelItem:
-                    id: tabbed_timeline_item
-                    text: root.get_local_str("_timeline_stage")
-                    BackgroundGridLayout:
-                        rows: 3
-                        BackgroundGridLayout:
-                            id: view_stage_header
-                            size_hint_y: None
-                            height: 35
-                            cols: 4
-                            margin_y: 10
-                            background_color: (.8,.8,.8,1)
-                            NormalLabel:
-                                id:lbl_timestamp
-                                markup:True
-                                text: 'timestamp'
-                            NormalLabel:
-                                id:lbl_gaze
-                                markup:True
-                                text: 'gaze'
-                            NormalLabel:
-                                id:lbl_camera
-                                markup:True
-                                text: 'camera'
-                            NormalLabel:
-                                id:lbl_video
-                                markup:True
-                                text: 'video'
-                        ScrollView:
-                            do_scroll_x: False
-                            do_scroll_y: True
-                            BackgroundGridLayout:
-                                id: view_stage
-                                size_hint_y: 1
-                                cols: 1
-                        BackgroundGridLayout:
-                            id: pagination_zone
-                            rows: 1
-                            size_hint_y: None
-                            height: 80
 
-    AnchorLayout:
-        anchor_x:'left'
-        anchor_y:'bottom'
-        BackgroundBoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height:'30dp'
-            padding_x: 5
-            background_color: (0, .196, .313, 1)
-            NormalLabel:
-                id: stimuli_video_log
-                text: ''
-                color: (1,1,1,1)
-                halign: 'left'
-                valign: 'center'
-            NormalLabel:
-                id: app_log
-                text: ''
-                color: (1,1,1,1)
-                halign: 'left'
-                valign: 'center'
-                padding_x: 5
-            NormalLabel:
-                id: camera_log
-                text: ''
-                color: (1,1,1,1)
-                halign: 'right'
-                valign: 'center'
-                padding_x: 5
-
-<LoadDialog>:
-    BoxLayout:
-        size: root.size
-        pos: root.pos
-        orientation: "vertical"
-        FileChooserListView:
-            id: filechooser
-            dirselect: True
-            path: root.get_default_from_prev_session('filechooser', default="~")
-
-        BoxLayout:
-            size_hint_y: None
-            height: 30
-            NormalButton:
-                text: root.get_local_str("_cancel")
-                on_release: root.cancel()
-
-            NormalButton:
-                text: root.get_local_str("_select")
-                on_release: root.load(filechooser.path, filechooser.selection)
+            InfoBar:
+                id: info_bar
