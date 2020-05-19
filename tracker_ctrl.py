@@ -1,10 +1,49 @@
-from ctypes import cdll, c_int, POINTER, c_char_p, c_char, create_string_buffer, c_size_t
+from ctypes import cdll, c_int, POINTER, c_char_p, c_char, create_string_buffer, c_size_t, Structure, c_float
 import time
 import platform
 from threading import Thread
 from gaze_listener import LogRecordSocketReceiver
 
 CString = POINTER(c_char)
+
+
+class Point2D(Structure):
+    _fields_ = [('x', c_float), ('y', c_float)]
+
+    @classmethod
+    def from_param(cls, self):
+        if not isinstance(self, cls):
+            raise TypeError
+        return self
+
+
+class Point3D(Point2D):
+    _fields_ = [('z', c_float)]
+
+    def __init__(self):
+        self.x = 0.0
+        self.y = 0.0
+        self.z = 0.0
+
+    @classmethod
+    def from_param(cls, self):
+        if not isinstance(self, cls):
+            raise TypeError
+        return self
+
+
+class TrackBox(Structure):
+    _fields_ = [('back_bottom_right', Point3D), ('back_bottom_left', Point3D),
+                ('back_top_right', Point3D), ('back_top_left', Point3D),
+                ('front_bottom_right', Point3D), ('front_bottom_left', Point3D),
+                ('front_top_right', Point3D), ('front_top_left', Point3D),
+                ]
+
+    @classmethod
+    def from_param(cls, self):
+        if not isinstance(self, cls):
+            raise TypeError
+        return self
 
 
 class TrackerCtrl:
@@ -15,6 +54,8 @@ class TrackerCtrl:
 
             self.tracker_lib.save_json.restype = c_size_t
             self.tracker_lib.save_json.argtypes =[CString]
+
+            self.tracker_lib.get_trackbox.restype = POINTER(TrackBox)
 
             self.save_json = self.__save_json_win
             self.get_json = self.__get_json_win
@@ -35,6 +76,11 @@ class TrackerCtrl:
 
             self.save_json = self.__save_json_mac
             self.get_json = self.__get_json_mac
+
+    def get_track_box(self):
+        if platform.system() == 'Windows':
+            track_box = self.tracker_lib.get_trackbox()[0]
+            return track_box
 
     def start(self):
         started = self.tracker_lib.start()
@@ -86,6 +132,8 @@ if __name__ == "__main__":
         i += 1
     a_tracker.stop()
     print("[INFO] saved {} bytes".format(a_tracker.save_json()))
+
+    print("[INFO] the track box", a_tracker.get_track_box())
 
     a_tracker.kill()
 
