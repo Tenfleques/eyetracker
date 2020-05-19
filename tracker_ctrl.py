@@ -1,7 +1,8 @@
-from ctypes import cdll, c_int, POINTER, c_char_p, c_char, create_string_buffer, c_size_t, Structure, c_float
+from ctypes import cdll, cast, c_int, POINTER, c_char_p, c_char, create_string_buffer, c_size_t, Structure, c_float
 import time
 import platform
 from threading import Thread
+from eye_utilities.helpers import props
 from gaze_listener import LogRecordSocketReceiver
 
 CString = POINTER(c_char)
@@ -15,6 +16,12 @@ class Point2D(Structure):
         if not isinstance(self, cls):
             raise TypeError
         return self
+
+    def to_dict(self):
+        return {
+            "x" : self.x,
+            "y" : self.y
+        }
 
 
 class Point3D(Point2D):
@@ -30,6 +37,13 @@ class Point3D(Point2D):
         if not isinstance(self, cls):
             raise TypeError
         return self
+
+    def to_dict(self):
+        return {
+            "x" : self.x,
+            "y" : self.y,
+            "z" : self.z
+        }
 
 
 class TrackBox(Structure):
@@ -54,11 +68,14 @@ class TrackerCtrl:
 
             self.tracker_lib.save_json.restype = c_size_t
             self.tracker_lib.save_json.argtypes =[CString]
+            self.tracker_lib.get_json.argtypes =[CString, c_size_t]
+            self.tracker_lib.get_meta_json.argtypes =[CString, c_size_t]
 
             self.tracker_lib.get_trackbox.restype = POINTER(TrackBox)
 
             self.save_json = self.__save_json_win
             self.get_json = self.__get_json_win
+            self.get_meta_json = self.__get_meta_json_win
 
         if platform.system() == 'Darwin':
             self.tracker_lib = LogRecordSocketReceiver()
@@ -76,6 +93,7 @@ class TrackerCtrl:
 
             self.save_json = self.__save_json_mac
             self.get_json = self.__get_json_mac
+            self.get_meta_json = self.__get_meta_json_mac
 
     def get_track_box(self):
         if platform.system() == 'Windows':
@@ -110,10 +128,18 @@ class TrackerCtrl:
 
     def __get_json_win(self):
         required_size = self.tracker_lib.get_json(c_char_p(None), -1)
-        print(required_size)
         buf = create_string_buffer(required_size)
         self.tracker_lib.get_json(buf, required_size)
-        return buf
+        return buf.value
+    
+    def __get_meta_json_win(self):
+        required_size = self.tracker_lib.get_meta_json(c_char_p(None), -1)
+        buf = create_string_buffer(required_size)
+        self.tracker_lib.get_meta_json(buf, required_size)
+        return buf.value
+
+    def __get_meta_json_mac(self):
+        return "{}"
 
     def __save_json_mac(self, path="./data/results.json"):
         self.tracker_lib.save_json(path)
@@ -131,9 +157,16 @@ if __name__ == "__main__":
         time.sleep(1)
         i += 1
     a_tracker.stop()
-    print("[INFO] saved {} bytes".format(a_tracker.save_json()))
+#    print("[INFO] saved {} bytes".format(a_tracker.save_json()))
 
-    print("[INFO] the track box", a_tracker.get_track_box())
+#    print("[INFO] the json from get {}", a_tracker.get_json())
+
+    tracker_box = a_tracker.get_track_box()
+
+    print("[INFO] the track box back_bottom_right")
+    print(tracker_box.back_bottom_right.to_dict())
+    print("[INFO] the track box in json")
+    print(a_tracker.get_meta_json())
 
     a_tracker.kill()
 

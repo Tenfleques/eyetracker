@@ -59,7 +59,7 @@ struct Point2D {
         x = xx;
     }
 
-    virtual std::string to_string(const std::string& inject) {
+    std::string to_string(std::string inject = "") {
         std::stringstream ss;
         ss << "{\"x\": " << std::fixed << x
             << ",\"y\": " << std::fixed << y << process_inject(inject) << "}";
@@ -116,7 +116,7 @@ struct Point3D : Point2D {
         x = xx;
         z = zz;
     }
-    std::string to_string(const std::string& inject) override {
+    std::string to_string(std::string inject = "") {
         std::stringstream ss;
         ss << "{\"x\": " << std::fixed << x << ", \"y\": "
             << std::fixed << y << ", \"z\": " << z << process_inject(inject) << "}";
@@ -355,7 +355,7 @@ struct TrackBox {
             <<              "\"left\": " << back_top_left.to_string("")
             <<              ",\"right\": " << back_top_right.to_string("")
             <<          "}"
-            <<      "},"
+            <<      "}"
             << "}";
 
         return ss.str();
@@ -577,6 +577,14 @@ size_t get_json(char *buffer, size_t buffer_size) {
 
     size_t sz = ss.size();
 
+    if (buffer == nullptr) {
+        /*if (buffer_size == -1) {
+            //debug purpose preview
+            std::cout << ss.data();
+        }*/
+        return sz;
+    }
+
    // map_results[buffer_size] = cp.data();
     try {
         std::strncpy(buffer, ss.data() /* const char* */, buffer_size);
@@ -585,17 +593,9 @@ size_t get_json(char *buffer, size_t buffer_size) {
         std::cerr << "[ERROR] an error has occured copying the json result " << ex.what() << std::endl;
     }
     
-
-    if (buffer == nullptr) {
-        if (buffer_size == -1) {
-            //debug purpose preview
-            std::cout << ss.data();
-        }
-        return sz;
-    }  
-
     return sz;
 }
+
 
 size_t save_json(char* path = nullptr) {
     std::string ss = sessionRecord.to_json();
@@ -616,4 +616,29 @@ SessionRecord* get_session() {
 
 TrackBox* get_trackbox() {
     return &tobiiCtrl.getTrackBox();
+}
+
+size_t get_meta_json(char* buffer, size_t buffer_size) {
+    std::map<size_t, const char*>::iterator it;
+
+    std::string ss = "{\"trackbox\": " + tobiiCtrl.getTrackBox().to_json() + "}";
+
+    size_t sz = ss.size();
+
+    if (buffer == nullptr) {
+        /*if (buffer_size == -1) {
+            //debug purpose preview
+            std::cout << ss.data();
+        }*/
+        return sz;
+    }
+
+    // map_results[buffer_size] = cp.data();
+    try {
+        std::strncpy(buffer, ss.data() /* const char* */, buffer_size);
+    } catch (std::exception ex) {
+        std::cerr << "[ERROR] an error has occured copying the json result " << ex.what() << std::endl;
+    }
+
+    return sz;
 }
