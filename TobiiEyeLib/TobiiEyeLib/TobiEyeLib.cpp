@@ -307,6 +307,64 @@ void url_receiver(char const* url, void* user_data) {
         strcpy(buffer, ur_ss);
 }
 
+struct TrackBox {
+    TrackBox(tobii_track_box_t track_box) {
+        back_bottom_right = Point3D(track_box.back_lower_right_xyz);
+        back_bottom_left = Point3D(track_box.back_lower_left_xyz);
+        back_top_right = Point3D(track_box.back_upper_right_xyz);
+        back_top_left = Point3D(track_box.back_upper_left_xyz);
+
+        front_bottom_right = Point3D(track_box.front_lower_right_xyz);
+        front_bottom_left = Point3D(track_box.front_lower_left_xyz);
+        front_top_right = Point3D(track_box.front_upper_right_xyz);
+        front_top_left = Point3D(track_box.front_upper_left_xyz);
+    }
+
+    TrackBox() {
+        back_bottom_right = Point3D();
+        back_bottom_left = Point3D();
+        back_top_right = Point3D();
+        back_top_left = Point3D();
+
+        front_bottom_right = Point3D();
+        front_bottom_left = Point3D();
+        front_top_right = Point3D();
+        front_top_left = Point3D();
+    }
+
+    std::string to_json(){
+        std::stringstream ss;
+
+        ss << "{" 
+            <<      "\"front\": {"
+            <<          "\"bottom\": {"
+            <<              "\"left\": " << front_bottom_left.to_string("")
+            <<              ",\"right\": " << front_bottom_right.to_string("")
+            <<          "},"
+            <<          "\"top\": {"
+            <<              "\"left\": " << front_top_left.to_string("")
+            <<              ",\"right\": " << front_top_right.to_string("")
+            <<          "}"
+            <<      "},"
+            <<      "\"back\": {"
+            <<          "\"bottom\": {"
+            <<              "\"left\": " << back_bottom_left.to_string("")
+            <<              ",\"right\": " << back_bottom_right.to_string("")
+            <<      "},"
+            <<          "\"top\": {"
+            <<              "\"left\": " << back_top_left.to_string("")
+            <<              ",\"right\": " << back_top_right.to_string("")
+            <<          "}"
+            <<      "},"
+            << "}";
+
+        return ss.str();
+    }
+    
+    Point3D back_bottom_right, back_bottom_left, back_top_right, back_top_left;
+    Point3D front_bottom_right, front_bottom_left, front_top_right, front_top_left;
+};
+
 struct TobiiCtrl {
     // Create API
     tobii_api_t* api = NULL;
@@ -316,6 +374,8 @@ struct TobiiCtrl {
     tobii_error_t result = tobii_api_create(&api, NULL, NULL);
     // updates thread 
     bool continue_updating = false;
+
+    TrackBox tracker_box;
     
     ~TobiiCtrl() {
         stop();
@@ -327,6 +387,21 @@ struct TobiiCtrl {
 
     void stop_updating() {
         continue_updating = false;
+    }
+
+    TrackBox getTrackBox() {
+        //tracker_box = 
+        if (this->device == NULL) {
+            return this->tracker_box;
+        }
+
+        tobii_track_box_t track_box;
+        tobii_error_t error = tobii_get_track_box(device, &track_box);
+        if (assert_tobii_error(error))
+            return this->tracker_box;
+
+        this->tracker_box = TrackBox(track_box);
+        return this->tracker_box;
     }
 
     void updateRecords() {
@@ -382,6 +457,13 @@ struct TobiiCtrl {
 
         if (assert_tobii_error(result, "subscription"))
             return -1;
+
+        tobii_track_box_t track_box;
+        tobii_error_t error = tobii_get_track_box(device, &track_box);
+        
+        if (!assert_tobii_error(error)) {
+            this->tracker_box = TrackBox(track_box);
+        }
 
         return 0;
     }
@@ -530,4 +612,8 @@ size_t save_json(char* path = nullptr) {
 
 SessionRecord* get_session() {
     return &sessionRecord;
+}
+
+TrackBox* get_trackbox() {
+    return &tobiiCtrl.getTrackBox();
 }
