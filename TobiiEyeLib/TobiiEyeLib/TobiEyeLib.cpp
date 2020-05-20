@@ -5,8 +5,6 @@
 #include <thread>
 #include <chrono>
 #include "TobiEyeLib.h"
-//#include <windows.h>
-
 
 #include <tobii/tobii.h>
 #include <tobii/tobii_streams.h>
