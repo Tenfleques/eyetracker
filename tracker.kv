@@ -61,40 +61,23 @@
             size: self.size
             pos: self.pos
 
-<VideoCanvas>
-    canvas:
-        Color:
-            rgb: (1, 1, 1)
-        Rectangle:
-            texture: self.texture
-            # size: self.width + 20, self.height + 20
-            pos: self.x, self.y
-
-
-
 Root:
     main_view_parent:main_view_parent
     info_bar: info_bar
     lbl_output_dir:lbl_output_dir
-    # app_log: log_panel.app_log
-    # stimuli_video_log: log_panel.stimuli_video_log
-    # camera_log: log_panel.camera_log
     btn_play: btn_play
     lbl_src_video: lbl_src_video
-    view_stage_header: view_stage_header
-    view_stage: view_stage
-    pagination_zone:pagination_zone
     txt_box_video_rate: txt_box_video_rate
     lbl_video_fps_in_use: lbl_video_fps_in_use
     video_canvas:video_canvas
-    tabbed_main_view:tabbed_main_view
-    tabbed_timeline_item:tabbed_timeline_item
+    # tabbed_main_view:tabbed_main_view
+    # tabbed_timeline_item:tabbed_timeline_item
     RelativeLayout:
         anchor_x:'left'
         anchor_y:'top'
         id: main_view_parent
         BackgroundGridLayout:
-            rows: 5
+            rows: 3
             cols: 1
             BackgroundBoxLayout:
                 background_color: (.3, .3, .3, 1)
@@ -103,23 +86,27 @@ Root:
                     size_hint_y: 1
                     allow_stretch:False
                     keep_ratio:True
+            BackgroundGridLayout:
+                rows:1
+                size_hint_y: None
+                height:2
+                background_color: (0, .196, .313, 1)
 
-            TabbedPanel:
-                id: tabbed_main_view
-                size_hint: 1, 1
-                do_default_tab: False
-                TabbedPanelItem:
-                    id: tabbed_timeline_item
-                    text: root.get_local_str("_timeline_stage")
-                    BackgroundGridLayout:
-                        rows: 3
-                        Table:
-                            id: results_table
+# TabbedPanel:
+            #     id: tabbed_main_view
+            #     size_hint: 1, 1
+            #     do_default_tab: False
+            #     TabbedPanelItem:
+            #         id: tabbed_timeline_item
+            #         text: root.get_local_str("_timeline_stage")
+            #         BackgroundGridLayout:
+            #             rows: 3
+            #             Table:
+            #                 id: results_table
             GridLayout:
                 rows:1
                 cols:2
-                size_hint_y: None
-                height:80
+                size_hint_y: .2
                 GridLayout:
                     rows:3
                     id: main
@@ -182,11 +169,5 @@ Root:
                         height: 25
                         multiline:False
                         font_size: dp(13)
-            BackgroundGridLayout:
-                rows:1
-                size_hint_y: None
-                height:2
-                background_color: (0, .196, .313, 1)
-
-            InfoBar:
-                id: info_bar
+        InfoBar:
+            id: info_bar

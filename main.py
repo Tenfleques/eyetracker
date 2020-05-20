@@ -2,43 +2,33 @@
 from kivy.app import App
 
 from kivy.factory import Factory
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 
-from kivy.uix.image import Image
-from kivy.graphics.texture import Texture
-
-from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
-from kivy.clock import Clock
 import json
 import time
-from multiprocessing import Process
 from threading import Thread
 import math
 
-from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps, frame_processing, process_fps, props
+from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps
 from process_result import gaze_stimuli
 
 import os
-from io import StringIO
-import sys
 
-from camera_feed_ctrl import Frame, CameraFeedCtrl
+from camera_feed_ctrl import CameraFeedCtrl
 from tracker_ctrl import TrackerCtrl
-from video_feed_ctrl import VideoCanvas
-from floatInput import FloatInput
-from components.infobar import InfoBar
 from components.loaddialog import LoadDialog
+from video_feed_ctrl import VideoCanvas
+from components.table import Table
+from components.floatInput import FloatInput
+from components.infobar import InfoBar
 
 from kivy.core.window import Window
 
 import platform
-import cv2
-import numpy as np
 from collections import deque
 
 from kivy.config import Config
@@ -73,13 +63,6 @@ except IOError:
     print("[ERROR] i/o error")
 except Exception as e:
     print(e)
-
-
-# class LoadDialog(FloatLayout):
-#     load = ObjectProperty(None)
-#     cancel = ObjectProperty(None)
-#     get_default_from_prev_session = ObjectProperty(None)
-#     get_local_str = ObjectProperty(None)
 
 
 class Root(RelativeLayout):
@@ -117,7 +100,7 @@ class Root(RelativeLayout):
     def get_default_from_prev_session(key, default=''):
         # loads a variable saved from the last session, directory, stimuli video for example
         if key in SESSION_PREFS.keys():
-            return SESSION_PREFS.get(key)
+            return str(SESSION_PREFS.get(key))
         else:
             return default
 

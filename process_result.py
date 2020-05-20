@@ -57,7 +57,8 @@ def create_timeline(tracker_data, video_data):
     return sess_timeline
 
 
-def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_path="", cb=lambda: print("[INFO] finished processing "
+def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_path="",
+                       cb=lambda: print("[INFO] finished processing "
                                                                                          "video")):
     timestamp_keys = session_timeline.keys()
     len_keys = len(timestamp_keys)
@@ -83,12 +84,12 @@ def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_pa
     print(video_fps)
 
     demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
-    
+
     print("[INFO] Screen size from viewpoint: {}, screen size from grab: {}".format(viewpoint_size, ImageGrab.grab().size))
     SCREEN_SIZE = viewpoint_size
     if viewpoint_size is None:
         SCREEN_SIZE = ImageGrab.grab().size
-    
+
     bg_frame = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
 
     success = out.open(demo_video_path, fourcc, video_fps,
