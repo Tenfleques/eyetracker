@@ -54,12 +54,12 @@ def frame_processing(frame):
 
 def get_local_str_util(key):
     lang = "ru"
-    local_def = locale.getdefaultlocale()
-    if len(local_def) and local_def[0]:
-        sys_locale = local_def[0].split("_")[0]
-        if sys_locale in ["en", "ru"]:
-            lang = sys_locale
-
+#    local_def = locale.getdefaultlocale()
+#    if len(local_def) and local_def[0]:
+#        sys_locale = local_def[0].split("_")[0]
+#        if sys_locale in ["en", "ru"]:
+#            lang = sys_locale
+#
     if key in LOCALE.keys():
         if lang in LOCALE.get(key).keys():
             return LOCALE.get(key)[lang]

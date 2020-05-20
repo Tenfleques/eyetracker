@@ -119,7 +119,7 @@ class VideoCanvas(Image):
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         # update video canvas
         self.texture = texture
-        print(props(self))
+#        print(props(self))
 
     def get_json(self):
         return [i.to_dict() for i in self.video_frames]
