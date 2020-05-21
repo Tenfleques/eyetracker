@@ -60,7 +60,10 @@ class ResultVideoCanvas(Image):
     def get_progress(self):
         return self.session_timeline_index, len(self.timestamp_keys)
 
-    def current_frame_cb(self, current, total):
+    def get_fps(self):
+        return self.video_fps
+
+    def current_frame_cb(self, current, total, record=None):
         print("[INFO] frame {}/{}".format(current, total))
 
     def pause_play(self):
@@ -84,6 +87,26 @@ class ResultVideoCanvas(Image):
             self.video_interval = Clock.schedule_interval(self.update_video_canvas, 1.0/self.video_fps)
             if self.is_paused:
                 self.video_interval.cancel()
+
+    def step_to_frame(self, index):
+        if isinstance(index, float):
+            len_tl = len(self.timestamp_keys)
+            index = min(int(index), len_tl - 1)
+
+        if not isinstance(index, int):
+            return
+
+        if self.video_interval is not None:
+            # pause the playback for a moment
+            if not self.is_paused:
+                self.video_interval.cancel()
+
+        self.session_timeline_index = index
+
+        if not self.is_paused:
+            self.video_interval()
+
+        self.update_video_canvas(1)
 
     def step_forward(self, step_size):
         if self.video_interval is None:
@@ -256,7 +279,7 @@ class ResultVideoCanvas(Image):
             self.bg_frame[:self.c_height, self.c_start_x:self.c_start_x + self.c_width, :] = self.c_frame
         self.video_frame_index += 1
 
-        self.current_frame_cb(self.session_timeline_index, len_timeline)
+        self.current_frame_cb(self.session_timeline_index, len_timeline, record)
 
         if dt:
             self.session_timeline_index += 1
@@ -284,13 +307,11 @@ class ResultVideoCanvas(Image):
             self.video_interval.cancel()
             # nullifies the schedule handle
             self.video_interval = None
+            # reset the timeline index
+            # self.session_timeline_index = 0
 
-        self.session_timeline_index = 0
         self.update_video_canvas(None)
         self.end_play_cb("")
-
-    def get_actual_fps(self):
-        return self.actual_video_stimuli_fps
 
     def get_json(self):
         return [i.to_dict() for i in self.video_frames]

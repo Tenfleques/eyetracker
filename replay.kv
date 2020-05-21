@@ -70,6 +70,7 @@ Root:
     video_progress: video_progress
     txt_box_step_size: txt_box_step_size
     txt_box_replay_video_rate:txt_box_replay_video_rate
+    frame_details: frame_details
     # tabbed_main_view:tabbed_main_view
     # tabbed_timeline_item:tabbed_timeline_item
     RelativeLayout:
@@ -79,40 +80,66 @@ Root:
         BackgroundGridLayout:
             rows: 3
             cols: 1
-            BackgroundBoxLayout:
-                orientation: 'vertical'
-                # background_color: (.3, .3, .3, 1)
-                ResultVideoCanvas:
-                    id: replay_video_canvas
-                    size_hint_x: 1
-                    allow_stretch:False
-                    keep_ratio:True
-                ProgressBar
-                    id: video_progress
-                    value: 0
-                    size_hint_y: None
-                    size_y: 2
+            TabbedPanel:
+                id: tabbed_main_view
+                do_default_tab: False
+                TabbedPanelItem:
+                    id: tabbed_timeline_item_video
+                    markup:True
+                    text: "[b]" + root.get_local_str("_timeline_stage") + "[/b]"
+                    BackgroundBoxLayout:
+                        orientation: 'vertical'
+                        BackgroundGridLayout:
+                            cols:2
+                            BackgroundGridLayout:
+                                rows:1
+                                size_hint_x: .75
+                                ResultVideoCanvas:
+                                    id: replay_video_canvas
+                                    allow_stretch:False
+                                    keep_ratio:True
+                            BackgroundGridLayout
+                                cols:1
+                                size_hint_x: .3
+                                background_color: (.6, .6, .6, 1)
+                                padding: [2, 0, 0, 0]
+                                NormalLabel:
+                                    markup:True
+                                    text: "[b]" + root.get_local_str("_frame_details") + "[/b]"
+                                FrameDetails:
+                                    id: frame_details
+
+                        Slider
+                            id: video_progress
+                            value: 0
+                            min: 0
+                            size_hint_y: None
+                            size_y: 1
+                            value_track:True
+                            value_track_color:[1, 0, 0, 1]
+                            cursor_size: ['10sp', '10sp']
+                            cursor_image: ''
+                            value_track_width: '2.5sp'
+                TabbedPanelItem:
+                    id: tabbed_timeline_item_table
+                    markup:True
+                    text: "[b]" + root.get_local_str("_tl_table") + "[/b]"
+                    Table:
+                        id: tl_table
+                TabbedPanelItem:
+                    id: tabbed_timeline_item_charts
+                    markup:True
+                    text: "[b]" + root.get_local_str("_tl_charts") + "[/b]"
             BackgroundGridLayout:
                 rows:1
                 size_hint_y: None
                 height:2
                 background_color: (0, .196, .313, 1)
-
-# TabbedPanel:
-            #     id: tabbed_main_view
-            #     size_hint: 1, 1
-            #     do_default_tab: False
-            #     TabbedPanelItem:
-            #         id: tabbed_timeline_item
-            #         text: root.get_local_str("_timeline_stage")
-            #         BackgroundGridLayout:
-            #             rows: 3
-            #             Table:
-            #                 id: results_table
-            GridLayout:
+            BackgroundGridLayout:
                 rows:1
                 cols:2
                 size_hint_y: .2
+                background_color: (.9, .9, .9, .9)
                 GridLayout:
                     rows:3
                     id: main
@@ -157,12 +184,13 @@ Root:
                         rows: 1
                         size_hint_y: None
                         height:45
-                        NormalButton:
-                            text: root.get_local_str("_frame_info")
-                            on_release: root.show_frame_info()
-                        NormalLabel:
-                            text: ''
-                            size_hint_x: 0.01
+                        background_color: (.9, .9, .9, 1)
+                        # NormalButton:
+                        #     text: root.get_local_str("_frame_info")
+                        #     on_release: root.show_frame_info()
+                        # NormalLabel:
+                        #     text: ''
+                        #     size_hint_x: 0.01
                         NormalButton:
                             id: btn_step_backward
                             text: root.get_local_str("_step_back")
@@ -189,7 +217,7 @@ Root:
                             text: root.get_local_str("_stop")
                             on_release: root.btn_stop_click()
 
-                    GridLayout:
+                    BackgroundGridLayout:
                         rows: 1
                         cols: 3
                         padding_y: [0, 0]

@@ -4,7 +4,7 @@ from kivy.uix.image import Image
 from kivy.graphics.texture import Texture
 from kivy.clock import Clock
 import json
-from eye_utilities.helpers import frame_processing, process_fps, props
+from eye_utilities.helpers import frame_processing, process_fps, get_video_fps, props
 
 from kivy.core.window import Window
 import cv2
@@ -30,10 +30,22 @@ class VideoCanvas(Image):
     def is_playing(self):
         return self.video_interval is not None
 
-    def start(self, video_src="",
-              fps=1000, is_recording=True, end_cb=lambda : True):
+    def end_play_cb(self, **kwargs):
+        pass
 
-        print("[INFO] started")
+    def get_progress(self):
+        return self.session_timeline_index, len(self.timestamp_keys)
+
+    def current_frame_cb(self, current, total):
+        print("[INFO] frame {}/{}".format(current, total))
+
+    def start(self, video_src="",
+              fps=1000, is_recording=True, current_frame_cb=None, end_cb=None):
+
+        if end_cb is not None:
+            self.end_play_cb = end_cb
+        if current_frame_cb is not None:
+            self.current_frame_cb = current_frame_cb
 
         # if playing stop
         if self.video_interval is not None:
@@ -41,8 +53,8 @@ class VideoCanvas(Image):
             return 1
 
         # can't run if video not ready can we?
-        # if get_video_fps(video_src):
-        #     return -1
+        if not get_video_fps(video_src):
+            return -1
 
         # ensures we are full screen
         self.initial_window_state = Window.fullscreen

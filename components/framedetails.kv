@@ -1,0 +1,44 @@
+<FrameDetails>:
+    lbl_tracker_time: lbl_tracker_time
+    rows:2
+    size_hint_y: 1
+    BackgroundGridLayout:
+        rows:5
+        BackgroundGridLayout:
+            cols: 2
+            rows: 1
+            size_hint_y: None
+            height: 25
+            NormalLabel:
+                markup:True
+                text: "[b]" + root.get_local_str('_tracker_time') + "[/b]"
+            NormalLabel:
+                id:lbl_tracker_time
+                markup:True
+                text: ""
+        BackgroundGridLayout:
+            background_color: (.9, .9, .9, .5)
+            cols: 2
+            rows: 1
+            size_hint_y: None
+            height: 25
+            NormalLabel:
+                markup:True
+                text: "[b]" + root.get_local_str('_video_time') + "[/b]"
+            NormalLabel:
+                id:lbl_video_time
+                markup:True
+                text: ""
+        BackgroundGridLayout:
+            cols: 2
+            rows: 1
+            size_hint_y: None
+            height: 25
+            NormalLabel:
+                markup:True
+                text: "[b]" + root.get_local_str('_camera_time') + "[/b]"
+            NormalLabel:
+                id:lbl_camera_time
+                markup:True
+                text: ""
+

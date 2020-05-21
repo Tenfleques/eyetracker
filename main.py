@@ -238,8 +238,8 @@ class Root(RelativeLayout):
         #         lcl_string_fps = self.get_local_str("_factual_camera_fps") + ": {:.4} ".format(camera_frame_rate)
         #
         #         self.__tracker_app_log(lcl_string_fps, "camera_log")
-        #     # process experiment data
-        #     self.__after_recording(viewpoint_size)
+            # process experiment data
+            # self.__after_recording(viewpoint_size)
 
         # switch view to the results while video is processed
         # self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_timeline_item"], do_scroll=True)
@@ -268,123 +268,6 @@ class Root(RelativeLayout):
         with open(path, "w") as f:
             f.write(json.dumps(self.get_json()))
             f.close()
-
-    # session timeline view
-    def load_session_timeline(self, tracker_json_path, video_json_path, viewpoint_size, timeline_exist=False, process_video=True):
-        print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
-        lcl_string = self.get_local_str("_preparing_session_timeline")
-        self.__tracker_app_log(lcl_string)
-        output_dir = self.__get_session_directory()
-        selfie_video_path = os.path.join(output_dir,
-                                         "out-video.avi")
-
-        self.session_timeline = gaze_stimuli(tracker_json_path,
-                                             video_json_path,
-                                             self.ids['lbl_src_video'].text,
-                                             viewpoint_size=viewpoint_size,
-                                             selfie_video_path=selfie_video_path,
-                                             timeline_exist=timeline_exist, process_video=process_video,
-                                             session_timeline_cb=self.load_session_results,
-                                             video_cb=lambda: self.result_video_ready(os.path.join(output_dir,"out-video-demonstration.avi")))
-
-    def __set_session_timeline(self, st):
-        print("[INFO] set session timeline length: {}    ".format(len(st.keys())))
-        self.session_timeline = st
-
-    def load_session_results(self, st=None):
-        if st is not None:
-            self.__set_session_timeline(st)
-        output_dir = self.__get_session_directory()
-        if self.session_timeline is None:
-            timeline_path = None
-            for fl in os.listdir(output_dir):
-                if "-timeline.json" in fl:
-                    timeline_path = fl
-                    break
-
-            if timeline_path is not None:
-                timeline_path = os.path.join(output_dir, timeline_path)
-                with open(timeline_path, "r") as fp:
-                    self.session_timeline = json.load(fp)
-            else:
-                return
-
-        if self.session_timeline is None:
-            return
-
-        range_of_values = 10
-        self.__create_pagination_panel(range_of_values, self.session_timeline)
-        self.__load_main_view_rows(self.session_timeline, 0, range_of_values)
-
-    def __create_pagination_panel(self, range_of_values, st):
-        pagination_buttons_count = math.ceil(len(st.keys()) /
-                                             (range_of_values * 1.0))
-        print("[INFO] pagination count {} ".format(pagination_buttons_count))
-
-        self.ids["pagination_zone"].clear_widgets()
-
-        for i in range(pagination_buttons_count):
-            button = Button(text=str(i),
-                            size_hint=(None, None), width='40dp', height='25dp',
-                            padding=(5, 5),
-                            halign='center', font_size=13)
-
-            if i == 0:
-                button.state = 'down'
-
-            button_callback = lambda btn: self.__load_main_view_rows(st,
-                                                                 start_index=i * range_of_values,
-                                                                 max_elements=range_of_values, btn=btn)
-
-            button.bind(on_release=button_callback)
-            self.ids["pagination_zone"].add_widget(button)
-
-    def __load_main_view_rows(self, st, start_index=0, max_elements=10, btn=None):
-        k = -1
-        self.ids["view_stage"].bind(minimum_height=self.ids["view_stage"].setter('height'))
-        if btn is not None:
-            btn.state = 'down'
-            # find the current active button and deactivate it
-            # self.ids["pagination_zone"].children
-            # self.active_page
-            start_index = int(btn.text) * max_elements
-        rows = GridLayout(cols=1)
-        self.ids["view_stage"].clear_widgets()
-
-        for key, record in st.items():
-            k += 1
-            if k < start_index:
-                continue
-
-            if k > max_elements + start_index:
-                break
-
-            gaze = "-"
-            cam = "-"
-            vid = "-"
-            if record["gaze"] is not None:
-                gaze = "({:.4}, {:.4}) ".format(record["gaze"].get("x", "-"), record["gaze"].get("y", "-"))
-            if record["camera"] is not None:
-                cam = record["camera"].get("frame_id", "-")
-            if record["video"] is not None:
-                vid = record["video"].get("frame_id", "-")
-
-            row = GridLayout(size_hint_y=None, height=50, cols=4)
-            l_ts = Label(text="{}".format(key), font_size='12sp', color=(0, 0, 0, 1))
-            row.add_widget(l_ts)
-
-            l_gz = Label(text=gaze, font_size='12sp', color=(0, 0, 0, 1))
-            row.add_widget(l_gz)
-
-            l_cam = Label(text=str(cam), font_size='12sp', color=(0, 0, 0, 1))
-            row.add_widget(l_cam)
-
-            l_v = Label(text=str(vid), font_size='12sp', color=(0, 0, 0, 1))
-            row.add_widget(l_v)
-
-            rows.add_widget(row)
-
-        self.ids["view_stage"].add_widget(rows)
 
     # loading directory dialog
     def dismiss_popup(self):
@@ -445,15 +328,9 @@ class Root(RelativeLayout):
 
             self.processes.append(p)
         except Exception as ex:
-            print("[ERROR] an error occurred {}{}    "
-                    .format(ex, time.strftime("%H:%M:%S")))
-            del self.tracker_ctrl
-            self.tracker_ctrl = None
+            print("[ERROR] an error occurred {}{}    ".format(ex, time.strftime("%H:%M:%S")))
 
         self.ids['btn_play'].text = self.get_local_str("_start")
-
-        lcl_string = self.get_local_str("_demonstration_preparing")
-        self.__tracker_app_log(lcl_string)
 
 
 class Tracker(App):
