@@ -31,6 +31,18 @@
     "en": "pause",
     "ru": "пауза"
   },
+  "_frame_details": {
+    "en": "frame details",
+    "ru": "детали кадра"
+  },
+  "_tl_table": {
+    "en": "",
+    "ru": ""
+  },
+  "_tl_charts": {
+    "en": "",
+    "ru": ""
+  },
   "_frame_info": {
     "en": "frame info",
     "ru": "инфо кадра"
@@ -52,8 +64,8 @@
     "ru": "fps видео"
   },
   "_step_size": {
-    "en": "step size [f]",
-    "ru": "размер шага [к]"
+    "en": "step size (f)",
+    "ru": "размер шага (к)"
   },
   "_problem_waiting_camera": {
     "en": "problem waiting camera",
@@ -70,6 +82,42 @@
   "_session_video_not_ready": {
     "en": "session's video not ready",
     "ru": "видео сессии не готово"
+  },
+  "_tracker_time": {
+    "en": "tracker time",
+    "ru": "время трекера "
+  },
+  "_video_time": {
+    "en": "video time ",
+    "ru": "время видео"
+  },
+  "_camera_time": {
+    "en": "camera time",
+    "ru": "время камеры"
+  },
+  "_cancel": {
+    "en": "cancel",
+    "ru": "отмена"
+  },
+  "_select": {
+    "en": "select",
+    "ru": "выберите"
+  },
+  "_timestamp": {
+    "en": "_timestamp",
+    "ru": "_timestamp"
+  },
+  "_gaze": {
+    "en": "_gaze",
+    "ru": "_gaze"
+  },
+  "_camera": {
+    "en": "_camera",
+    "ru": "_camera"
+  },
+  "_video": {
+    "en": "_video",
+    "ru": "_video"
   },
   "_preparing_session_timeline": {
     "en": "preparing the session timeline",
@@ -138,14 +186,6 @@
   "_log": {
     "en": "log",
     "ru": "отчеты"
-  },
-  "_cancel": {
-    "en": "cancel",
-    "ru": "отмена"
-  },
-  "_select": {
-    "en": "select",
-    "ru": "выберите"
   },
   "_appname": {
     "en": "",

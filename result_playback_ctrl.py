@@ -103,7 +103,7 @@ class ResultVideoCanvas(Image):
 
         self.session_timeline_index = index
 
-        if not self.is_paused:
+        if not self.is_paused and self.video_interval is not None:
             self.video_interval()
 
         self.update_video_canvas(1)

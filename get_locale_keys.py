@@ -9,6 +9,16 @@ def get_all_eys():
     files = [f for f in os.listdir(dire) if f not in [locale, __file__]
              and (".kv" in f or ".py" in f) and "._" not in f and os.path.isfile(f)]
 
+    components = dire + "components"
+
+    more_files = [components + "/" + f for f in os.listdir(components)
+                  if f not in [locale, __file__]
+                  and (".kv" in f or ".py" in f)
+                  and "._" not in f
+                  # and os.path.isfile(f)
+                  ]
+
+    files.extend(more_files)
 
     keys = {}
     func_str = "get_local_str("
