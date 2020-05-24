@@ -61,6 +61,8 @@ class TrackBox(Structure):
 
 
 class TrackerCtrl:
+    is_up = False
+
     def __init__(self, dll_path="./TobiiEyeLib.dll"):
         if platform.system() == 'Windows':
             self.tracker_lib = cdll.LoadLibrary(dll_path)
@@ -104,13 +106,18 @@ class TrackerCtrl:
         started = self.tracker_lib.start()
         if started == 0:
             print("[INFO] started the tracker device {}    ".format(time.strftime("%H:%M:%S")))
+            self.is_up = True
         else:
             print("[ERROR] failed to start the tracker device {}    ".format(time.strftime("%H:%M:%S")))
         return started
 
+    def get_is_up(self):
+        return self.is_up
+
     def stop(self):
         print("[INFO] stopping the recording of tracker device data {}    ".format(time.strftime("%H:%M:%S")))
         try:
+            self.is_up = False
             self.tracker_lib.stop()
         except Exception as e:
             print("[ERROR] an error occurred while stopping the tracker session {}    ".format(e))
@@ -118,6 +125,7 @@ class TrackerCtrl:
     def kill(self):
         print("[INFO] stopping the tracker device {}    ".format(time.strftime("%H:%M:%S")))
         try:
+            self.is_up = False
             self.tracker_lib.kill()
         except Exception as e:
             print("[ERROR] an error occurred while stopping the tracker device {}    ".format(e))
@@ -131,7 +139,7 @@ class TrackerCtrl:
         buf = create_string_buffer(required_size)
         self.tracker_lib.get_json(buf, required_size)
         return buf.value
-    
+
     def __get_meta_json_win(self):
         required_size = self.tracker_lib.get_meta_json(c_char_p(None), -1)
         buf = create_string_buffer(required_size)

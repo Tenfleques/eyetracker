@@ -44,6 +44,7 @@ class VideoCanvas(Image):
 
         if end_cb is not None:
             self.end_play_cb = end_cb
+
         if current_frame_cb is not None:
             self.current_frame_cb = current_frame_cb
 
@@ -65,8 +66,19 @@ class VideoCanvas(Image):
 
     def frames_cb(self, frame):
         frame = frame_processing(frame)
-        self.video_frames.append(Frame(self.video_frame_index))
+
+        # calculate position from top of screen
+
+        xprime,yprime = self.to_window(self.x, self.y, False, False)
+        app_window_bottom_pos_from_screen_top = Window.top + Window.height
+        vid_start_pos = app_window_bottom_pos_from_screen_top - yprime  # start of video pos, after infobar
+        vid_start_from_screen_top = vid_start_pos - self.height
+        # x, y, width, height
+        frame_coords = (Window.left + xprime, vid_start_from_screen_top, self.width, self.height)
+
+        self.video_frames.append(Frame(self.video_frame_index, coords=frame_coords))
         self.video_frame_index += 1
+
         return frame
 
     def play(self, video_src, fps, is_recording=True):
@@ -89,7 +101,7 @@ class VideoCanvas(Image):
                                                       self.update_video_canvas(dt, self.video_capture, cb), 1.0/fps)
         return 0
 
-    def stop(self, cb=lambda: print("[INFO] video playing ")):
+    def stop(self):
         # stop video feed
         # we are not even running, are we?
         if self.video_capture is None:
@@ -108,7 +120,8 @@ class VideoCanvas(Image):
             self.video_interval = None
             # get actual FPS details for stimuli video
             info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_frames)
-        cb()
+
+        self.end_play_cb()
 
     def get_actual_fps(self):
         return self.actual_video_stimuli_fps
@@ -132,6 +145,9 @@ class VideoCanvas(Image):
         # update video canvas
         self.texture = texture
 #        print(props(self))
+
+    def get_frames(self):
+        return self.video_frames
 
     def get_json(self):
         return [i.to_dict() for i in self.video_frames]

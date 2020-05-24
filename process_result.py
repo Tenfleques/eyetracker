@@ -57,7 +57,7 @@ def create_timeline(tracker_data, video_data):
     return sess_timeline
 
 
-def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_path="",
+def process_demo_video(video_path, session_timeline,cam_video_path="",
                        cb=lambda: print("[INFO] finished processing "
                                                                                          "video")):
     timestamp_keys = session_timeline.keys()
@@ -86,9 +86,7 @@ def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_pa
     demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
 
     print("[INFO] Screen size from viewpoint: {}, screen size from grab: {}".format(viewpoint_size, ImageGrab.grab().size))
-    SCREEN_SIZE = viewpoint_size
-    if viewpoint_size is None:
-        SCREEN_SIZE = ImageGrab.grab().size
+    SCREEN_SIZE = ImageGrab.grab().size
 
     bg_frame = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
 
@@ -99,8 +97,8 @@ def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_pa
     color = (0, 255, 0)
     thickness = 2
 
-    sh = (int(cap_video.get(cv2.CAP_PROP_FRAME_WIDTH)),
-          int(cap_video.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    sh = [int(cap_video.get(cv2.CAP_PROP_FRAME_WIDTH)),
+          int(cap_video.get(cv2.CAP_PROP_FRAME_HEIGHT))]
 
     c_start_x = sh[0] + 40
 
@@ -120,6 +118,8 @@ def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_pa
     xo = None
     yo = None
 
+    v_x = 0.0
+    v_y = 0.0
     for key, record in session_timeline.items():
         bg_frame[:, :, :] = 255
         if not cap_video.isOpened():
@@ -131,9 +131,17 @@ def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_pa
                 vid_frame_id = record["video"]["frame_id"]
                 if not ret:
                     break
+                if "width" in record["video"]:
+                    # updated version with cordinates
+                    v_frame = cv2.resize(v_frame, (record["video"]["width"],
+                                                             record["video"]["height"]))
+                    v_x = record["video"]["x"]
+                    v_y = record["video"]["y"]
+                    sh[0] = record["video"]["width"]
+                    sh[1] = record["video"]["height"]
 
         if v_frame is not None:
-            bg_frame[:sh[1], :sh[0], :] = v_frame
+            bg_frame[v_y:sh[1], v_x:sh[0], :] = v_frame
 
         # add gaze feed data
         if record["gaze"] is not None:
@@ -173,10 +181,12 @@ def process_demo_video(video_path, session_timeline,viewpoint_size, cam_video_pa
     return total_time
 
 
-def gaze_stimuli(tracker_json_path, video_json_path, video_path,viewpoint_size, selfie_video_path=None,
-                 timeline_exist=False, process_video=True,
+def gaze_stimuli(tracker_json_path, video_json_path, video_path,
+                 selfie_video_path=None,
+                 timeline_exist=False, process_video=False,
                  session_timeline_cb=lambda x: print("[INFO] finished creating session timeline"),
-                 video_cb=lambda: print("[INFO] finished demonstration video ")):
+                 video_cb=lambda: print("")):
+
     with open(tracker_json_path, "r") as read_file:
         tracker_data = json.load(read_file)
         read_file.close()
@@ -200,7 +210,7 @@ def gaze_stimuli(tracker_json_path, video_json_path, video_path,viewpoint_size, 
     session_timeline_cb(sess_timeline)
 
     if process_video:
-        p = Thread(target=process_demo_video, args=(video_path, sess_timeline,viewpoint_size, selfie_video_path, ))
+        p = Thread(target=process_demo_video, args=(video_path, sess_timeline,selfie_video_path, ))
         p.start()
         p.join()
         video_cb()

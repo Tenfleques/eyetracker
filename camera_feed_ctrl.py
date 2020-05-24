@@ -10,15 +10,21 @@ import sys
 from eye_utilities.helpers import get_local_str_util
 import platform
 
+
 class Frame:
     timestamp = 0  # double
     frame_id = 0  # long
     img_data = None  # numpy Mat object
+    x = 0.0
+    y = 0.0
+    width = 0.0
+    height = 0.0
 
-    def __init__(self, frame_id, f=None):
+    def __init__(self, frame_id, coords=(0, 0, 0, 0), f=None):
         self.timestamp = time.time()
         self.frame_id = frame_id
         self.img_data = f
+        self.x, self.y, self.width, self.height = coords
 
     def update(self):
         self.timestamp = time.time()
@@ -26,7 +32,11 @@ class Frame:
     def to_dict(self):
         return {
             "timestamp": self.timestamp,
-            "frame_id": self.frame_id
+            "frame_id": self.frame_id,
+            "x": self.x,
+            "y": self.y,
+            "width": self.width,
+            "height": self.height
         }
 
     def save_to_file(self, path):
@@ -53,7 +63,7 @@ class CameraFeedCtrl:
             self.cam_th.start()
             # wait till camera is up
             polling_camera_times = 0
-            while not self.__get_camera_is_up():
+            while not self.get_camera_is_up():
                 print("[INFO] waiting for camera {}     ".format(time.strftime("%H:%M:%S")))
                 time.sleep(1)
                 polling_camera_times += 1
@@ -69,7 +79,7 @@ class CameraFeedCtrl:
             print("{} {}    ".format(e, time.strftime("%H:%M:%S")))
             self.stop()
 
-    def __get_camera_is_up(self):
+    def get_camera_is_up(self):
         return self.camera_is_up
 
     def stop(self):
@@ -129,9 +139,9 @@ class CameraFeedCtrl:
             self.camera_is_up = True
             if ret:
                 if save_images:
-                    self.camera_frames.append(Frame(frame_id, frame))
+                    self.camera_frames.append(Frame(frame_id, f=frame))
                 else:
-                    self.camera_frames.append(Frame(frame_id, None))
+                    self.camera_frames.append(Frame(frame_id, f=None))
                 out.write(frame)
             else:
                 break
@@ -146,10 +156,8 @@ class CameraFeedCtrl:
         self.camera_is_up = False
         return frame_id, actual_fps
 
-
     def save_images(self, path):
         """
-
         :param path:
         :return:
         """
@@ -158,3 +166,6 @@ class CameraFeedCtrl:
 
     def get_frames(self):
         return self.camera_frames
+
+    def get_json(self):
+        return [i.to_dict() for i in self.camera_frames]

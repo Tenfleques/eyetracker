@@ -2,7 +2,7 @@
 from kivy.app import App
 
 from kivy.factory import Factory
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 
@@ -65,7 +65,7 @@ except Exception as e:
     print(e)
 
 
-class Root(RelativeLayout):
+class Root(FloatLayout):
     tracker_ctrl = None
     camera_feed_ctrl = CameraFeedCtrl()
     video_feed_ctrl = None
@@ -86,7 +86,8 @@ class Root(RelativeLayout):
 
     def stop_all(self):
         print("[INFO] closing processes and devices")
-        self.stop()
+        # emergency close
+        self.stop(True)
 
         if self.tracker_ctrl is not None:
             # the tracker connection
@@ -161,11 +162,14 @@ class Root(RelativeLayout):
         runs till stop or end of stimuli video.
         :return:
         """
+        self.__tracker_app_log("starting session", log_label='app_log')
+
         if self.video_feed_ctrl is None:
             self.video_feed_ctrl = self.ids["video_canvas"]
         # if playing stop
         if self.video_feed_ctrl.is_playing():
-            self.stop()
+            # emergency close
+            self.stop(True)
             return
 
         # can't run session if video stimuli not ready can we?
@@ -197,7 +201,8 @@ class Root(RelativeLayout):
         video_src = self.ids['lbl_src_video'].text
         # get the desired FPS
         fps = float(self.ids['txt_box_video_rate'].text)
-        started = self.video_feed_ctrl.start(video_src, fps)
+        started = self.video_feed_ctrl.start(video_src, fps, end_cb=self.stop)
+
         print("[INFO] started video player {} ".format(started))
         if self.tracker_ctrl is None:
             self.tracker_ctrl = TrackerCtrl()
@@ -206,16 +211,25 @@ class Root(RelativeLayout):
     def set_button_play_start(self):
         self.ids["btn_play"].text = self.get_local_str("_start")
 
-    def stop(self):
+    def stop(self, emergency=None):
+        process_data = True
         # stop camera feed
-        if self.camera_feed_ctrl is not  None:
+        if self.camera_feed_ctrl is not None:
+            process_data = process_data and self.camera_feed_ctrl.get_camera_is_up()
             self.camera_feed_ctrl.stop()
         # stop tracker feed
         if self.tracker_ctrl is not None:
+            process_data = process_data and self.tracker_ctrl.get_is_up()
             self.tracker_ctrl.stop()
         # stop video capture feed and callback toggle play button ready for next experiment
-        if self.video_feed_ctrl is not None:
-            self.video_feed_ctrl.stop(self.set_button_play_start)
+        if self.video_feed_ctrl is not None and emergency:
+            process_data = process_data and self.video_feed_ctrl.is_playing()
+            self.video_feed_ctrl.stop()
+
+        if process_data:
+            self.__after_recording()
+
+        self.set_button_play_start()
 
         # if self.video_interval is not None:
         #     # cancel schedule
@@ -239,7 +253,7 @@ class Root(RelativeLayout):
         #
         #         self.__tracker_app_log(lcl_string_fps, "camera_log")
             # process experiment data
-            # self.__after_recording(viewpoint_size)
+
 
         # switch view to the results while video is processed
         # self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_timeline_item"], do_scroll=True)
@@ -312,25 +326,43 @@ class Root(RelativeLayout):
 
         self.save_dir_ready()
 
-    def __after_recording(self, viewpoint_size):
+    def __after_recording(self):
         try:
             self.tracker_ctrl.stop()
             output_dir = self.__get_session_directory()
             tracker_json_path = os.path.join(output_dir, "tracker.json")
             video_json_path = os.path.join(output_dir, "video_camera.json")
 
+            # tracker_json = self.tracker_ctrl.get_json()
+            # video_json = self.video_feed_ctrl.get_json()
+            # camera_json = self.camera_feed_ctrl.get_json()
             self.tracker_ctrl.save_json(tracker_json_path)
+
             self.save_json(video_json_path)
 
             p = Thread(target=self.load_session_timeline, args=(tracker_json_path,
-                                                                video_json_path, viewpoint_size, False, True,))
+                                                                video_json_path, False, True,))
             p.start()
 
             self.processes.append(p)
         except Exception as ex:
             print("[ERROR] an error occurred {}{}    ".format(ex, time.strftime("%H:%M:%S")))
 
-        self.ids['btn_play'].text = self.get_local_str("_start")
+    def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
+        print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
+        lcl_string = self.get_local_str("_preparing_session_timeline")
+        self.__tracker_app_log(lcl_string)
+        selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
+                                         "out-video.avi")
+        lcl_session_prep_finished_str = self.get_local_str("_session_timeline_ready")
+
+        self.session_timeline = gaze_stimuli(tracker_json_path,
+                                             video_json_path,
+                                             self.ids['lbl_src_video'].text,
+                                             selfie_video_path=selfie_video_path,
+                                             timeline_exist=timeline_exist, process_video=process_video,
+                                             session_timeline_cb=lambda sess_data:
+                                             self.__tracker_app_log(lcl_session_prep_finished_str))
 
 
 class Tracker(App):

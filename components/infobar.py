@@ -2,6 +2,7 @@
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.lang.builder import Builder
 import os
+from kivy.core.window import Window
 
 widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "infobar.kv"))
 

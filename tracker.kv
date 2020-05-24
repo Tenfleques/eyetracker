@@ -18,6 +18,12 @@
 <BackgroundLabel@Label+BackgroundColor>
     background_color: 1, 1, 1, 1
 
+<BackgroundRelativeLayout@RelativeLayout+BackgroundColor>
+    background_color: 0, 0, 0, 1
+
+<BackgroundFloatLayout@FloatLayout+BackgroundColor>
+    background_color: 0, 0, 0, 1
+
 <NormalButton@Button+BackgroundColor>
     size_hint: (None, None)
     height: '25dp'
@@ -70,41 +76,32 @@ Root:
     txt_box_video_rate: txt_box_video_rate
     lbl_video_fps_in_use: lbl_video_fps_in_use
     video_canvas:video_canvas
-    RelativeLayout:
-        anchor_x:'left'
-        anchor_y:'top'
+    BoxLayout:
+        orientation: 'vertical'
         id: main_view_parent
         BackgroundGridLayout:
             rows: 3
             cols: 1
-            BackgroundBoxLayout:
+            BackgroundFloatLayout:
                 background_color: (.3, .3, .3, 1)
                 VideoCanvas:
                     id: video_canvas
                     size_hint_y: 1
-                    allow_stretch:False
-                    keep_ratio:True
+                    allow_stretch:True
+                    keep_ratio:False
+                    pos_hint:{'x':.0, 'y':.0}
             BackgroundGridLayout:
                 rows:1
                 size_hint_y: None
                 height:2
                 background_color: (0, .196, .313, 1)
 
-# TabbedPanel:
-            #     id: tabbed_main_view
-            #     size_hint: 1, 1
-            #     do_default_tab: False
-            #     TabbedPanelItem:
-            #         id: tabbed_timeline_item
-            #         text: root.get_local_str("_timeline_stage")
-            #         BackgroundGridLayout:
-            #             rows: 3
-            #             Table:
-            #                 id: results_table
-            GridLayout:
+            BackgroundGridLayout:
                 rows:1
                 cols:2
-                size_hint_y: .2
+                size_hint_y: None
+                height: 140
+                background_color: (.9, .9, .9, 1)
                 GridLayout:
                     rows:3
                     id: main
@@ -169,3 +166,5 @@ Root:
                         font_size: dp(13)
         InfoBar:
             id: info_bar
+            size_hint_y: None
+            height:20

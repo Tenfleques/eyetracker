@@ -43,6 +43,8 @@ class ResultVideoCanvas(Image):
     c_frame = None
 
     sh = []
+    v_x = 0.0
+    v_y = 0.0
     current_cam_frame_id = 0
 
     xo = None
@@ -175,10 +177,11 @@ class ResultVideoCanvas(Image):
         success = self.out_video.open(demo_video_path, fourcc, self.video_fps,
                                       (self.bg_frame.shape[1], self.bg_frame.shape[0]), True)
 
-        self.sh = (int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                   int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        self.sh = [int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                   int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))]
 
         self.c_start_x = self.sh[0] + 40
+        self.v_x, self.v_y = (0, 0)
 
         if self.camera_capture is not None:
             w, h = (self.camera_capture.get(cv2.CAP_PROP_FRAME_WIDTH),
@@ -229,6 +232,7 @@ class ResultVideoCanvas(Image):
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
         self.bg_frame[:, :, :] = 255
+
         if not self.video_capture.isOpened() and dt:
             self.stop()
             return None
@@ -246,12 +250,24 @@ class ResultVideoCanvas(Image):
         if record["video"] is not None:
             if not record["video"]["frame_id"] == self.current_vid_frame_id:
                 ret, self.v_frame = self.video_capture.read()
-                self.current_vid_frame_id = record["video"]["frame_id"]
                 if not ret:
                     return
 
+                if "width" in record["video"]:
+                    # updated version with cordinates
+                    self.v_frame = cv2.resize(self.v_frame, (record["video"]["width"],
+                                                             record["video"]["height"]))
+                    self.v_x = record["video"]["x"]
+                    self.v_y = record["video"]["y"]
+                    self.sh[0] = record["video"]["width"]
+                    self.sh[1] = record["video"]["height"]
+
+                    self.c_start_x = self.v_x + self.sh[0] + 40
+
+                self.current_vid_frame_id = record["video"]["frame_id"]
+
         if self.v_frame is not None:
-            self.bg_frame[:self.sh[1], :self.sh[0], :] = self.v_frame
+            self.bg_frame[self.v_y:self.sh[1], self.v_x:self.sh[0], :] = self.v_frame
 
         # add gaze feed data
         if record["gaze"] is not None:
