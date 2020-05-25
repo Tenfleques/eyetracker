@@ -133,8 +133,8 @@ def process_demo_video(video_path, session_timeline,cam_video_path="",
                     break
                 if "width" in record["video"]:
                     # updated version with cordinates
-                    v_frame = cv2.resize(v_frame, (record["video"]["width"],
-                                                             record["video"]["height"]))
+                    v_frame = cv2.resize(v_frame, (int(record["video"]["width"]),
+                                                            int(record["video"]["height"])))
                     v_x = record["video"]["x"]
                     v_y = record["video"]["y"]
                     sh[0] = record["video"]["width"]

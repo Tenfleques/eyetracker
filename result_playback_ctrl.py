@@ -68,7 +68,7 @@ class ResultVideoCanvas(Image):
     def current_frame_cb(self, current, total, record=None):
         print("[INFO] frame {}/{}".format(current, total))
 
-    def pause_play(self):
+    def pause_play(self):            
         if self.video_interval is None:
             self.video_interval = Clock.schedule_interval(self.update_video_canvas, 1.0/self.video_fps)
             self.is_paused = False
@@ -154,6 +154,9 @@ class ResultVideoCanvas(Image):
             print(error_text)
             return
 
+        if self.session_timeline_index >= len_keys - 1:
+            self.session_timeline_index = 0
+
         self.video_capture = cv2.VideoCapture(video_path)
         self.camera_capture = None
 
@@ -212,7 +215,9 @@ class ResultVideoCanvas(Image):
 
     def update_video_canvas(self, dt):
         # read next frame
-        frame = self.frames_cb(dt)
+        frame = self.bg_frame
+        if dt:
+            frame = self.frames_cb(dt)
 
         buf_raw = cv2.flip(frame, 0)
         if buf_raw is None:
@@ -232,6 +237,8 @@ class ResultVideoCanvas(Image):
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
         self.bg_frame[:, :, :] = 255
+        # self.bg_frame[:, :, :]  = ImageGrab.grab()
+        
 
         if not self.video_capture.isOpened() and dt:
             self.stop()
@@ -239,10 +246,9 @@ class ResultVideoCanvas(Image):
 
         len_timeline = len(self.timestamp_keys)
 
-        if dt:
-            if self.session_timeline_index >= len_timeline:
-                self.stop()
-                return None
+        if self.session_timeline_index >= len_timeline:
+            self.stop()
+            return None
 
         key = self.timestamp_keys[self.session_timeline_index]
         record = self.session_timeline[key]
@@ -255,19 +261,22 @@ class ResultVideoCanvas(Image):
 
                 if "width" in record["video"]:
                     # updated version with cordinates
-                    self.v_frame = cv2.resize(self.v_frame, (record["video"]["width"],
-                                                             record["video"]["height"]))
-                    self.v_x = record["video"]["x"]
-                    self.v_y = record["video"]["y"]
-                    self.sh[0] = record["video"]["width"]
-                    self.sh[1] = record["video"]["height"]
+                    self.v_frame = cv2.resize(self.v_frame, (int(record["video"]["width"]),
+                                                             int(record["video"]["height"])))
+                    self.v_x = int(record["video"]["x"])
+                    self.v_y = int(record["video"]["y"])
+                    self.sh[0] = int(record["video"]["width"])
+                    self.sh[1] = int(record["video"]["height"])
 
                     self.c_start_x = self.v_x + self.sh[0] + 40
 
                 self.current_vid_frame_id = record["video"]["frame_id"]
 
-        if self.v_frame is not None:
-            self.bg_frame[self.v_y:self.sh[1], self.v_x:self.sh[0], :] = self.v_frame
+        try:
+            if self.v_frame is not None:
+                self.bg_frame[self.v_y:self.sh[1] + self.v_y, self.v_x:self.sh[0] + self.v_x, :] = self.v_frame
+        except ValueError as verr:
+            print("[ERROR] a video resize error occured ")
 
         # add gaze feed data
         if record["gaze"] is not None:
@@ -292,7 +301,8 @@ class ResultVideoCanvas(Image):
                             self.c_frame = cv2.resize(self.c_frame, (self.c_width, self.c_height))
 
         if self.c_frame is not None:
-            self.bg_frame[:self.c_height, self.c_start_x:self.c_start_x + self.c_width, :] = self.c_frame
+            b_sh = self.bg_frame.shape
+            self.bg_frame[:self.c_height, b_sh[1] - self.c_width:, :] = self.c_frame
         self.video_frame_index += 1
 
         self.current_frame_cb(self.session_timeline_index, len_timeline, record)
