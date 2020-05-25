@@ -71,6 +71,8 @@ Root:
     txt_box_step_size: txt_box_step_size
     txt_box_replay_video_rate:txt_box_replay_video_rate
     frame_details: frame_details
+    chkbx_bg_is_grab:chkbx_bg_is_grab
+    chkbx_maintain_track:chkbx_maintain_track
     # tabbed_main_view:tabbed_main_view
     # tabbed_timeline_item:tabbed_timeline_item
     RelativeLayout:
@@ -98,18 +100,69 @@ Root:
                                     id: replay_video_canvas
                                     allow_stretch:False
                                     keep_ratio:True
-                            BackgroundGridLayout
+                            BackgroundGridLayout:
                                 cols:1
+                                rows:3
                                 size_hint_x: .3
                                 background_color: (.6, .6, .6, 1)
                                 padding: [2, 0, 0, 0]
-                                NormalLabel:
-                                    markup:True
-                                    text: "[b]" + root.get_local_str("_frame_details") + "[/b]"
-                                FrameDetails:
-                                    id: frame_details
+                                GridLayout:
+                                    rows: 2
+                                    NormalLabel:
+                                        markup:True
+                                        text: "[b]" + root.get_local_str("_frame_details") + "[/b]"
+                                    FrameDetails:
+                                        id: frame_details
+                                BackgroundGridLayout:
+                                    rows:1
+                                    size_hint_y: None
+                                    height:2
+                                    padding: [10, 0, 0, 10]
+                                    background_color: (0, .196, .313, 1)
+                                BackgroundGridLayout:
+                                    background_color: (1, 1, 1, 1)
+                                    rows: 2
+                                    size_hint_y: None
+                                    height: 60
+                                    padding: [0, 10, 0, 0]
+                                    GridLayout:
+                                        cols: 2
+                                        size_hint_y: None
+                                        height: 30
+                                        NormalLabel:
+                                            id:lbl_bg_is_grab
+                                            text: root.get_local_str("_bg_is_grab")
+                                            color: [0,0,0,1]
+                                            size_hint_x: .6
+                                            size_hint_y: None
+                                            height: 20
+                                            halign: 'left'
+                                        CheckBox:
+                                            id:chkbx_bg_is_grab
+                                            size_hint: (None, None)
+                                            color: [0,0,0,1]
+                                            size_hint_y: None
+                                            height: 20
+                                    GridLayout:
+                                        cols: 2
+                                        size_hint_y: None
+                                        height: 30
+                                        NormalLabel:
+                                            id:lbl_maintain_track
+                                            text: root.get_local_str("_maintain_track")
+                                            color: [0,0,0,1]
+                                            size_hint_x: .6
+                                            size_hint_y: None
+                                            height: 20
+                                            halign: 'left'
+                                        CheckBox:
+                                            id:chkbx_maintain_track
+                                            size_hint: (None, None)
+                                            color: [0,0,0,1]
+                                            size_hint_y: None
+                                            height: 20
 
-                        Slider
+                        Slider:
                             id: video_progress
                             value: 0
                             min: 0
@@ -204,7 +257,7 @@ Root:
                             on_release: root.btn_step_forward_click()
                         NormalLabel:
                             text: ''
-                            size_hint_x: .004
+                            size_hint_x: .01
                         NormalButton:
                             id: btn_play
                             text: root.get_local_str("_start")

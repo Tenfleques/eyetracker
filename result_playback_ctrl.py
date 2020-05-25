@@ -12,6 +12,7 @@ from PIL import ImageGrab
 import os
 import time
 from kivy.config import Config
+from collections import deque
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
@@ -52,6 +53,23 @@ class ResultVideoCanvas(Image):
     c_width = None
     c_height = None
     c_start_x = None
+
+    bg_is_screen = False
+    maintain_track = False
+
+    path_history = deque()
+
+    def toggle_bg_is_screen(self, state=None):
+        if state is None:
+            self.bg_is_screen = not self.bg_is_screen
+            return 
+        self.bg_is_screen = bool(state)
+
+    def toggle_maintain_track(self, state=None):
+        if state is None:
+            self.maintain_track = not self.maintain_track
+            return 
+        self.maintain_track = bool(state)
 
     def is_playing(self):
         return self.video_interval is not None
@@ -142,8 +160,16 @@ class ResultVideoCanvas(Image):
         if viewpoint_size is None:
             SCREEN_SIZE = ImageGrab.grab().size
 
-        self.bg_frame = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
+        image_grab_path = os.sep.join(session_timeline_path.split(os.sep)[:-1])
+        image_grab_path = os.path.join(image_grab_path, "screen.png")
 
+        self.bg_image = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
+        self.bg_frame = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
+        if os.path.isfile(image_grab_path):
+            self.bg_image = cv2.imread(image_grab_path)
+            self.bg_frame[:, :, :] = self.bg_image
+
+    
         self.timestamp_keys = [i for i in self.session_timeline.keys()]
         float_timestamp_keys = [float(i) for i in self.timestamp_keys]
         len_keys = len(self.timestamp_keys)
@@ -156,6 +182,8 @@ class ResultVideoCanvas(Image):
 
         if self.session_timeline_index >= len_keys - 1:
             self.session_timeline_index = 0
+        
+        self.path_history.clear()
 
         self.video_capture = cv2.VideoCapture(video_path)
         self.camera_capture = None
@@ -173,7 +201,7 @@ class ResultVideoCanvas(Image):
         diff = max(float_timestamp_keys) - min(float_timestamp_keys)
 
         if self.video_fps is None:
-            self.set_fps(len_keys / diff)
+            self.set_fps(len_keys / (diff * 3)) # multiplies by three coz of gaze, pos, and origin 
 
         demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
 
@@ -236,8 +264,10 @@ class ResultVideoCanvas(Image):
 
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
-        self.bg_frame[:, :, :] = 255
-        # self.bg_frame[:, :, :]  = ImageGrab.grab()
+        if self.bg_is_screen:
+            self.bg_frame[:, :, :] = self.bg_image
+        else:
+            self.bg_frame[:, :, :] = 255
         
 
         if not self.video_capture.isOpened() and dt:
@@ -286,9 +316,16 @@ class ResultVideoCanvas(Image):
             self.xo = int(self.bg_frame.shape[1] * xr)
             self.yo = int(self.bg_frame.shape[0] * yr)
 
+            self.path_history.append((self.xo, self.yo))
+
         if self.xo is not None and self.yo is not None:
             self.bg_frame = cv2.circle(self.bg_frame, (self.xo, self.yo),
                                        self.radius, self.color, self.thickness)
+            if self.maintain_track:
+                # write all the positions of the track from 0 - this index
+                for i in self.path_history:
+                    self.bg_frame = cv2.circle(self.bg_frame, (i[0], i[1]),
+                                       2, (0,0,255,1), self.thickness)
 
         # add camera feed data
         if self.camera_capture is not None:

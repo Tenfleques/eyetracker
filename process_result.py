@@ -13,6 +13,9 @@ import sys
 
 def create_timeline(tracker_data, video_data):
     gaze_frames = tracker_data["gaze"]
+    pos_frames = tracker_data["pos"]
+    origin_frames = tracker_data["origin"]
+
     camera_frames = video_data["camera"]
     video_frames = video_data["video"]
 
@@ -21,6 +24,16 @@ def create_timeline(tracker_data, video_data):
     g_fs = {}
     c_fs = {}
     v_fs = {}
+    o_fs = {}
+    p_fs = {}
+
+    for frame in pos_frames:
+        timeline_keys.append(frame["timestamp"])
+        p_fs[frame["timestamp"]] = frame
+
+    for frame in origin_frames:
+        timeline_keys.append(frame["timestamp"])
+        o_fs[frame["timestamp"]] = frame
 
     for frame in gaze_frames:
         timeline_keys.append(frame["timestamp"])
@@ -35,6 +48,9 @@ def create_timeline(tracker_data, video_data):
         v_fs[frame["timestamp"]] = frame
 
     last_gaze_frame = None
+    last_pos_frame = None
+    last_origin_frame = None
+
     last_camera_frame = None
     last_video_frame = None
     sess_timeline = {}
@@ -42,6 +58,9 @@ def create_timeline(tracker_data, video_data):
     unique_sorted_timeline_keys = np.unique(timeline_keys)
 
     for key in unique_sorted_timeline_keys:
+        last_origin_frame = copy.copy(o_fs.get(key, last_origin_frame))
+        last_pos_frame = copy.copy(p_fs.get(key, last_pos_frame))
+
         last_gaze_frame = copy.copy(g_fs.get(key, last_gaze_frame))
         last_camera_frame = copy.copy(c_fs.get(key, last_camera_frame))
         last_video_frame = copy.copy(v_fs.get(key, last_video_frame))
@@ -51,7 +70,9 @@ def create_timeline(tracker_data, video_data):
                 sess_timeline[key] = {
                     "gaze": last_gaze_frame,
                     "camera": last_camera_frame,
-                    "video": last_video_frame
+                    "video": last_video_frame,
+                    "pos" : last_pos_frame,
+                    "origin" : last_origin_frame
                 }
 
     return sess_timeline
@@ -81,11 +102,9 @@ def process_demo_video(video_path, session_timeline,cam_video_path="",
     diff = max(timestamp_keys) - min(timestamp_keys)
 
     video_fps = max(len_keys / diff, 30)
-    print(video_fps)
 
     demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
 
-    print("[INFO] Screen size from viewpoint: {}, screen size from grab: {}".format(viewpoint_size, ImageGrab.grab().size))
     SCREEN_SIZE = ImageGrab.grab().size
 
     bg_frame = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)

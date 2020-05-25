@@ -73,8 +73,6 @@ class TrackerCtrl:
             self.tracker_lib.get_json.argtypes =[CString, c_size_t]
             self.tracker_lib.get_meta_json.argtypes =[CString, c_size_t]
 
-            self.tracker_lib.get_trackbox.restype = POINTER(TrackBox)
-
             self.save_json = self.__save_json_win
             self.get_json = self.__get_json_win
             self.get_meta_json = self.__get_meta_json_win
@@ -96,11 +94,6 @@ class TrackerCtrl:
             self.save_json = self.__save_json_mac
             self.get_json = self.__get_json_mac
             self.get_meta_json = self.__get_meta_json_mac
-
-    def get_track_box(self):
-        if platform.system() == 'Windows':
-            track_box = self.tracker_lib.get_trackbox()[0]
-            return track_box
 
     def start(self):
         started = self.tracker_lib.start()
@@ -144,7 +137,7 @@ class TrackerCtrl:
         required_size = self.tracker_lib.get_meta_json(c_char_p(None), -1)
         buf = create_string_buffer(required_size)
         self.tracker_lib.get_meta_json(buf, required_size)
-        return buf.value
+        return buf.value.decode("utf-8")
 
     def __get_meta_json_mac(self):
         return "{}"

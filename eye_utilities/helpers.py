@@ -25,7 +25,7 @@ def props(cls):
 
 
 def process_fps(video_frames):
-    times = [i.to_dict()["timestamp"] for i in video_frames]
+    times = [float(i.to_dict()["timestamp"]) for i in video_frames]
     len_records = len(video_frames)
 
     if not len_records:

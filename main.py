@@ -13,7 +13,7 @@ import time
 from threading import Thread
 import math
 
-from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps
+from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps, process_fps
 from process_result import gaze_stimuli
 
 import os
@@ -30,6 +30,8 @@ from kivy.core.window import Window
 
 import platform
 from collections import deque
+from PIL import ImageGrab
+import cv2
 
 from kivy.config import Config
 
@@ -162,7 +164,6 @@ class Root(FloatLayout):
         runs till stop or end of stimuli video.
         :return:
         """
-        self.__tracker_app_log("starting session", log_label='app_log')
 
         if self.video_feed_ctrl is None:
             self.video_feed_ctrl = self.ids["video_canvas"]
@@ -233,43 +234,80 @@ class Root(FloatLayout):
 
         # if self.video_interval is not None:
         #     # cancel schedule
-        #     self.video_interval.cancel()
-        #     # nullifies the schedule handle
-        #     self.video_interval = None
-        #     # get actual FPS details for stimuli video
-        #     info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_frames)
-        #
-        #     #log the actual video FPS
-        #     if self.actual_video_stimuli_fps:
-        #         lcl_string_fps = self.get_local_str("_actual_video_fps")
-        #         + ": {:.4} ".format(self.actual_video_stimuli_fps)
-        #
-        #         self.__tracker_app_log(lcl_string_fps, "stimuli_video_log")
-        #     # get actual FPS details for camera
-        #     log_1, log_2, camera_frame_rate = process_fps(self.camera_feed_ctrl.get_frames())
-        #     # log actual camera FPS
-        #     if camera_frame_rate:
-        #         lcl_string_fps = self.get_local_str("_factual_camera_fps") + ": {:.4} ".format(camera_frame_rate)
-        #
-        #         self.__tracker_app_log(lcl_string_fps, "camera_log")
+        #     
             # process experiment data
 
 
         # switch view to the results while video is processed
         # self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_timeline_item"], do_scroll=True)
 
-    def result_video_ready(self, path=None):
-        if path is None:
-            lcl_string = self.get_local_str("_session_video_not_ready")
-            self.__tracker_app_log(lcl_string)
-            return False
+    def __after_recording(self):
+        # try:
+        self.tracker_ctrl.stop()
+        output_dir = self.__get_session_directory()
+        tracker_json_path = os.path.join(output_dir, "tracker.json")
+        video_json_path = os.path.join(output_dir, "video_camera.json")
 
-        if not os.path.isfile(path):
-            lcl_string = self.get_local_str("_session_video_not_ready")
-            self.__tracker_app_log(lcl_string)
-            return False
+        tracker_meta_path = os.path.join(output_dir, "tracker-meta.json")
+        tracker_meta = self.tracker_ctrl.get_meta_json()
 
-        return True
+        # save the session meta data 
+        with open(tracker_meta_path, "w") as f:
+            f.write(tracker_meta)
+            f.close()
+        # save the screen dimension and bg 
+        screen_grab = ImageGrab.grab()
+        screen_grab_path = os.path.join(output_dir, "screen.png")
+        screen_grab.save(screen_grab_path, "PNG")
+        # tracker_json = self.tracker_ctrl.get_json()
+        # video_json = self.video_feed_ctrl.get_json()
+        # camera_json = self.camera_feed_ctrl.get_json()
+
+        # get actual FPS details for stimuli video
+        info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_feed_ctrl.get_frames())
+    
+        #log the actual video FPS
+        if self.actual_video_stimuli_fps:
+            lcl_string_fps = self.get_local_str("_actual_video_fps") + ": {:.4} ".format(self.actual_video_stimuli_fps)
+    
+            self.__tracker_app_log(lcl_string_fps, "stimuli_video_log")
+        # get actual FPS details for camera
+        log_1, log_2, camera_frame_rate = process_fps(self.camera_feed_ctrl.get_frames())
+        # log actual camera FPS
+        if camera_frame_rate:
+            lcl_string_fps = self.get_local_str("_factual_camera_fps") + ": {:.4} ".format(camera_frame_rate)
+    
+            self.__tracker_app_log(lcl_string_fps, "camera_log")
+        
+        # save the tracker recording file
+        self.tracker_ctrl.save_json(tracker_json_path)
+        
+        # save the video-camera recording file
+        self.save_json(video_json_path)
+
+        p = Thread(target=self.load_session_timeline, args=(tracker_json_path,
+                                                            video_json_path, False, False))
+        p.start()
+
+        self.processes.append(p)
+        # except Exception as ex:
+        #     print("[ERROR] an error occurred {}{}    ".format(ex, time.strftime("%H:%M:%S")))
+
+    def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
+        print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
+        lcl_string = self.get_local_str("_preparing_session_timeline")
+        self.__tracker_app_log(lcl_string)
+        selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
+                                         "out-video.avi")
+        lcl_session_prep_finished_str = self.get_local_str("_session_timeline_ready")
+
+        self.session_timeline = gaze_stimuli(tracker_json_path,
+                                             video_json_path,
+                                             self.ids['lbl_src_video'].text,
+                                             selfie_video_path=selfie_video_path,
+                                             timeline_exist=timeline_exist, process_video=process_video,
+                                             session_timeline_cb=lambda sess_data:
+                                             self.__tracker_app_log(lcl_session_prep_finished_str))
 
     def get_json(self):
         obj = {
@@ -326,43 +364,7 @@ class Root(FloatLayout):
 
         self.save_dir_ready()
 
-    def __after_recording(self):
-        try:
-            self.tracker_ctrl.stop()
-            output_dir = self.__get_session_directory()
-            tracker_json_path = os.path.join(output_dir, "tracker.json")
-            video_json_path = os.path.join(output_dir, "video_camera.json")
-
-            # tracker_json = self.tracker_ctrl.get_json()
-            # video_json = self.video_feed_ctrl.get_json()
-            # camera_json = self.camera_feed_ctrl.get_json()
-            self.tracker_ctrl.save_json(tracker_json_path)
-
-            self.save_json(video_json_path)
-
-            p = Thread(target=self.load_session_timeline, args=(tracker_json_path,
-                                                                video_json_path, False, True,))
-            p.start()
-
-            self.processes.append(p)
-        except Exception as ex:
-            print("[ERROR] an error occurred {}{}    ".format(ex, time.strftime("%H:%M:%S")))
-
-    def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
-        print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
-        lcl_string = self.get_local_str("_preparing_session_timeline")
-        self.__tracker_app_log(lcl_string)
-        selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
-                                         "out-video.avi")
-        lcl_session_prep_finished_str = self.get_local_str("_session_timeline_ready")
-
-        self.session_timeline = gaze_stimuli(tracker_json_path,
-                                             video_json_path,
-                                             self.ids['lbl_src_video'].text,
-                                             selfie_video_path=selfie_video_path,
-                                             timeline_exist=timeline_exist, process_video=process_video,
-                                             session_timeline_cb=lambda sess_data:
-                                             self.__tracker_app_log(lcl_session_prep_finished_str))
+    
 
 
 class Tracker(App):

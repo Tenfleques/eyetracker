@@ -96,6 +96,16 @@ class Root(RelativeLayout):
     def show_frame_info(self):
         print("[INFO] get the frame info: detailed ")
 
+    def toggle_bg_is_screen(self, checkbox, value):
+        if self.video_feed_ctrl is None:
+            return
+        self.video_feed_ctrl.toggle_bg_is_screen(value=='down')
+
+    def toggle_maintain_track(self, checkbox, value):
+        if self.video_feed_ctrl is None:
+            return
+        self.video_feed_ctrl.toggle_maintain_track(value=='down')
+
     def set_playback_fps(self, ctrl):
         if not ctrl.text:
             return
@@ -113,6 +123,9 @@ class Root(RelativeLayout):
         print("[INFO] init listeners")
         self.ids["txt_box_replay_video_rate"].bind(on_text_validate=self.set_playback_fps)
         self.ids["video_progress"].bind(on_touch_up=self.step_to_frame)
+
+        self.ids["chkbx_bg_is_grab"].bind(state=self.toggle_bg_is_screen)
+        self.ids["chkbx_maintain_track"].bind(state=self.toggle_maintain_track)
 
     def input_dir_ready(self):
         lbl_input_dir = self.ids['lbl_input_dir']
@@ -216,6 +229,9 @@ class Root(RelativeLayout):
 
         # set fps
         self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
+
+        self.video_feed_ctrl.toggle_maintain_track(self.ids["chkbx_maintain_track"].state=='down')
+        self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state=='down')
 
         started = self.video_feed_ctrl.start(video_src, session_timeline_path,
                                              viewpoint_size, cam_video_path, self.progress_cb,
