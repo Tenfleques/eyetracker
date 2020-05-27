@@ -27,25 +27,31 @@ def create_timeline(tracker_data, video_data):
     o_fs = {}
     p_fs = {}
 
+    print(len(pos_frames))
     for frame in pos_frames:
-        timeline_keys.append(frame["timestamp"])
-        p_fs[frame["timestamp"]] = frame
+        if "timestamp" in frame:
+            timeline_keys.append(frame["timestamp"])
+            p_fs[frame["timestamp"]] = frame
 
     for frame in origin_frames:
-        timeline_keys.append(frame["timestamp"])
-        o_fs[frame["timestamp"]] = frame
+        if "timestamp" in frame:
+            timeline_keys.append(frame["timestamp"])
+            o_fs[frame["timestamp"]] = frame
 
     for frame in gaze_frames:
-        timeline_keys.append(frame["timestamp"])
-        g_fs[frame["timestamp"]] = frame
+        if "timestamp" in frame:
+            timeline_keys.append(frame["timestamp"])
+            g_fs[frame["timestamp"]] = frame
 
     for frame in camera_frames:
-        timeline_keys.append(frame["timestamp"])
-        c_fs[frame["timestamp"]] = frame
+        if "timestamp" in frame:
+            timeline_keys.append(frame["timestamp"])
+            c_fs[frame["timestamp"]] = frame
 
     for frame in video_frames:
-        timeline_keys.append(frame["timestamp"])
-        v_fs[frame["timestamp"]] = frame
+        if "timestamp" in frame:
+            timeline_keys.append(frame["timestamp"])
+            v_fs[frame["timestamp"]] = frame
 
     last_gaze_frame = None
     last_pos_frame = None
