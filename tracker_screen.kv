@@ -1,73 +1,5 @@
 #:kivy 1.1.0
-<BackgroundColor@Widget>
-    background_color: 1, 1, 1, 1
-    canvas.before:
-        Color:
-            rgba: root.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-
-<BackgroundBoxLayout@BoxLayout+BackgroundColor>
-    background_color: 1, 1, 1, 1
-
-<BackgroundGridLayout@GridLayout+BackgroundColor>
-    background_color: 1, 1, 1, 1
-
-<BackgroundLabel@Label+BackgroundColor>
-    background_color: 1, 1, 1, 1
-
-<BackgroundRelativeLayout@RelativeLayout+BackgroundColor>
-    background_color: 0, 0, 0, 1
-
-<BackgroundFloatLayout@FloatLayout+BackgroundColor>
-    background_color: 0, 0, 0, 1
-
-<NormalButton@Button+BackgroundColor>
-    size_hint: (None, None)
-    height: '25dp'
-    padding: (5, 5)
-    margin: (5,5)
-    halign: 'center'
-    text_size: self.size
-    font_size: dp(13)
-    background_normal: ''
-    background_color: (.8,.8,.8,1)
-    color:(0,0,0,1)
-
-<ToggleButton>
-    size_hint: (None, None)
-    height: '25dp'
-    padding: (5, 5)
-    margin: (5,5)
-    halign: 'center'
-    text_size: self.size
-    font_size: dp(13)
-    background_normal: ''
-    background_down: ''
-    background_color: (1,1,1,1)
-    color:(0,0,0,1)
-
-<NormalLabel@Label>
-    color: (0,0,0,1)
-    halign: 'left'
-    valign: 'middle'
-    height: '30dp'
-    size_hint_y: None
-    text_size: self.size
-    font_size: dp(13)
-    padding_x: 10
-
-<TabbedPanelStrip>
-    canvas:
-        Color:
-            rgba: (1, 1, 1, 1) # green
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-Root:
+<TrackerScreen>:
     main_view_parent:main_view_parent
     info_bar: info_bar
     lbl_output_dir:lbl_output_dir
@@ -164,6 +96,7 @@ Root:
                         height: 25
                         multiline:False
                         font_size: dp(13)
+        
         InfoBar:
             id: info_bar
             size_hint_y: None

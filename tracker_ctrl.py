@@ -2,7 +2,7 @@ from ctypes import cdll, cast, c_int, POINTER, c_char_p, c_char, create_string_b
 import time
 import platform
 from threading import Thread
-from eye_utilities.helpers import props
+from helpers import props
 from gaze_listener import LogRecordSocketReceiver
 
 CString = POINTER(c_char)

@@ -4,7 +4,7 @@ from kivy.uix.image import Image
 from kivy.graphics.texture import Texture
 from kivy.clock import Clock
 import json
-from eye_utilities.helpers import frame_processing, process_fps, get_video_fps, props
+from helpers import frame_processing, process_fps, get_video_fps, props
 
 from kivy.core.window import Window
 import cv2

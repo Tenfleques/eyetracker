@@ -1,66 +1,6 @@
 #:kivy 1.1.0
-<BackgroundColor@Widget>
-    background_color: 1, 1, 1, 1
-    canvas.before:
-        Color:
-            rgba: root.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
 
-
-<BackgroundBoxLayout@BoxLayout+BackgroundColor>
-    background_color: 1, 1, 1, 1
-
-<BackgroundGridLayout@GridLayout+BackgroundColor>
-    background_color: 1, 1, 1, 1
-
-<BackgroundLabel@Label+BackgroundColor>
-    background_color: 1, 1, 1, 1
-
-<NormalButton@Button+BackgroundColor>
-    size_hint: (1, None)
-    height: '25dp'
-    padding: (5, 5)
-    margin: (5,5)
-    halign: 'center'
-    text_size: self.size
-    font_size: dp(13)
-    background_normal: ''
-    background_color: (.8,.8,.8,1)
-    color:(0,0,0,1)
-
-<ToggleButton>
-    size_hint: (None, None)
-    height: '25dp'
-    padding: (5, 5)
-    margin: (5,5)
-    halign: 'center'
-    text_size: self.size
-    font_size: dp(13)
-    background_normal: ''
-    background_down: ''
-    background_color: (1,1,1,1)
-    color:(0,0,0,1)
-
-<NormalLabel@Label>
-    color: (0,0,0,1)
-    halign: 'left'
-    valign: 'middle'
-    height: '30dp'
-    size_hint_y: None
-    text_size: self.size
-    font_size: dp(13)
-    padding_x: 10
-
-<TabbedPanelStrip>
-    canvas:
-        Color:
-            rgba: (1, 1, 1, 1) # green
-        Rectangle:
-            size: self.size
-            pos: self.pos
-Root:
+<ReplayScreen>:
     main_view_parent:main_view_parent
     info_bar: info_bar
     lbl_input_dir:lbl_input_dir
@@ -183,20 +123,23 @@ Root:
                     id: tabbed_timeline_item_charts
                     markup:True
                     text: "[b]" + root.get_local_str("_tl_charts") + "[/b]"
+
             BackgroundGridLayout:
                 rows:1
                 size_hint_y: None
                 height:2
                 background_color: (0, .196, .313, 1)
+
             BackgroundGridLayout:
                 rows:1
                 cols:2
-                size_hint_y: .2
+                size_hint_y: None
+                height: 140
                 background_color: (.9, .9, .9, .9)
                 GridLayout:
                     rows:3
                     id: main
-                    size_hint_x: .55
+                    size_hint_x: .65
                     padding: [5, 5, 5, 5]
                     GridLayout:
                         rows: 1
@@ -228,9 +171,10 @@ Root:
                             size_hint: (None, None)
                             width: '220dp'
                             height: '25dp'
+                
                 GridLayout:
                     id: tools_pane
-                    size_hint_x: .45
+                    size_hint_x: .35
                     rows: 2
                     padding: [5, 5, 5, 5]
                     GridLayout:
@@ -238,12 +182,6 @@ Root:
                         size_hint_y: None
                         height:45
                         background_color: (.9, .9, .9, 1)
-                        # NormalButton:
-                        #     text: root.get_local_str("_frame_info")
-                        #     on_release: root.show_frame_info()
-                        # NormalLabel:
-                        #     text: ''
-                        #     size_hint_x: 0.01
                         NormalButton:
                             id: btn_step_backward
                             text: root.get_local_str("_step_back")
@@ -304,3 +242,5 @@ Root:
 
         InfoBar:
             id: info_bar
+            size_hint_y: None
+            height:20

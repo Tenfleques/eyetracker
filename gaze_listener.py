@@ -10,7 +10,7 @@ import sys
 import json
 
 from collections import deque
-from eye_utilities.helpers import check_talon_directory
+from helpers import check_talon_directory
 
 # check_talon_directory()
 
