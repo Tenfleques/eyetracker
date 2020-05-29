@@ -269,7 +269,10 @@ class ResultVideoCanvas(Image):
         else:
             self.bg_frame[:, :, :] = 255
         
-
+        if not self.video_capture:
+            self.stop()
+            return None
+            
         if not self.video_capture.isOpened() and dt:
             self.stop()
             return None

@@ -240,7 +240,9 @@ class ReplayScreen(Screen):
 
         print("[INFO] started video player {} ".format(started))
         fps = self.video_feed_ctrl.get_fps()
-        self.ids["txt_box_replay_video_rate"].text = "{:.5}".format(fps)
+        
+        if fps:
+            self.ids["txt_box_replay_video_rate"].text = "{:.5}".format(fps)
 
     def progress_cb(self, current, total=None, frame_details=None):
         video_progress = self.ids["video_progress"]

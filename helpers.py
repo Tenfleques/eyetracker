@@ -19,11 +19,11 @@ LOCALE["__empty"] = {
 
 timestamp = lambda x: time.mktime(time.strptime(x[0], "%H:%M:%S")) + float("0." + x[1])
 
+user_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user")
+prev_session_file_path = os.path.join(user_dir, "last_session.json")
+
 # load user previous session settings
 try:
-    user_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user")
-    prev_session_file_path = os.path.join(user_dir, "last_session.json")
-
     if not os.path.isdir(user_dir):
         os.makedirs(user_dir, exist_ok=True)
         SESSION_PREFS = {}
@@ -97,6 +97,12 @@ def get_default_from_prev_session(key, default=''):
 def set_default_from_prev_session(key, value):
     # set a variable key in this session. e.g the directory of stimuli video
     SESSION_PREFS[key] = value
+
+def save_session_variables():
+    with open(prev_session_file_path, "w") as session_f:
+        session_f.write(json.dumps(SESSION_PREFS))
+        session_f.close()
+        
 
 def create_log(text, log_type=INFO):
     str_log_type = {

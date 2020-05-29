@@ -8,7 +8,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
 
 from kivy.config import Config
-from helpers import get_local_str_util, create_log, get_video_fps, props
+from helpers import get_local_str_util, create_log, get_video_fps, props, save_session_variables
 import os
 from kivy.clock import Clock
 
@@ -28,6 +28,11 @@ from tracker_screen import TrackerScreen
 
 class TestApp(App):
     
+    @staticmethod
+    def get_local_str(key):
+        # gets the localized string for litera text on the UI
+        return get_local_str_util(key)
+
     def on_start(self):
         print("[INFO] starting ")
         app = App.get_running_app()
@@ -39,12 +44,7 @@ class TestApp(App):
         app.root.ids["tracker_screen"].stop_all()
         app.root.ids["replay_screen"].stop_all()
 
-        # app.root.stop_all()
-
-        # with open(prev_session_file_path, "w") as session_f:
-        #     session_f.write(json.dumps(SESSION_PREFS))
-        #     session_f.close()
-        # print("closing...")
+        save_session_variables()
 
 if __name__ == '__main__':
     TestApp().run()

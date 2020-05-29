@@ -91,6 +91,14 @@
         "en": "stimuli FPS in use",
         "ru": "FPS стимулы"
     },
+    "_btn_tracker_screen": {
+        "en": "tracker screen",
+        "ru": "экран трекера"
+    },
+    "_btn_replay_screen": {
+        "en": "session visualization screen",
+        "ru": "экран визуализации сенса"
+    },
     "_tracker_time": {
         "en": "tracker time",
         "ru": "время трекера "

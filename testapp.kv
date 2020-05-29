@@ -78,16 +78,14 @@ BackgroundGridLayout:
         height: 30
         NormalButton:
             id : btn_tracker_screen
-            # text: root.get_local_str("_select_directory")
-            text: '_btn_tracker_screen'
+            text: app.get_local_str("_btn_tracker_screen")
             on_release: root.screen_manager.current = 'tracker_screen'
             size_hint: (None, None)
             width: '180dp'
             height: '25dp'
         NormalButton:
             id : btn_tracker_screen
-            # text: root.get_local_str("_select_directory")
-            text: '_btn_replay_screen'
+            text: app.get_local_str('_btn_replay_screen')
             on_release: root.screen_manager.current = 'replay_screen'
             size_hint: (None, None)
             width: '180dp'
