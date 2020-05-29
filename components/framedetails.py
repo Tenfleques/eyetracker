@@ -4,7 +4,7 @@ from kivy.uix.button import Button
 import os
 import json
 import math
-from eye_utilities.helpers import get_local_str_util
+from helpers import get_local_str_util
 from datetime import datetime
 
 widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "framedetails.kv"))

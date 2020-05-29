@@ -1,102 +1,259 @@
 {
-    "_appname" : {
-        "en" : "",
-        "ru" : ""
+    "_timeline_stage": {
+      "en": "video",
+      "ru": "видео"
+    },
+    "_directory_not_selected": {
+      "en": "directory not selected",
+      "ru": "каталог не выбран"
     },
     "_select_directory": {
-        "en" : "select output directory",
-        "ru" : "выберите выходной каталог"
-    },
-    "_press_q_to_quit": {
-        "en" : "press q/Q to quit",
-        "ru" : "нажмите q/Q чтобы выйти"
-    },
-    "_log": {
-        "en" : "log",
-        "ru" : "отчеты"
-    },
-    "_logs": {
-        "en" : "logs",
-        "ru" : "логи"
-    },
-    "_cancel": {
-        "en" : "cancel",
-        "ru" : "отмена"
-    },
-    "_select": {
-        "en" : "select",
-        "ru" : "выберите"
-    },
-    "_select_src_video": {
-        "en" : "select video",
-        "ru" : "выберите видео"
+      "en": "select output directory",
+      "ru": "выберите выходной каталог"
     },
     "_load_stimuli_video": {
-        "en" : "please load the stimuli video",
-        "ru" : "пожалуйста загрузите видео стимулов"
+      "en": "please load the stimuli video",
+      "ru": "пожалуйста загрузите видео стимулов"
+    },
+    "_select_src_video": {
+      "en": "select video",
+      "ru": "выберите видео"
+    },
+    "_frequency_in_use": {
+      "en": "stimuli FPS in use",
+      "ru": "FPS стимулы"
+    },
+    "_start": {
+      "en": "start",
+      "ru": "пуск"
+    },
+    "_pause": {
+      "en": "pause",
+      "ru": "пауза"
+    },
+    "_frame_details": {
+      "en": "frame details",
+      "ru": "детали кадра"
+    },
+    "_tl_table": {
+      "en": "",
+      "ru": ""
+    },
+    "_tl_charts": {
+      "en": "",
+      "ru": ""
+    },
+    "_frame_info": {
+      "en": "frame info",
+      "ru": "инфо кадра"
+    },
+    "_step_back": {
+      "en": "step back",
+      "ru": "шаг назад"
+    },
+    "_step_forward": {
+      "en": "step forward",
+      "ru": "шаг вперед"
+    },
+    "_stop": {
+      "en": "stop",
+      "ru": "стоп"
+    },
+    "_video_fps": {
+      "en": "video fps",
+      "ru": "fps видео"
+    },
+    "_step_size": {
+      "en": "step size (f)",
+      "ru": "размер шага (к)"
+    },
+    "_problem_waiting_camera": {
+      "en": "problem waiting camera",
+      "ru": "проблема при ожиданий камеры"
+    },
+    "_actual_video_fps": {
+      "en": "actual video FPS",
+      "ru": "фактическое FPS видео"
+    },
+    "_factual_camera_fps": {
+      "en": "actual camera FPS",
+      "ru": "фактическое FPS камеры"
+    },
+    "_session_video_not_ready": {
+      "en": "session's video not ready",
+      "ru": "видео сессии не готово"
+    },
+    "_tracker_time": {
+      "en": "tracker time",
+      "ru": "время трекера "
+    },
+    "_video_time": {
+      "en": "video time ",
+      "ru": "время видео"
+    },
+    "_camera_time": {
+      "en": "camera time",
+      "ru": "время камеры"
+    },
+    "_cancel": {
+      "en": "cancel",
+      "ru": "отмена"
+    },
+    "_select": {
+      "en": "select",
+      "ru": "выберите"
+    },
+    "_timestamp": {
+      "en": "_timestamp",
+      "ru": "_timestamp"
+    },
+    "_gaze": {
+      "en": "_gaze",
+      "ru": "_gaze"
+    },
+    "_camera": {
+      "en": "_camera",
+      "ru": "_camera"
+    },
+    "_video": {
+      "en": "_video",
+      "ru": "_video"
+    },
+    "_preparing_session_timeline": {
+      "en": "preparing the session timeline",
+      "ru": "подготовка графика сессии"
+    },
+    "_demonstration_preparing": {
+      "en": "preparing the demonstration video",
+      "ru": "подготовка демонстрационного видео"
+    },
+    "_requested_video_fps": {
+      "en": "requested video FPS",
+      "ru": "запрашиваемый FPS видео"
+    },
+    "_requested_camera_fps": {
+      "en": "requested camera FPS",
+      "ru": "запрашиваемый FPS камеры"
+    },
+    "_demonstration_video_ready": {
+      "en": "demonstration video ready",
+      "ru": "демонстрационное видео готово"
+    },
+    "_session_timeline_ready_preparing_video": {
+      "en": "session timeline ready, now preparing video",
+      "ru": "видео готов, сейчас готовится "
+    },
+    "_preprocessing_video": {
+      "en": "обработка видео",
+      "ru": "preprocessing video"
+    },
+    "_preprocessed_already": {
+      "en": "preprocessed already",
+      "ru": "уже обработан"
+    },
+    "_video_preprocessing_started": {
+      "en": "video preprocessing started",
+      "ru": "началась предварительная обработка видео"
+    },
+    "_video_preprocessing_finished": {
+      "en": "video preprocessing finished",
+      "ru": "видеообработка завершена"
+    },
+    "_use_video_freq": {
+      "en": "use video FPS",
+      "ru": "воспользуйте FPS видео"
+    },
+    "_preprocess_video": {
+      "en": "preprocess video",
+      "ru": "обработать видео"
+    },
+    "_save_images": {
+      "en": "save images",
+      "ru": "сохранить изображения"
+    },
+    "_camera_fps_in_use": {
+      "en": "camera FPS in use",
+      "ru": "используемы FPS камеры"
+    },
+    "_use_camera_freq": {
+      "en": "use the camera's frequency",
+      "ru": "использовать частоту камеры"
+    },
+    "_replay": {
+      "en": "replay",
+      "ru": "переигрывать"
+    },
+    "_log": {
+      "en": "log",
+      "ru": "отчеты"
+    },
+    "_appname": {
+      "en": "",
+      "ru": ""
+    },
+    "_press_q_to_quit": {
+      "en": "press q/Q to quit",
+      "ru": "нажмите q/Q чтобы выйти"
+    },
+    "_logs": {
+      "en": "logs",
+      "ru": "логи"
     },
     "_video_error": {
-        "en" : "video error",
-        "ru" : "ошибка с видео"
-    },
-    "_directory_not_selected" : {
-        "en" : "directory not selected",
-        "ru" : "каталог не выбран"
+      "en": "video error",
+      "ru": "ошибка с видео"
     },
     "_save_directory_set": {
-        "en" : "output directory set",
-        "ru" : "каталог выбран"
+      "en": "output directory set",
+      "ru": "каталог выбран"
     },
-    "_frequency_in_use" : {
-        "en" : "stimuli FPS in use",
-        "ru" : "FPS стимулы"
+    "_save": {
+      "en": "save",
+      "ru": "сохранить"
     },
-    "_start" : {
-        "en" : "start",
-        "ru" : "пуск"
+    "_reset_session": {
+      "en": "new session",
+      "ru": "новая сеанса"
     },
-    "_stop" : {
-        "en" : "stop",
-        "ru" : "стоп"
-    },
-    "_save" : {
-        "en" : "save",
-        "ru" : "сохранить"
-    },
-    "_use_video_freq" : {
-        "en" : "use video FPS",
-        "ru" : "воспользуйте FPS видео"
-    },
-    "_reset_session" : {
-        "en" : "new session",
-        "ru" : "новая сеанса"
-    },
-    "_session" : {
-        "en" : "session",
-        "ru" : "сеанса"
+    "_session": {
+      "en": "session",
+      "ru": "сеанса"
     },
     "_session_saved": {
-        "en" : "session saved",
-        "ru" : "сеанса сохранена"
+      "en": "session saved",
+      "ru": "сеанса сохранена"
+    },
+    "_bg_is_grab": {
+        "en": "desktop background",
+        "ru": "фон десктопа"
+    },
+    "_maintain_track": {
+        "en": "maintain gaze track",
+        "ru": "рисовать трекер gaze"
     },
     "_session_empty": {
-        "en" : "",
-        "ru" : ""
+      "en": "",
+      "ru": ""
     },
     "_session_in_progress": {
-        "en" : "please stop the session first",
-        "ru" : "пожалуйста, остановите сессию первым"
+      "en": "please stop the session first",
+      "ru": "пожалуйста, остановите сессию первым"
+    },
+    "_session_timeline_ready": {
+        "en": "sycnhronizing completed",
+        "ru": "синхронизация заврешена"
     },
     "_gaze_device_ready": {
-        "en" : "tracker device ready",
-        "ru" : "трейкер готов"
+      "en": "tracker device ready",
+      "ru": "трейкер готов"
     },
-    "_gaze_device_not_ready" : {
-        "en" : "tracker device not yet ready",
-        "ru" : "трейкер пока не готов"
+    "_gaze_device_not_ready": {
+      "en": "tracker device not yet ready",
+      "ru": "трейкер пока не готов"
     },
-    "_gaze_device_out_of_sync" : {
-        "en" : "tracker device out of sync",
-        "ru" : "трейкер пока не синхронизирован"
+    "_gaze_device_out_of_sync": {
+      "en": "tracker device out of sync",
+      "ru": "трейкер пока не синхронизирован"
     }
-}
+  }
+  

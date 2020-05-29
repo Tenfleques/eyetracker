@@ -19,6 +19,27 @@ LOCALE["__empty"] = {
 
 timestamp = lambda x: time.mktime(time.strptime(x[0], "%H:%M:%S")) + float("0." + x[1])
 
+# load user previous session settings
+try:
+    user_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user")
+    prev_session_file_path = os.path.join(user_dir, "last_session.json")
+
+    if not os.path.isdir(user_dir):
+        os.makedirs(user_dir, exist_ok=True)
+        SESSION_PREFS = {}
+        with open(prev_session_file_path, "w") as session_f:
+            session_f.write(json.dumps(SESSION_PREFS))
+            session_f.close()
+    else:
+        with open(prev_session_file_path, "r") as session_f:
+            SESSION_PREFS = json.load(session_f)
+            session_f.close()
+except IOError:
+    SESSION_PREFS = {}
+    print("[ERROR] i/o error")
+except Exception as e:
+    print(e)
+
 
 def props(cls):
     return [i for i in cls.__dict__.keys() if i[:1] != '_']
@@ -66,6 +87,16 @@ def get_local_str_util(key):
 
     return key
 
+def get_default_from_prev_session(key, default=''):
+    # loads a variable saved from the last session, directory, stimuli video for example
+    if key in SESSION_PREFS.keys():
+        return str(SESSION_PREFS.get(key))
+    else:
+        return str(default)
+
+def set_default_from_prev_session(key, value):
+    # set a variable key in this session. e.g the directory of stimuli video
+    SESSION_PREFS[key] = value
 
 def create_log(text, log_type=INFO):
     str_log_type = {
@@ -78,7 +109,6 @@ def create_log(text, log_type=INFO):
     if text:
         log = "{}: {}".format(str_log_type.get(log_type, INFO), text)
     return log
-
 
 def get_video_fps(path):
     if isinstance(path, int):

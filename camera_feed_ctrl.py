@@ -7,7 +7,7 @@ from collections import deque
 import numpy as np
 import os
 import sys
-from eye_utilities.helpers import get_local_str_util
+from helpers import get_local_str_util
 import platform
 
 
