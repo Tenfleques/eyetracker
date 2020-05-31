@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from kivy.app import App
-
 from kivy.factory import Factory
 
 from kivy.core.window import Window
@@ -18,19 +17,19 @@ Config.set('graphics', 'maxfps', 0)
 Window.size = (1200, 800)
 Window.clearcolor = (1, 1, 1, 1)
 
-Window.set_title(get_local_str_util('_appname'))
-
-# Window.set_icon('./assets/icon.png')
-
-from components.loaddialog import LoadDialog
 from replay_screen import ReplayScreen
 from tracker_screen import TrackerScreen
+import logging
+logging.basicConfig(filename='~/logs/main.log', level=logging.DEBUG)
+
+Window.set_icon('./assets/icon.png')
+
 
 class TestApp(App):
-    
+
     @staticmethod
     def get_local_str(key):
-        # gets the localized string for litera text on the UI
+        # gets the localized string for literal text on the UI
         return get_local_str_util(key)
 
     def on_start(self):
@@ -38,6 +37,7 @@ class TestApp(App):
         app = App.get_running_app()
         app.root.ids["replay_screen"].start_all()
         app.root.ids["screen_manager"].transition = FadeTransition()
+        Window.set_title(get_local_str_util('_appname'))
 
     def on_stop(self):
         app = App.get_running_app()
@@ -46,5 +46,9 @@ class TestApp(App):
 
         save_session_variables()
 
+
 if __name__ == '__main__':
-    TestApp().run()
+    try:
+        TestApp().run()
+    except Exception as err:
+        print(err)

@@ -1,7 +1,7 @@
 from ctypes import cdll, c_float, c_bool, c_double, c_int, c_int64, Structure, POINTER
 import time
 
-class Point2D(Structure): 
+class Point2D(Structure):
     _fields_ = [('x', c_float), ('y', c_float)]
     @classmethod
     def from_param(cls, self):
@@ -16,7 +16,7 @@ class Gaze(Point2D):
         if not isinstance(self, cls):
             raise TypeError
         return self
-    
+
 
 class Point3D(Point2D):
     _fields_ = [('z', c_float)]
@@ -49,7 +49,7 @@ class SessionRecord(Structure):
         ('origins', POINTER(Pos3D)),
         ('record_tracker', c_bool),
         ('poses', POINTER(Pos3D))]
-    
+
     def toString(self):
         pass
 
@@ -69,4 +69,3 @@ if __name__ == "__main__":
 
     lib.stop()
     output = lib.get_session()
-    print()

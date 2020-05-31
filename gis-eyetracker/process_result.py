@@ -9,7 +9,8 @@ import copy
 from threading import Thread
 from multiprocessing import Process
 import sys
-
+import logging
+logging.basicConfig(filename='~/logs/process_result.log',level=logging.DEBUG)
 
 def create_timeline(tracker_data, video_data):
     gaze_frames = tracker_data["gaze"]

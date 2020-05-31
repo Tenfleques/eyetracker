@@ -1,18 +1,21 @@
 #!/usr/bin/python
 from kivy.app import App
-from kivy.uix.screenmanager import Screen
+
+from kivy.factory import Factory
+from kivy.uix.relativelayout import RelativeLayout
+
 from kivy.uix.popup import Popup
 import json
 
-from helpers import get_local_str_util, create_log, get_video_fps, props, get_default_from_prev_session, set_default_from_prev_session
-
-from components.loaddialog import LoadDialog
+from eye_utilities.helpers import get_local_str_util, create_log, get_video_fps, props
+import os
+from loaddialog import LoadDialog
 from result_playback_ctrl import ResultVideoCanvas
-from components.table import Table
-from components.floatInput import FloatInput
-from components.integerInput import IntegerInput
-from components.infobar import InfoBar
-from components.framedetails import FrameDetails
+from table import Table
+from floatInput import FloatInput
+from integerInput import IntegerInput
+from infobar import InfoBar
+from framedetails import FrameDetails
 
 from kivy.core.window import Window
 
@@ -20,17 +23,41 @@ from collections import deque
 
 from kivy.config import Config
 
+import logging
+logging.basicConfig(filename='~/logs/replay.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-from kivy.lang.builder import Builder
-import os
-from kivy.properties import ObjectProperty
+Window.size = (1400, 800)
+Window.clearcolor = (1, 1, 1, 1)
 
-widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "replay_screen.kv"))
+Window.set_title(get_local_str_util('_appname'))
 
-class ReplayScreen(Screen):
+# Window.set_icon('./assets/icon.png')
+# load user previous session settings
+try:
+    user_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user")
+    prev_session_file_path = os.path.join(user_dir, "last_session.json")
+
+    if not os.path.isdir(user_dir):
+        os.makedirs(user_dir, exist_ok=True)
+        SESSION_PREFS = {}
+        with open(prev_session_file_path, "w") as session_f:
+            session_f.write(json.dumps(SESSION_PREFS))
+            session_f.close()
+    else:
+        with open(prev_session_file_path, "r") as session_f:
+            SESSION_PREFS = json.load(session_f)
+            session_f.close()
+except IOError:
+    SESSION_PREFS = {}
+    print("[ERROR] i/o error")
+except Exception as e:
+    print(e)
+
+
+class Root(RelativeLayout):
     video_feed_ctrl = None
     session_timeline = None
     processes = []
@@ -42,55 +69,6 @@ class ReplayScreen(Screen):
 
     session_name = None
 
-    @staticmethod
-    def get_default_from_prev_session(key, default=''):
-        # loads a variable saved from the last session, directory, stimuli video for example
-        return get_default_from_prev_session(key, default)
-
-    @staticmethod
-    def set_default_from_prev_session(key, value):
-        # set a variable key in this session. e.g the directory of stimuli video
-        return set_default_from_prev_session(key, value)
-
-    @staticmethod
-    def get_local_str(key):
-        # gets the localized string for litera text on the UI
-        return get_local_str_util(key)
-
-    def build(self):
-        return widget
-    
-    def on_stop(self):
-        print("closing... replay screen")
-
-
-    def stop_all(self):
-        print("[INFO] closing processes in replay screen")
-        self.stop()
-        for p in self.processes:
-            # join all other running processes
-            p.join()
-        print("[INFO] closed all processes in replay screen ")
-    
-    def __tracker_app_log(self, text, log_label='app_log'):
-        # give feedback to the user of what is happening behind the scenes
-        log = create_log(text)
-        if log_label in self.ids["info_bar"].ids:
-            self.ids["info_bar"].log_text(log, log_label)
-            return
-
-        if log_label in self.ids:
-            self.ids[log_label].text = log
-
-
-    def start_all(self):
-        print("[INFO] init listeners")
-        self.ids["txt_box_replay_video_rate"].bind(on_text_validate=self.set_playback_fps)
-        self.ids["video_progress"].bind(on_touch_up=self.step_to_frame)
-
-        self.ids["chkbx_bg_is_grab"].bind(state=self.toggle_bg_is_screen)
-        self.ids["chkbx_maintain_track"].bind(state=self.toggle_maintain_track)
-
     def stop_all(self):
         print("[INFO] closing processes and devices")
         self.stop()
@@ -98,6 +76,24 @@ class ReplayScreen(Screen):
             # join all other running processes
             p.join()
         print("[INFO] closed all processes and devices ")
+
+    @staticmethod
+    def get_default_from_prev_session(key, default=''):
+        # loads a variable saved from the last session, directory, stimuli video for example
+        if key in SESSION_PREFS.keys():
+            return str(SESSION_PREFS.get(key))
+        else:
+            return default
+
+    @staticmethod
+    def set_default_from_prev_session(key, value):
+        # set a variable key in this session. e.g the directory of stimuli video
+        SESSION_PREFS[key] = value
+
+    @staticmethod
+    def get_local_str(key):
+        # gets the localized string for litera text on the UI
+        return get_local_str_util(key)
 
     def show_frame_info(self):
         print("[INFO] get the frame info: detailed ")
@@ -125,6 +121,14 @@ class ReplayScreen(Screen):
 
         self.video_feed_ctrl.set_fps(fps)
 
+    def start_all(self):
+        print("[INFO] init listeners")
+        self.ids["txt_box_replay_video_rate"].bind(on_text_validate=self.set_playback_fps)
+        self.ids["video_progress"].bind(on_touch_up=self.step_to_frame)
+
+        self.ids["chkbx_bg_is_grab"].bind(state=self.toggle_bg_is_screen)
+        self.ids["chkbx_maintain_track"].bind(state=self.toggle_maintain_track)
+
     def input_dir_ready(self):
         lbl_input_dir = self.ids['lbl_input_dir']
         # check the directory in the computer's filesystem
@@ -148,18 +152,15 @@ class ReplayScreen(Screen):
 
         return ready
 
-    # def __tracker_app_log(self, text, log_label='app_log'):
-    #     # # give feedback to the user of what is happening behind the scenes
-    #     # log = create_log(text)
-    #     # if log_label in self.ids["info_bar"].ids:
-    #     #     self.ids["info_bar"].log_text(log, log_label)
-    #     #     return
+    def __tracker_app_log(self, text, log_label='app_log'):
+        # give feedback to the user of what is happening behind the scenes
+        log = create_log(text)
+        if log_label in self.ids["info_bar"].ids:
+            self.ids["info_bar"].log_text(log, log_label)
+            return
 
-    #     # if log_label in self.ids:
-    #     #     self.ids[log_label].text = log
-    #     app = App.get_running_app()
-    #     print(app)
-        # app.root.__tracker_app_log()
+        if log_label in self.ids:
+            self.ids[log_label].text = log
 
     def btn_stop_click(self):
         if self.video_feed_ctrl is None:
@@ -240,9 +241,7 @@ class ReplayScreen(Screen):
 
         print("[INFO] started video player {} ".format(started))
         fps = self.video_feed_ctrl.get_fps()
-        
-        if fps:
-            self.ids["txt_box_replay_video_rate"].text = "{:.5}".format(fps)
+        self.ids["txt_box_replay_video_rate"].text = "{:.5}".format(fps)
 
     def progress_cb(self, current, total=None, frame_details=None):
         video_progress = self.ids["video_progress"]
@@ -317,3 +316,26 @@ class ReplayScreen(Screen):
         self.dismiss_popup()
 
         self.input_dir_ready()
+
+
+class Replay(App):
+    def build(self):
+        Factory.register('Root', cls=Root)
+        Factory.register('LoadDialog', cls=LoadDialog)
+
+    def on_start(self):
+        app = App.get_running_app()
+        app.root.start_all()
+
+    def on_stop(self):
+        app = App.get_running_app()
+        app.root.stop_all()
+        with open(prev_session_file_path, "w") as session_f:
+            session_f.write(json.dumps(SESSION_PREFS))
+            session_f.close()
+        print("closing...")
+
+
+if __name__ == '__main__':
+    tracker = Replay()
+    tracker.run()

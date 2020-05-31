@@ -9,10 +9,10 @@
             dirselect: True
             path: root.get_default_from_prev_session('filechooser', default="~")
 
-        GridLayout:
+        BoxLayout:
+            orientation: "horizontal"
             size_hint_y: None
             height: 30
-            cols: 3
             NormalButton:
                 text: root.get_local_str("_cancel")
                 on_release: root.cancel()

@@ -356,3 +356,6 @@ sample
 ._*.py
 user
 .DS_Store
+*/build
+*/dist
+*/user

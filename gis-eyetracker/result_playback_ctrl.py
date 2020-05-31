@@ -14,6 +14,9 @@ import time
 from kivy.config import Config
 from collections import deque
 
+import logging
+logging.basicConfig(filename='~/logs/result_playback_ctrl.log',level=logging.DEBUG)
+
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
@@ -62,13 +65,13 @@ class ResultVideoCanvas(Image):
     def toggle_bg_is_screen(self, state=None):
         if state is None:
             self.bg_is_screen = not self.bg_is_screen
-            return 
+            return
         self.bg_is_screen = bool(state)
 
     def toggle_maintain_track(self, state=None):
         if state is None:
             self.maintain_track = not self.maintain_track
-            return 
+            return
         self.maintain_track = bool(state)
 
     def is_playing(self):
@@ -86,7 +89,7 @@ class ResultVideoCanvas(Image):
     def current_frame_cb(self, current, total, record=None):
         print("[INFO] frame {}/{}".format(current, total))
 
-    def pause_play(self):            
+    def pause_play(self):
         if self.video_interval is None:
             self.video_interval = Clock.schedule_interval(self.update_video_canvas, 1.0/self.video_fps)
             self.is_paused = False
@@ -169,7 +172,7 @@ class ResultVideoCanvas(Image):
             self.bg_image = cv2.imread(image_grab_path)
             self.bg_frame[:, :, :] = self.bg_image
 
-    
+
         self.timestamp_keys = [i for i in self.session_timeline.keys()]
         float_timestamp_keys = [float(i) for i in self.timestamp_keys]
         len_keys = len(self.timestamp_keys)
@@ -182,7 +185,7 @@ class ResultVideoCanvas(Image):
 
         if self.session_timeline_index >= len_keys - 1:
             self.session_timeline_index = 0
-        
+
         self.path_history.clear()
 
         self.video_capture = cv2.VideoCapture(video_path)
@@ -201,7 +204,7 @@ class ResultVideoCanvas(Image):
         diff = max(float_timestamp_keys) - min(float_timestamp_keys)
 
         if self.video_fps is None:
-            self.set_fps(len_keys / (diff * 3)) # multiplies by three coz of gaze, pos, and origin 
+            self.set_fps(len_keys / (diff * 3)) # multiplies by three coz of gaze, pos, and origin
 
         demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
 
@@ -268,11 +271,11 @@ class ResultVideoCanvas(Image):
             self.bg_frame[:, :, :] = self.bg_image
         else:
             self.bg_frame[:, :, :] = 255
-        
+
         if not self.video_capture:
             self.stop()
             return None
-            
+
         if not self.video_capture.isOpened() and dt:
             self.stop()
             return None

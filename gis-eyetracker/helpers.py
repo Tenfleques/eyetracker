@@ -4,6 +4,8 @@ import json
 import os
 import cv2
 import filecmp
+import logging
+logging.basicConfig(filename='~/logs/helpers.log',level=logging.DEBUG)
 
 ERROR = -1
 WARNING = 2
@@ -51,41 +53,42 @@ def process_fps(video_frames):
 
     if not len_records:
         return None, None, None
-        
+
     info_1 = "[INFO] length of recorded frames {}\n\r".format(len_records)
     print(info_1)
     info_2 = ""
     diff_2 = max(times) - min(times)
     frame_rate_2 = None
     if diff_2:
-        frame_rate_2 = len_records/diff_2
+        frame_rate_2 = len_records / diff_2
         info_2 = "[INFO] frame rate calculated by recorded frames times is {}\n\r".format(frame_rate_2)
         print(info_2)
-    
+
     return info_1, info_2, frame_rate_2
 
 
 def frame_processing(frame):
     """
-        for a uniform frame processing while looping across frames 
-        so far doess nothing, TODO add some frame manipulation 
+        for a uniform frame processing while looping across frames
+        so far doess nothing, TODO add some frame manipulation
     """
-    return frame 
+    return frame
 
 
 def get_local_str_util(key):
     lang = "ru"
-#    local_def = locale.getdefaultlocale()
-#    if len(local_def) and local_def[0]:
-#        sys_locale = local_def[0].split("_")[0]
-#        if sys_locale in ["en", "ru"]:
-#            lang = sys_locale
-#
+    #    local_def = locale.getdefaultlocale()
+    #    if len(local_def) and local_def[0]:
+    #        sys_locale = local_def[0].split("_")[0]
+    #        if sys_locale in ["en", "ru"]:
+    #            lang = sys_locale
+    #
     if key in LOCALE.keys():
         if lang in LOCALE.get(key).keys():
             return LOCALE.get(key)[lang]
 
     return key
+
 
 def get_default_from_prev_session(key, default=''):
     # loads a variable saved from the last session, directory, stimuli video for example
@@ -94,15 +97,17 @@ def get_default_from_prev_session(key, default=''):
     else:
         return str(default)
 
+
 def set_default_from_prev_session(key, value):
     # set a variable key in this session. e.g the directory of stimuli video
     SESSION_PREFS[key] = value
+
 
 def save_session_variables():
     with open(prev_session_file_path, "w") as session_f:
         session_f.write(json.dumps(SESSION_PREFS))
         session_f.close()
-        
+
 
 def create_log(text, log_type=INFO):
     str_log_type = {
@@ -115,6 +120,7 @@ def create_log(text, log_type=INFO):
     if text:
         log = "{}: {}".format(str_log_type.get(log_type, INFO), text)
     return log
+
 
 def get_video_fps(path):
     if isinstance(path, int):
@@ -152,4 +158,3 @@ def check_talon_directory():
             dst.write(src.read())
             dst.close()
             src.close()
-

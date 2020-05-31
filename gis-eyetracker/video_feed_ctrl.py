@@ -12,6 +12,8 @@ from collections import deque
 from camera_feed_ctrl import Frame
 
 from kivy.config import Config
+import logging
+logging.basicConfig(filename='~/logs/video_feed_ctrl.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
