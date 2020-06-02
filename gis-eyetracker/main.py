@@ -25,12 +25,21 @@ logging.basicConfig(filename='~/logs/main.log', level=logging.DEBUG)
 Window.set_icon('./assets/icon.png')
 
 
-class TestApp(App):
+class GisApp(App):
 
     @staticmethod
     def get_local_str(key):
         # gets the localized string for literal text on the UI
         return get_local_str_util(key)
+
+    def tracker_app_log(self, text, log_label='app_log'):
+        log = create_log(text)
+        if log_label in self.root.ids["info_bar"].ids:
+            self.root.ids["info_bar"].log_text(log, log_label)
+            return
+
+        if log_label in self.root.ids:
+            self.root.ids[log_label].text = log
 
     def on_start(self):
         print("[INFO] starting ")
@@ -49,6 +58,6 @@ class TestApp(App):
 
 if __name__ == '__main__':
     try:
-        TestApp().run()
+        GisApp().run()
     except Exception as err:
         print(err)

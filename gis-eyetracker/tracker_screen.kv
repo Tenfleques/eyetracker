@@ -1,7 +1,6 @@
 #:kivy 1.1.0
 <TrackerScreen>:
     main_view_parent:main_view_parent
-    info_bar: info_bar
     lbl_output_dir:lbl_output_dir
     btn_play: btn_play
     lbl_src_video: lbl_src_video
@@ -15,7 +14,7 @@
             rows: 3
             cols: 1
             BackgroundFloatLayout:
-                background_color: (1, 1, 1, 1)
+                background_color: (0, 0, 0, 1)
                 VideoCanvas:
                     id: video_canvas
                     size_hint_y: 1
@@ -96,8 +95,3 @@
                         height: 25
                         multiline:False
                         font_size: dp(13)
-
-        InfoBar:
-            id: info_bar
-            size_hint_y: None
-            height:20

@@ -2,7 +2,6 @@
 
 <ReplayScreen>:
     main_view_parent:main_view_parent
-    info_bar: info_bar
     lbl_input_dir:lbl_input_dir
     btn_play: btn_play
     lbl_src_video: lbl_src_video
@@ -15,9 +14,8 @@
     chkbx_maintain_track:chkbx_maintain_track
     # tabbed_main_view:tabbed_main_view
     # tabbed_timeline_item:tabbed_timeline_item
-    RelativeLayout:
-        anchor_x:'left'
-        anchor_y:'top'
+    BoxLayout:
+        orientation: 'vertical'
         id: main_view_parent
         BackgroundGridLayout:
             rows: 3
@@ -134,7 +132,7 @@
                 rows:1
                 cols:2
                 size_hint_y: None
-                height: 140
+                height: 120
                 background_color: (.9, .9, .9, .9)
                 GridLayout:
                     rows:3
@@ -239,9 +237,3 @@
                                 font_size: dp(13)
                             NormalLabel:
                                 text: root.get_local_str("_step_size")
-
-
-        InfoBar:
-            id: info_bar
-            size_hint_y: None
-            height:20

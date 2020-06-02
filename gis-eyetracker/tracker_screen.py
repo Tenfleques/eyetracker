@@ -25,6 +25,7 @@ from table import Table
 from floatInput import FloatInput
 from infobar import InfoBar
 from kivy.core.window import Window
+from kivy.clock import Clock
 
 
 import logging
@@ -60,6 +61,8 @@ class TrackerScreen(Screen):
         super().__init__(**kwargs)
         if platform.system() == 'Darwin':
             print("[INFO] Running on Mac OS")
+
+        Clock.schedule_once(lambda dt: self.ids["video_canvas"].on_start())
 
     def stop_all(self):
         print("[INFO] closing processes and devices")
@@ -120,15 +123,14 @@ class TrackerScreen(Screen):
 
         return ready
 
-    def __tracker_app_log(self, text, log_label='app_log'):
+    @staticmethod
+    def __tracker_app_log(text, log_label='app_log'):
         # give feedback to the user of what is happening behind the scenes
-        log = create_log(text)
-        if log_label in self.ids["info_bar"].ids:
-            self.ids["info_bar"].log_text(log, log_label)
-            return
-
-        if log_label in self.ids:
-            self.ids[log_label].text = log
+        app = App.get_running_app()
+        try:
+            app.tracker_app_log(text, log_label)
+        except Exception as er:
+            print("[ERROR] {}".format(er))
 
     def btn_play_click(self):
         """

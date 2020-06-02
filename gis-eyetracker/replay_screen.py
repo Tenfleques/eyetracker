@@ -4,7 +4,9 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.popup import Popup
 import json
 
-from helpers import get_local_str_util, create_log, get_video_fps, get_default_from_prev_session, set_default_from_prev_session
+from helpers import get_local_str_util, create_log, get_video_fps, props, \
+    get_default_from_prev_session, set_default_from_prev_session
+
 from result_playback_ctrl import ResultVideoCanvas
 from table import Table
 from floatInput import FloatInput
@@ -61,10 +63,20 @@ class ReplayScreen(Screen):
     def show_frame_info():
         print("[INFO] get the frame info: detailed ")
 
+    @staticmethod
+    def __tracker_app_log(text, log_label='app_log'):
+        # give feedback to the user of what is happening behind the scenes
+        app = App.get_running_app()
+        try:
+            app.tracker_app_log(text, log_label)
+        except Exception as er:
+            print("[ERROR] {}".format(er))
+
     def build(self):
         return widget
 
     def on_stop(self):
+        self.stop_all()
         print("closing... replay screen")
 
     def stop_all(self):
@@ -75,18 +87,7 @@ class ReplayScreen(Screen):
             p.join()
         print("[INFO] closed all processes in replay screen ")
 
-    def __tracker_app_log(self, text, log_label='app_log'):
-        # give feedback to the user of what is happening behind the scenes
-        log = create_log(text)
-        if log_label in self.ids["info_bar"].ids:
-            self.ids["info_bar"].log_text(log, log_label)
-            return
-
-        if log_label in self.ids:
-            self.ids[log_label].text = log
-
     def start_all(self):
-        print("[INFO] init listeners")
         self.ids["txt_box_replay_video_rate"].bind(on_text_validate=self.set_playback_fps)
         self.ids["video_progress"].bind(on_touch_up=self.step_to_frame)
 
@@ -138,7 +139,7 @@ class ReplayScreen(Screen):
         if get_video_fps(self.ids['lbl_src_video'].text):
             return True
 
-        self.__tracker_app_log(self.get_local_str("_load_stimuli_video"))
+        self.__tracker_app_log(self.get_local_str("_load_stimuli_video"), "stimuli_video_log")
 
         return ready
 
@@ -197,7 +198,8 @@ class ReplayScreen(Screen):
         files = os.listdir(self.ids['lbl_input_dir'].text)
         filename = "tracker-timeline.json"
         if filename not in files:
-            print("[ERROR] the tracker timeline file caould not be found ")
+            print("[ERROR] the tracker timeline file could not be found ")
+            self.__tracker_app_log(self.get_local_str("_error_loading_session"), "camera_log")
 
         viewpoint_size = None
         session_timeline_path = os.path.join(self.ids['lbl_input_dir'].text, filename)
@@ -212,14 +214,15 @@ class ReplayScreen(Screen):
         # set fps
         self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
 
-        self.video_feed_ctrl.toggle_maintain_track(self.ids["chkbx_maintain_track"].state=='down')
-        self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state=='down')
+        self.video_feed_ctrl.toggle_maintain_track(self.ids["chkbx_maintain_track"].state == 'down')
+        self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state == 'down')
 
         started = self.video_feed_ctrl.start(video_src, session_timeline_path,
                                              viewpoint_size, cam_video_path, self.progress_cb,
                                              end_cb)
 
         print("[INFO] started video player {} ".format(started))
+        self.__tracker_app_log(self.get_local_str("_playback_started"), "camera_log")
         fps = self.video_feed_ctrl.get_fps()
 
         if fps:
@@ -234,7 +237,7 @@ class ReplayScreen(Screen):
             video_progress.max = total
 
         video_log = "{}/{}".format(current, total)
-        self.__tracker_app_log(video_log, "stimuli_video_log")
+        self.__tracker_app_log(video_log, "app_log")
         video_progress.value = current
 
         if frame_details is not None:
@@ -243,13 +246,16 @@ class ReplayScreen(Screen):
     def set_button_play_start(self, force_stop=False):
         if force_stop:
             self.ids["btn_play"].text = self.get_local_str("_start")
+            self.__tracker_app_log(self.get_local_str("_playback_stopped"), "camera_log")
             return
 
         if self.get_local_str("_start") == self.ids["btn_play"].text:
             self.ids["btn_play"].text = self.get_local_str("_pause")
+            self.__tracker_app_log(self.get_local_str("_playing"), "camera_log")
             return
 
         self.ids["btn_play"].text = self.get_local_str("_start")
+        self.__tracker_app_log(self.get_local_str("_paused"), "camera_log")
 
     def stop(self):
         # stop video capture feed and callback toggle play button ready for next experiment

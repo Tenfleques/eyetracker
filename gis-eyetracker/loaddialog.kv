@@ -1,9 +1,19 @@
 #:kivy 1.10.0
 <LoadDialog>:
+    filechooser: filechooser
     BoxLayout:
         size: root.size
         pos: root.pos
         orientation: "vertical"
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 30
+            NormalLabel:
+                markup:True
+                text: "[b]" + root.filechooser.path + "[/b]"
+                color: (1,1,1,1)
+                font_size: dp(14)
         FileChooserListView:
             id: filechooser
             dirselect: True

@@ -10,10 +10,13 @@ from kivy.core.window import Window
 import cv2
 from collections import deque
 from camera_feed_ctrl import Frame
+from kivy.lang.builder import Builder
 
 from kivy.config import Config
 import logging
-logging.basicConfig(filename='~/logs/video_feed_ctrl.log',level=logging.DEBUG)
+import numpy as np
+
+logging.basicConfig(filename='~/logs/video_feed_ctrl.log', level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
@@ -28,6 +31,15 @@ class VideoCanvas(Image):
     video_capture = None
 
     initial_window_state = Window.fullscreen
+
+    def on_start(self):
+        frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+        buf = frame.tostring()
+        texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+
+        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+
+        self.texture = texture
 
     def is_playing(self):
         return self.video_interval is not None

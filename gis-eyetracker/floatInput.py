@@ -1,8 +1,10 @@
 from kivy.uix.textinput import TextInput
 import re
 
+
 class FloatInput(TextInput):
     pat = re.compile('[^0-9]')
+
     def insert_text(self, substring, from_undo=False):
         pat = self.pat
         if '.' in self.text:

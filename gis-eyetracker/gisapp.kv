@@ -71,11 +71,13 @@ BackgroundGridLayout:
     screen_manager: screen_manager
     tracker_screen:tracker_screen
     replay_screen:replay_screen
-    rows: 2
+    info_bar: info_bar
+    rows: 3
     BackgroundGridLayout:
         rows: 1
         size_hint_y: None
-        height: 30
+        height: 35
+        background_color: (.9, .9, .9, 1)
         NormalButton:
             id : btn_tracker_screen
             text: app.get_local_str("_btn_tracker_screen")
@@ -83,6 +85,11 @@ BackgroundGridLayout:
             size_hint: (None, None)
             width: '180dp'
             height: '25dp'
+            background_color: (.9, .9, .9, 1)
+            halign: 'left'
+        NormalLabel:
+            text:""
+            size_hint_x: .01
         NormalButton:
             id : btn_tracker_screen
             text: app.get_local_str('_btn_replay_screen')
@@ -90,6 +97,10 @@ BackgroundGridLayout:
             size_hint: (None, None)
             width: '180dp'
             height: '25dp'
+            background_color: (.9, .9, .9, 1)
+            halign: 'left'
+        NormalLabel:
+            text:""
 
     ScreenManager:
         id: screen_manager
@@ -99,5 +110,8 @@ BackgroundGridLayout:
         ReplayScreen:
             id: replay_screen
             name: 'replay_screen'
-            
-        
+
+    InfoBar:
+        id: info_bar
+        size_hint_y: None
+        height:20

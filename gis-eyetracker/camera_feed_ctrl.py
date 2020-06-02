@@ -1,3 +1,4 @@
+from kivy.app import App
 import time
 import cv2
 from threading import Thread
@@ -11,6 +12,7 @@ from helpers import get_local_str_util
 import platform
 import logging
 logging.basicConfig(filename='~/logs/camera_feed_ctrl.log',level=logging.DEBUG)
+
 
 class Frame:
     timestamp = 0  # double
@@ -55,6 +57,15 @@ class CameraFeedCtrl:
     camera_is_up = False
     cam_th = None
 
+    @staticmethod
+    def __tracker_app_log(text, log_label='app_log'):
+        # give feedback to the user of what is happening behind the scenes
+        app = App.get_running_app()
+        try:
+            app.tracker_app_log(text, log_label)
+        except Exception as er:
+            print("[ERROR] {}".format(er))
+
     def start(self, output_path='./',
               camera_index=0, save_images=False):
         self.cam_th = Thread(target=self.__camera_thread, args=(output_path, camera_index, save_images))
@@ -66,18 +77,22 @@ class CameraFeedCtrl:
             polling_camera_times = 0
             while not self.get_camera_is_up():
                 print("[INFO] waiting for camera {}     ".format(time.strftime("%H:%M:%S")))
+                self.__tracker_app_log(get_local_str_util("_waiting_for_camera"), "camera_log")
                 time.sleep(1)
                 polling_camera_times += 1
-                if polling_camera_times > 5:
+                if polling_camera_times > 10:
                     print("[INFO] got tired of waiting for camera {}    ".format(time.strftime("%H:%M:%S")))
+                    self.__tracker_app_log(get_local_str_util("_gave_up_waiting_camera"), "camera_log")
                     self.stop()
                     return False
 
-            return True # camera has started
+            self.__tracker_app_log(get_local_str_util("_started_camera"), "camera_log")
+            return True  # camera has started
         except KeyboardInterrupt:
             self.stop()
         except Exception as e:
             print("{} {}    ".format(e, time.strftime("%H:%M:%S")))
+            self.__tracker_app_log("[ERROR] {}".format(e), "camera_log")
             self.stop()
 
     def get_camera_is_up(self):
@@ -133,6 +148,7 @@ class CameraFeedCtrl:
         out = self.__video_output(output_path, fps, frame_width, frame_height)
 
         print("[INFO] starting the camera feed {}    ".format(time.strftime("%H:%M:%S")))
+        self.__tracker_app_log(get_local_str_util("_started_camera"), "camera_log")
         sys.stdout.flush()
         st = time.time()
         while cap.isOpened() and not self.__halt_recording():
@@ -148,7 +164,7 @@ class CameraFeedCtrl:
                 break
             frame_id += 1
         time_diff = time.time() - st
-        print("[INFO] stopping the camera feed {}    ".format(time.strftime("%H:%M:%S")))
+        self.__tracker_app_log(get_local_str_util("_stopped_camera"), "camera_log")
         sys.stdout.flush()
         if time_diff:
             actual_fps = (frame_id + 1) / time_diff

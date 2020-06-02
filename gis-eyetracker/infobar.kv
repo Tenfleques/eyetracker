@@ -3,6 +3,7 @@
     app_log: app_log
     stimuli_video_log: stimuli_video_log
     camera_log: camera_log
+    tracker_log: tracker_log
     anchor_x:'left'
     anchor_y:'bottom'
     BackgroundBoxLayout:
@@ -12,18 +13,28 @@
         padding_x: 5
         background_color: (0, .196, .313, 1)
         NormalLabel:
-            id: stimuli_video_log
-            text: ''
-            color: (1,1,1,1)
-            halign: 'left'
-            valign: 'center'
-        NormalLabel:
             id: app_log
             text: ''
             color: (1,1,1,1)
             halign: 'left'
             valign: 'center'
             padding_x: 5
+            font_size: dp(11)
+        NormalLabel:
+            id: stimuli_video_log
+            text: ''
+            color: (1,1,1,1)
+            halign: 'left'
+            valign: 'center'
+            font_size: dp(11)
+        NormalLabel:
+            id: tracker_log
+            text: ''
+            color: (1,1,1,1)
+            halign: 'right'
+            valign: 'center'
+            padding_x: 5
+            font_size: dp(11)
         NormalLabel:
             id: camera_log
             text: ''
@@ -31,3 +42,4 @@
             halign: 'right'
             valign: 'center'
             padding_x: 5
+            font_size: dp(11)

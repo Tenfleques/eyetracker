@@ -1,7 +1,9 @@
+from kivy.app import App
 from ctypes import cdll, c_int, POINTER, c_char_p, c_char, create_string_buffer, c_size_t, Structure, c_float
 import time
 import platform
-from threading import Thread
+from helpers import get_local_str_util
+import os
 # from gaze_listener import LogRecordSocketReceiver
 import logging
 logging.basicConfig(filename='~/logs/view_trackbox.log',level=logging.DEBUG)
@@ -20,8 +22,8 @@ class Point2D(Structure):
 
     def to_dict(self):
         return {
-            "x" : self.x,
-            "y" : self.y
+            "x": self.x,
+            "y": self.y
         }
 
 
@@ -96,13 +98,24 @@ class TrackerCtrl:
             self.get_json = self.__get_json_mac
             self.get_meta_json = self.__get_meta_json_mac
 
+    @staticmethod
+    def __tracker_app_log(text, log_label='app_log'):
+        # give feedback to the user of what is happening behind the scenes
+        app = App.get_running_app()
+        try:
+            app.tracker_app_log(text, log_label)
+        except Exception as er:
+            print("[ERROR] {}".format(er))
+
     def start(self):
         started = self.tracker_lib.start()
         if started == 0:
             print("[INFO] started the tracker device {}    ".format(time.strftime("%H:%M:%S")))
             self.is_up = True
+            self.__tracker_app_log(get_local_str_util("_connected_tracker"), "tracker_log")
         else:
             print("[ERROR] failed to start the tracker device {}    ".format(time.strftime("%H:%M:%S")))
+            self.__tracker_app_log(get_local_str_util("_failed_to_connect_tracker"), "tracker_log")
         return started
 
     def get_is_up(self):
@@ -113,23 +126,31 @@ class TrackerCtrl:
         try:
             self.is_up = False
             self.tracker_lib.stop()
+            self.__tracker_app_log(get_local_str_util("_stopped_tracking"), "tracker_log")
         except Exception as e:
             print("[ERROR] an error occurred while stopping the tracker session {}    ".format(e))
+            self.__tracker_app_log("{}: {}".format(get_local_str_util("_error_stopping_tracking"), e), "tracker_log")
 
     def kill(self):
         print("[INFO] stopping the tracker device {}    ".format(time.strftime("%H:%M:%S")))
         try:
             self.is_up = False
             self.tracker_lib.kill()
+            self.__tracker_app_log(get_local_str_util("_disconnected_tracker"), "tracker_log")
         except Exception as e:
             print("[ERROR] an error occurred while stopping the tracker device {}    ".format(e))
+            self.__tracker_app_log("{}: {}".format(get_local_str_util("_error_disconnecting_tracker"), e), "tracker_log")
 
     def __save_json_win(self, path="./data/results.json"):
-        path = path.encode()
+        b_path = path.encode()
         try:
-            return self.tracker_lib.save_json(path)
+            saved = self.tracker_lib.save_json(b_path)
+            session_name = path.split(os.sep)[-2]
+            self.__tracker_app_log("{}: {}".format(get_local_str_util("_saved_tracker"), session_name), "tracker_log")
+            return saved
         except Exception as err:
             print("[ERROR] exception while trying to save he tracker data", err)
+            self.__tracker_app_log("{}: {}".format(get_local_str_util("_error_saving_tracker_session"), err), "tracker_log")
 
     def __get_json_win(self):
         required_size = self.tracker_lib.get_json(c_char_p(None), -1)
@@ -143,7 +164,8 @@ class TrackerCtrl:
         self.tracker_lib.get_meta_json(buf, required_size)
         return buf.value.decode("utf-8")
 
-    def __get_meta_json_mac(self):
+    @staticmethod
+    def __get_meta_json_mac():
         return "{}"
 
     def __save_json_mac(self, path="./data/results.json"):
@@ -166,10 +188,6 @@ if __name__ == "__main__":
 
 #    print("[INFO] the json from get {}", a_tracker.get_json())
 
-    tracker_box = a_tracker.get_track_box()
-
-    print("[INFO] the track box back_bottom_right")
-    print(tracker_box.back_bottom_right.to_dict())
     print("[INFO] the track box in json")
     print(a_tracker.get_meta_json())
 
