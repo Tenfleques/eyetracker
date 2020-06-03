@@ -1,4 +1,3 @@
-#!/usr/bin/python
 from kivy.app import App
 from kivy.factory import Factory
 

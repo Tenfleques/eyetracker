@@ -311,8 +311,8 @@ class ResultVideoCanvas(Image):
         try:
             if self.v_frame is not None:
                 self.bg_frame[self.v_y:self.sh[1] + self.v_y, self.v_x:self.sh[0] + self.v_x, :] = self.v_frame
-        except ValueError as verr:
-            print("[ERROR] a video resize error occured ")
+        except ValueError as err:
+            print("[ERROR] a video resize error occurred {}".format(err))
 
         # add gaze feed data
         if record["gaze"] is not None:

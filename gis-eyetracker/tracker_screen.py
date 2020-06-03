@@ -26,6 +26,7 @@ from floatInput import FloatInput
 from infobar import InfoBar
 from kivy.core.window import Window
 from kivy.clock import Clock
+import cv2
 
 
 import logging
@@ -40,6 +41,42 @@ Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
 widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "tracker_screen.kv"))
+
+
+def still_image_to_video(img_path, duration):
+    frame = cv2.imread(img_path)
+    fps = 5
+    frames_count = fps * duration
+    video_path = "{}-{}.mov".format(img_path, duration)
+
+    frame_id = 0
+    fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+    out_video = cv2.VideoWriter()
+    success = out_video.open(video_path, fourcc, fps, (frame.shape[1], frame.shape[0]), True)
+    while frame_id < frames_count:
+        frame_id += 1
+        out_video.write(frame)
+    out_video.release()
+
+    return video_path
+
+
+def parse_json_source(path):
+    video_path = ""
+    try:
+        with open(path) as fp:
+            json_source = json.load(fp)
+            fp.close()
+
+            if json_source["type"] == "image":
+                video_path = still_image_to_video(json_source["path"], json_source["duration"])
+
+            if json_source["type"] == "video":
+                video_path = json_source["path"]
+    except Exception as er:
+        print("[ERROR] error {}".format(er))
+
+    return video_path
 
 
 class TrackerScreen(Screen):
@@ -318,7 +355,11 @@ class TrackerScreen(Screen):
         if len(filenames):
             if not filenames[0] == path:
                 video_path = os.path.join(path, filenames[0])
-                this_fps = get_video_fps(video_path)
+                if "json" == filenames[0].split(".")[-1]:
+                    video_path, this_fps = parse_json_source(video_path)
+                else:
+                    this_fps = get_video_fps(video_path)
+
                 self.ids["txt_box_video_rate"].text = str(this_fps)
                 self.set_default_from_prev_session("txt_box_video_rate", this_fps)
                 self.ids['lbl_src_video'].text = video_path
