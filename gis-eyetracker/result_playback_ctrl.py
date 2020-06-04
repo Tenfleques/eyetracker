@@ -13,6 +13,7 @@ import os
 import time
 from kivy.config import Config
 from collections import deque
+from threading import Thread
 
 import logging
 logging.basicConfig(filename='./logs/result_playback_ctrl.log',level=logging.DEBUG)
@@ -29,13 +30,16 @@ class ResultVideoCanvas(Image):
 
     is_paused = False
 
-    video_frame_index = 0
     video_interval = None
 
     video_capture = None
     bg_frame = None
 
+    video_frames = deque()
+    camera_frames = deque()
+
     current_vid_frame_id = 0
+    current_cam_frame_id = 0
 
     initial_window_state = Window.fullscreen
     # for writing tracke on the video
@@ -49,7 +53,6 @@ class ResultVideoCanvas(Image):
     sh = []
     v_x = 0.0
     v_y = 0.0
-    current_cam_frame_id = 0
 
     xo = None
     yo = None
@@ -59,8 +62,13 @@ class ResultVideoCanvas(Image):
 
     bg_is_screen = False
     maintain_track = False
+    camera_track = False
+    tracker_track = False
+    video_track = False
 
     path_history = deque()
+    processes = []
+    SCREEN_SIZE = ImageGrab.grab().size
 
     def toggle_bg_is_screen(self, state=None):
         if state is None:
@@ -73,6 +81,24 @@ class ResultVideoCanvas(Image):
             self.maintain_track = not self.maintain_track
             return
         self.maintain_track = bool(state)
+
+    def toggle_video_track(self, state=None):
+        if state is None:
+            self.video_track = not self.video_track
+            return
+        self.video_track = bool(state)
+
+    def toggle_tracker_track(self, state=None):
+        if state is None:
+            self.tracker_track = not self.tracker_track
+            return
+        self.tracker_track = bool(state)
+
+    def toggle_camera_track(self, state=None):
+        if state is None:
+            self.camera_track = not self.camera_track
+            return
+        self.camera_track = bool(state)
 
     def is_playing(self):
         return self.video_interval is not None
@@ -147,6 +173,16 @@ class ResultVideoCanvas(Image):
         self.session_timeline_index = max(self.session_timeline_index - step_size, 0)
         self.update_video_canvas(1)
 
+    @staticmethod
+    def _populate_frames(vid, the_container):
+        while vid.isOpened():
+            ret, frame = vid.read()
+            if not ret:
+                break
+            the_container.append(frame)
+        vid.release()
+        return
+
     def start(self, video_path,
               session_timeline_path, viewpoint_size, cam_video_path,
               current_frame_cb, end_cb):
@@ -160,15 +196,16 @@ class ResultVideoCanvas(Image):
             self.session_timeline = json.load(fp)
             fp.close()
 
-        SCREEN_SIZE = viewpoint_size
+        self.SCREEN_SIZE = viewpoint_size
         if viewpoint_size is None:
-            SCREEN_SIZE = ImageGrab.grab().size
+            self.SCREEN_SIZE = ImageGrab.grab().size
 
         image_grab_path = os.sep.join(session_timeline_path.split(os.sep)[:-1])
         image_grab_path = os.path.join(image_grab_path, "screen.png")
 
-        self.bg_image = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
-        self.bg_frame = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)
+        self.bg_image = np.zeros((self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
+        self.bg_frame = np.zeros((self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
+
         if os.path.isfile(image_grab_path):
             self.bg_image = cv2.imread(image_grab_path)
             self.bg_frame[:, :, :] = self.bg_image
@@ -188,44 +225,41 @@ class ResultVideoCanvas(Image):
 
         self.path_history.clear()
 
-        self.video_capture = cv2.VideoCapture(video_path)
-        self.camera_capture = None
-
-        if os.path.isfile(cam_video_path):
-            self.camera_capture = cv2.VideoCapture(cam_video_path)
-
-        if not self.video_capture.isOpened():
-            print("[INFO] error opening stimuli video {}    ".format(time.strftime("%H:%M:%S")))
+        if not os.path.isfile(video_path):
+            print("[ERROR] video source not found")
             return
 
-        fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
-        self.out_video = cv2.VideoWriter()
+        if len(self.video_frames) == 0:
+            video_capture = cv2.VideoCapture(video_path)
+            self.sh = [int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                       int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))]
+            vid_populate_thread = Thread(target=self._populate_frames, args=(video_capture, self.video_frames))
+            vid_populate_thread.start()
+            self.processes.append(vid_populate_thread)
+
+            self.c_start_x = self.sh[0] + 40
+            self.v_x, self.v_y = (0, 0)
+
+        if os.path.isfile(cam_video_path) and len(self.camera_frames) == 0:
+            camera_capture = cv2.VideoCapture(cam_video_path)
+            if camera_capture is not None:
+                w, h = (camera_capture.get(cv2.CAP_PROP_FRAME_WIDTH),
+                        camera_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+                cam_populate_thread = Thread(target=self._populate_frames, args=(camera_capture, self.camera_frames))
+                cam_populate_thread.start()
+                self.processes.append(cam_populate_thread)
+
+                self.c_width = self.SCREEN_SIZE[0] - self.c_start_x
+                self.c_height = int(h * self.c_width / w)
 
         diff = max(float_timestamp_keys) - min(float_timestamp_keys)
 
         if self.video_fps is None:
-            self.set_fps(len_keys / (diff * 3)) # multiplies by three coz of gaze, pos, and origin
+            self.set_fps(len_keys / (diff * 3))  # multiplies by three coz of gaze, pos, and origin
 
-        demo_video_path = cam_video_path.replace(".avi", "-demonstration.avi")
+        print("[INFO] the playback fps in use is {}".format(self.video_fps))
 
-        success = self.out_video.open(demo_video_path, fourcc, self.video_fps,
-                                      (self.bg_frame.shape[1], self.bg_frame.shape[0]), True)
-
-        self.sh = [int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                   int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))]
-
-        self.c_start_x = self.sh[0] + 40
-        self.v_x, self.v_y = (0, 0)
-
-        if self.camera_capture is not None:
-            w, h = (self.camera_capture.get(cv2.CAP_PROP_FRAME_WIDTH),
-                    self.camera_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-            self.c_width = SCREEN_SIZE[0] - self.c_start_x
-            self.c_height = int(h * self.c_width / w)
-
-        self.current_vid_frame_id = 0
-        self.current_cam_frame_id = 0
         self.v_frame = None
         self.c_frame = None
         self.xo = None
@@ -272,14 +306,6 @@ class ResultVideoCanvas(Image):
         else:
             self.bg_frame[:, :, :] = 255
 
-        if not self.video_capture:
-            self.stop()
-            return None
-
-        if not self.video_capture.isOpened() and dt:
-            self.stop()
-            return None
-
         len_timeline = len(self.timestamp_keys)
 
         if self.session_timeline_index >= len_timeline:
@@ -290,32 +316,28 @@ class ResultVideoCanvas(Image):
         record = self.session_timeline[key]
 
         if record["video"] is not None:
-            if not record["video"]["frame_id"] == self.current_vid_frame_id:
-                ret, self.v_frame = self.video_capture.read()
-                if not ret:
-                    return
-
-                if "width" in record["video"]:
-                    # updated version with cordinates
-                    self.v_frame = cv2.resize(self.v_frame, (int(record["video"]["width"]),
-                                                             int(record["video"]["height"])))
-                    self.v_x = int(record["video"]["x"])
-                    self.v_y = int(record["video"]["y"])
-                    self.sh[0] = int(record["video"]["width"])
-                    self.sh[1] = int(record["video"]["height"])
-
-                    self.c_start_x = self.v_x + self.sh[0] + 40
-
+            if self.current_vid_frame_id != record["video"]["frame_id"]:
                 self.current_vid_frame_id = record["video"]["frame_id"]
 
-        try:
-            if self.v_frame is not None:
-                self.bg_frame[self.v_y:self.sh[1] + self.v_y, self.v_x:self.sh[0] + self.v_x, :] = self.v_frame
-        except ValueError as err:
-            print("[ERROR] a video resize error occurred {}".format(err))
+            self.v_frame = self.get_video_frame_at(self.current_vid_frame_id)
+            if "width" in record["video"]:
+                # updated version with cordinates
+                self.v_frame = cv2.resize(self.v_frame, (int(record["video"]["width"]),
+                                                         int(record["video"]["height"])))
+                self.v_x = int(record["video"]["x"])
+                self.v_y = int(record["video"]["y"])
+                self.sh[0] = int(record["video"]["width"])
+                self.sh[1] = int(record["video"]["height"])
+
+                self.c_start_x = self.v_x + self.sh[0] + 40
+                try:
+                    if self.video_track:
+                        self.bg_frame[self.v_y:self.sh[1] + self.v_y, self.v_x:self.sh[0] + self.v_x, :] = self.v_frame
+                except ValueError as err:
+                    print("[ERROR] a video resize error occurred {}".format(err))
 
         # add gaze feed data
-        if record["gaze"] is not None:
+        if record["gaze"] is not None and self.tracker_track:
             xr = record["gaze"]['x']
             yr = record["gaze"]['y']
 
@@ -324,49 +346,42 @@ class ResultVideoCanvas(Image):
 
             self.path_history.append((self.xo, self.yo))
 
-        if self.xo is not None and self.yo is not None:
+        if self.xo is not None and self.yo is not None and self.tracker_track:
             self.bg_frame = cv2.circle(self.bg_frame, (self.xo, self.yo),
                                        self.radius, self.color, self.thickness)
             if self.maintain_track:
                 # write all the positions of the track from 0 - this index
                 for i in self.path_history:
-                    self.bg_frame = cv2.circle(self.bg_frame, (i[0], i[1]),
-                                       2, (0,0,255,1), self.thickness)
+                    self.bg_frame = cv2.circle(self.bg_frame, (i[0], i[1]), 2, (0, 0, 255, 1), self.thickness)
 
         # add camera feed data
-        if self.camera_capture is not None:
-            if self.camera_capture.isOpened():
-                if record["camera"] is not None:
-                    if not record["camera"]["frame_id"] == self.current_cam_frame_id:
-                        ret, self.c_frame = self.camera_capture.read()
-                        self.current_cam_frame_id = record["camera"]["frame_id"]
-                        if ret:
-                            self.c_frame = cv2.resize(self.c_frame, (self.c_width, self.c_height))
+        if record["camera"] is not None:
+            if self.current_cam_frame_id != record["camera"]["frame_id"]:
+                self.current_cam_frame_id = record["camera"]["frame_id"]
 
-        if self.c_frame is not None:
-            b_sh = self.bg_frame.shape
-            self.bg_frame[:self.c_height, b_sh[1] - self.c_width:, :] = self.c_frame
-        self.video_frame_index += 1
+                self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
+            # if self.camera_track:
+                self.c_frame = cv2.resize(self.c_frame, (self.c_width, self.c_height))
+                b_sh = self.bg_frame.shape
+                self.bg_frame[:self.c_height, b_sh[1] - self.c_width:, :] = self.c_frame
 
         self.current_frame_cb(self.session_timeline_index, len_timeline, record)
-
         if dt:
             self.session_timeline_index += 1
 
-        self.out_video.write(self.bg_frame)
         return self.bg_frame
 
+    def get_video_frame_at(self, index):
+        if index < len(self.video_frames):
+            return self.video_frames[index]
+        return np.zeros((self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
+
+    def get_camera_frame_at(self, index):
+        if index < len(self.camera_frames):
+            return self.camera_frames[index]
+        return np.zeros((self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
+
     def stop(self):
-        # stop video feed
-        # we are not even running, are we?
-        if self.video_capture is None:
-            return
-
-        self.video_capture.release()
-        if self.camera_capture is not None:
-            self.camera_capture.release()
-        self.out_video.release()
-
         # viewpoint_size = (Window.width, Window.height)
 
         # Window.fullscreen = self.initial_window_state
@@ -379,13 +394,8 @@ class ResultVideoCanvas(Image):
             # reset the timeline index
             # self.session_timeline_index = 0
 
+        for p in self.processes:
+            p.join()
+
         self.update_video_canvas(None)
         self.end_play_cb("")
-
-    def get_json(self):
-        return [i.to_dict() for i in self.video_frames]
-
-    def save_json(self, path=b"./results.json"):
-        with open(path, "w") as f:
-            f.write(json.dumps(self.get_json()))
-            f.close()

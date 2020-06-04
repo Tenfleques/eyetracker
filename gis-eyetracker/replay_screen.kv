@@ -12,6 +12,9 @@
     frame_details: frame_details
     chkbx_bg_is_grab:chkbx_bg_is_grab
     chkbx_maintain_track:chkbx_maintain_track
+    chkbx_camera_track:chkbx_camera_track
+    chkbx_tracker_track:chkbx_tracker_track
+    chkbx_video_track:chkbx_video_track
     # tabbed_main_view:tabbed_main_view
     # tabbed_timeline_item:tabbed_timeline_item
     BoxLayout:
@@ -59,10 +62,67 @@
                                     background_color: (0, .196, .313, 1)
                                 BackgroundGridLayout:
                                     background_color: (1, 1, 1, 1)
-                                    rows: 2
+                                    rows: 5
                                     size_hint_y: None
-                                    height: 60
+                                    height: 150
                                     padding: [0, 10, 0, 0]
+                                    GridLayout:
+                                        cols: 2
+                                        size_hint_y: None
+                                        height: 30
+                                        NormalLabel:
+                                            id:lbl_tracker_track
+                                            text: root.get_local_str("_tracker_track")
+                                            color: [0, 0, 0, 1]
+                                            size_hint_x: .6
+                                            size_hint_y: None
+                                            height: 20
+                                            halign: 'left'
+                                        CheckBox:
+                                            id: chkbx_tracker_track
+                                            size_hint: (None, None)
+                                            color: [0,0,0,1]
+                                            size_hint_y: None
+                                            height: 20
+                                            state: 'down'
+                                    GridLayout:
+                                        cols: 2
+                                        size_hint_y: None
+                                        height: 30
+                                        NormalLabel:
+                                            id:lbl_video_track
+                                            text: root.get_local_str("_video_track")
+                                            color: [0,0,0,1]
+                                            size_hint_x: .6
+                                            size_hint_y: None
+                                            height: 20
+                                            halign: 'left'
+                                        CheckBox:
+                                            id:chkbx_video_track
+                                            size_hint: (None, None)
+                                            color: [0,0,0,1]
+                                            size_hint_y: None
+                                            height: 20
+                                            state: 'down'
+                                    GridLayout:
+                                        cols: 2
+                                        size_hint_y: None
+                                        height: 30
+                                        NormalLabel:
+                                            id:lbl_camera_track
+                                            text: root.get_local_str("_camera_track")
+                                            color: [0,0,0,1]
+                                            size_hint_x: .6
+                                            size_hint_y: None
+                                            height: 20
+                                            halign: 'left'
+                                        CheckBox:
+                                            id:chkbx_camera_track
+                                            size_hint: (None, None)
+                                            color: [0,0,0,1]
+                                            size_hint_y: None
+                                            height: 20
+                                            state: 'down'
                                     GridLayout:
                                         cols: 2
                                         size_hint_y: None

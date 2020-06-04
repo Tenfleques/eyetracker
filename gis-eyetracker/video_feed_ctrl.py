@@ -33,7 +33,6 @@ class VideoCanvas(Image):
 
     initial_window_state = Window.fullscreen
     video_src = ""
-    video_output = None
 
     def on_start(self):
         frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
@@ -47,7 +46,6 @@ class VideoCanvas(Image):
     def reset(self):
         self.video_frames.clear()
         self.video_frame_index = 0
-        self.video_output = None
 
     def is_playing(self):
         return self.video_interval is not None
@@ -59,11 +57,11 @@ class VideoCanvas(Image):
         return self.session_timeline_index, len(self.timestamp_keys)
 
     @staticmethod
-    def current_frame_cb(current, total):
-        print("[INFO] frame {}/{}".format(current, total))
+    def current_frame_cb(**kwargs):
+        print("[INFO] frame {}/{}".format(kwargs.get("current", 0), kwargs.get("total", 0)))
 
     def start(self, video_src="",
-              fps=1000, is_recording=True, current_frame_cb=None, end_cb=None, output_folder="./"):
+              fps=1000, is_recording=True, current_frame_cb=None, end_cb=None):
 
         if end_cb is not None:
             self.end_play_cb = end_cb
@@ -86,12 +84,6 @@ class VideoCanvas(Image):
         self.initial_window_state = Window.fullscreen
         # Window.fullscreen = 'auto'
 
-        fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
-        outfile = os.path.join(output_folder, "cumulative_stimuli_src.avi")
-        self.video_output = cv2.VideoWriter()
-
-        self.video_output.open(outfile, fourcc, fps, (self.height, self.width), True)
-
         # play video
         return self.play(video_src, fps, is_recording)
 
@@ -106,9 +98,8 @@ class VideoCanvas(Image):
         frame_coords = (Window.left + xprime, vid_start_from_screen_top, self.width, self.height)
 
         self.video_frames.append(Frame(self.video_frame_index, coords=frame_coords, src=self.video_src))
+        self.current_frame_cb(frame=frame, current=self.video_frame_index, total=0)
         self.video_frame_index += 1
-        self.video_output.write(frame)
-
         return frame
 
     def play(self, video_src, fps, is_recording=True):
@@ -138,7 +129,6 @@ class VideoCanvas(Image):
             return
 
         self.video_capture.release()
-        self.video_output.release()
 
         # viewpoint_size = (Window.width, Window.height)
 
@@ -161,16 +151,24 @@ class VideoCanvas(Image):
         # get the canvas for drawing
         # read next frame
         ret, frame = cap.read()
+        bg_frame = np.zeros((int(self.height), int(self.width), 3), dtype=np.uint8)
+
         if not ret:
             # end of video
             self.stop()
             return
         # do the callback for video frame, e.g add some color or some text, real time rendering
-        frame = cb(frame)
+        rel_h = int(min(frame.shape[0], self.height))
+        rel_w = int(rel_h * frame.shape[1] * 1.0/frame.shape[0])
 
-        buf_raw = cv2.flip(frame, 0)
+        frame = cv2.resize(frame, (rel_w, rel_h))
+        bg_frame[:rel_h, :rel_w, :] = frame
+
+        bg_frame = cb(bg_frame)
+
+        buf_raw = cv2.flip(bg_frame, 0)
         buf = buf_raw.tostring()
-        texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+        texture = Texture.create(size=(int(bg_frame.shape[1]), int(bg_frame.shape[0])), colorfmt='bgr')
 
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         # update video canvas

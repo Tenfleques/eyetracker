@@ -98,6 +98,9 @@ class TrackerScreen(Screen):
     video_frames = deque()
     video_frame_index = 0
     video_interval = None
+    json_source_array = []
+
+    cumulative_sim_video = None
 
     session_name = None
     _popup = None
@@ -167,15 +170,30 @@ class TrackerScreen(Screen):
         except Exception as er:
             print("[ERROR] {}".format(er))
 
+    def cum_seq_video(self, **kwargs):
+        frame = kwargs.get("frame", None)
+        if frame is None:
+            return
+        if self.cumulative_sim_video is None:
+            # fireup the sequence writer
+            fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+            self.cumulative_sim_video = cv2.VideoWriter()
+            out_video_path = os.path.join(self.__get_session_directory(), "cumulative_stimuli_src.avi")
+            dims = (frame.shape[1], frame.shape[0])
+            success = self.cumulative_sim_video.open(out_video_path, fourcc, 30, dims, True)
+
+        if self.cumulative_sim_video is not None:
+            self.cumulative_sim_video.write(frame)
+
     def btn_play_click(self):
         """
         connects to the camera, video, tracker adapters
         runs till stop or end of stimuli video.
         :return:
         """
-
         if self.video_feed_ctrl is None:
             self.video_feed_ctrl = self.ids["video_canvas"]
+
         # if playing stop
         if self.video_feed_ctrl.is_playing():
             # emergency close
@@ -183,6 +201,8 @@ class TrackerScreen(Screen):
             return
         # clear stored frame indices
         self.video_feed_ctrl.reset()
+        if self.cumulative_sim_video is not None:
+            self.cumulative_sim_video.release()
 
         # create new session
         self.session_name = "exp-{}".format(time.strftime("%Y-%m-%d_%H-%M-%S"))
@@ -230,28 +250,36 @@ class TrackerScreen(Screen):
             if not isinstance(json_source_array, list):
                 json_source_array = [json_source_array]
 
-            len_sources = len(json_source_array)
-            i = 1
-            for json_source in json_source_array:
-                end_cb = None
-                if len_sources - i == 0:
-                    end_cb = self.stop
-                i += 1
+            self.json_source_array = json_source_array
+            self.video_ctrl_job(path_root, 0)
 
-                abs_path = os.path.join(path_root, json_source["name"])
-                self.__tracker_app_log("{}-{}".format(self.session_name, json_source["name"]))
-                # update window to have name of session
-                rec_title = "{} [{}-{}]".format(get_local_str_util('_appname'), self.session_name, json_source["name"])
-                Window.set_title(rec_title)
+    def video_ctrl_job(self, path_root, index=0):
+        json_source = self.json_source_array[index]
+        len_sources = len(self.json_source_array)
 
-                if filetype.is_image(abs_path):
-                    # get the desired FPS
-                    vid_path, fps = still_image_to_video(abs_path, json_source["duration"])
-                    started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+        end_cb = lambda: self.video_ctrl_job(path_root, index+1)
+        if len_sources - index <= 1:
+            end_cb = self.stop
 
-                if filetype.is_video(abs_path):
-                    fps = get_video_fps(abs_path)
-                    started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+        abs_path = os.path.join(path_root, json_source["name"])
+        if not os.path.isfile(abs_path):
+            abs_path = os.path.join(path_root, json_source["path"])
+
+        self.__tracker_app_log("{}-{}".format(self.session_name, json_source["name"]))
+        # update window to have name of session
+        rec_title = "{} [{}-{}]".format(get_local_str_util('_appname'), self.session_name, json_source["name"])
+        Window.set_title(rec_title)
+
+        if filetype.is_image(abs_path):
+            # get the desired FPS
+            vid_path, fps = still_image_to_video(abs_path, json_source["duration"])
+            started = self.video_feed_ctrl.start(vid_path, fps,
+                                                 current_frame_cb=self.cum_seq_video, end_cb=end_cb)
+
+        if filetype.is_video(abs_path):
+            fps = get_video_fps(abs_path)
+            started = self.video_feed_ctrl.start(abs_path, fps,
+                                                 current_frame_cb=self.cum_seq_video, end_cb=end_cb)
 
     def set_button_play_start(self):
         self.ids["btn_play"].text = self.get_local_str("_start")
@@ -273,9 +301,14 @@ class TrackerScreen(Screen):
 
         if process_data:
             self.__after_recording()
+            if self.cumulative_sim_video is not None:
+                self.cumulative_sim_video.release()
+                print("[Released the vidwriter]")
 
         self.set_button_play_start()
-
+        rec_title = "{} [{}]".format(get_local_str_util('_appname'), self.session_name)
+        Window.set_title(rec_title)
+        self.__tracker_app_log("{}-{}".format(self.session_name, get_local_str_util('_finished_recording')))
         # switch view to the results while video is processed
         # self.ids["tabbed_main_view"].switch_to(self.ids["tabbed_timeline_item"], do_scroll=True)
 

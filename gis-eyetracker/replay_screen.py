@@ -93,16 +93,34 @@ class ReplayScreen(Screen):
 
         self.ids["chkbx_bg_is_grab"].bind(state=self.toggle_bg_is_screen)
         self.ids["chkbx_maintain_track"].bind(state=self.toggle_maintain_track)
+        self.ids["chkbx_tracker_track"].bind(state=self.toggle_tracker_track)
+        self.ids["chkbx_camera_track"].bind(state=self.toggle_camera_track)
+        self.ids["chkbx_video_track"].bind(state=self.toggle_video_track)
 
     def toggle_bg_is_screen(self, checkbox, value):
         if self.video_feed_ctrl is None:
             return
-        self.video_feed_ctrl.toggle_bg_is_screen(value=='down')
+        self.video_feed_ctrl.toggle_bg_is_screen(value == 'down')
 
     def toggle_maintain_track(self, checkbox, value):
         if self.video_feed_ctrl is None:
             return
-        self.video_feed_ctrl.toggle_maintain_track(value=='down')
+        self.video_feed_ctrl.toggle_maintain_track(value == 'down')
+
+    def toggle_video_track(self, checkbox, value):
+        if self.video_feed_ctrl is None:
+            return
+        self.video_feed_ctrl.toggle_video_track(value == 'down')
+
+    def toggle_tracker_track(self, checkbox, value):
+        if self.video_feed_ctrl is None:
+            return
+        self.video_feed_ctrl.toggle_tracker_track(value == 'down')
+
+    def toggle_camera_track(self, checkbox, value):
+        if self.video_feed_ctrl is None:
+            return
+        self.video_feed_ctrl.toggle_camera_track(value == 'down')
 
     def set_playback_fps(self, ctrl):
         if not ctrl.text:
@@ -190,9 +208,6 @@ class ReplayScreen(Screen):
             self.set_button_play_start()
             return
 
-        # can't run session if video stimuli not ready can we?
-        if not self.stimuli_video_ready():
-            return
 
         # list the files inside the input dir
         files = os.listdir(self.ids['lbl_input_dir'].text)
@@ -214,6 +229,9 @@ class ReplayScreen(Screen):
         self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
 
         self.video_feed_ctrl.toggle_maintain_track(self.ids["chkbx_maintain_track"].state == 'down')
+        self.video_feed_ctrl.toggle_video_track(self.ids["chkbx_video_track"].state == 'down')
+        self.video_feed_ctrl.toggle_tracker_track(self.ids["chkbx_tracker_track"].state == 'down')
+        self.video_feed_ctrl.toggle_camera_track(self.ids["chkbx_camera_track"].state == 'down')
         self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state == 'down')
 
         started = self.video_feed_ctrl.start(cumulative_stimuli_src, session_timeline_path,
