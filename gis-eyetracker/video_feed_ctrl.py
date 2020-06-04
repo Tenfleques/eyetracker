@@ -58,7 +58,8 @@ class VideoCanvas(Image):
 
     @staticmethod
     def current_frame_cb(**kwargs):
-        print("[INFO] frame {}/{}".format(kwargs.get("current", 0), kwargs.get("total", 0)))
+        pass
+        # print("[INFO] frame {}/{}".format(kwargs.get("current", 0), kwargs.get("total", 0)))
 
     def start(self, video_src="",
               fps=1000, is_recording=True, current_frame_cb=None, end_cb=None):
