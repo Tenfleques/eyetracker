@@ -156,9 +156,9 @@ class CameraFeedCtrl:
             self.camera_is_up = True
             if ret:
                 if save_images:
-                    self.camera_frames.append(Frame(frame_id, f=frame))
+                    self.camera_frames.append(Frame(frame_id, img_data=frame))
                 else:
-                    self.camera_frames.append(Frame(frame_id, f=None))
+                    self.camera_frames.append(Frame(frame_id, img_data=None))
                 out.write(frame)
             else:
                 break

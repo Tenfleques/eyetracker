@@ -205,7 +205,7 @@ class TrackerScreen(Screen):
             except Exception as er:
                 self.__tracker_app_log("{}-{}".format(get_local_str_util('_video_src_error'), er))
                 print("[ERROR] error playing sequence", er)
-        
+
         # start the tracker device
         self.tracker_ctrl.start()
 
