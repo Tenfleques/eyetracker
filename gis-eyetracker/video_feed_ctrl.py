@@ -16,7 +16,7 @@ from kivy.config import Config
 import logging
 import numpy as np
 
-logging.basicConfig(filename='~/logs/video_feed_ctrl.log', level=logging.DEBUG)
+logging.basicConfig(filename='./logs/video_feed_ctrl.log', level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)

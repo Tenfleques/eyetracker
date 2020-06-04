@@ -2,16 +2,13 @@ from kivy.app import App
 import time
 import cv2
 from threading import Thread
-import json
-from PIL import ImageGrab
 from collections import deque
-import numpy as np
 import os
 import sys
 from helpers import get_local_str_util
-import platform
+
 import logging
-logging.basicConfig(filename='~/logs/camera_feed_ctrl.log',level=logging.DEBUG)
+logging.basicConfig(filename='./logs/camera_feed_ctrl.log',level=logging.DEBUG)
 
 
 class Frame:

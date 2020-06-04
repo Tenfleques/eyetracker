@@ -9,7 +9,7 @@ from threading import Thread
 import sys
 import json
 import logging
-logging.basicConfig(filename='~/logs/gaze_listener.log',level=logging.DEBUG)
+logging.basicConfig(filename='./logs/gaze_listener.log',level=logging.DEBUG)
 
 from collections import deque
 from helpers import check_talon_directory

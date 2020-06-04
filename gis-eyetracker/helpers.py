@@ -5,7 +5,7 @@ import os
 import cv2
 import filecmp
 import logging
-logging.basicConfig(filename='~/logs/helpers.log',level=logging.DEBUG)
+logging.basicConfig(filename='./logs/helpers.log',level=logging.DEBUG)
 
 ERROR = -1
 WARNING = 2

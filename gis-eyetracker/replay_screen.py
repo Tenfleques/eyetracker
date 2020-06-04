@@ -20,7 +20,7 @@ from collections import deque
 
 from kivy.config import Config
 import logging
-logging.basicConfig(filename='~/logs/replay_screen.log',level=logging.DEBUG)
+logging.basicConfig(filename='./logs/replay_screen.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)

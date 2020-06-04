@@ -6,7 +6,7 @@ import json
 import math
 from helpers import get_local_str_util
 import logging
-logging.basicConfig(filename='~/logs/view_trackbox.log',level=logging.DEBUG)
+logging.basicConfig(filename='./logs/view_trackbox.log',level=logging.DEBUG)
 
 widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "table.kv"))
 

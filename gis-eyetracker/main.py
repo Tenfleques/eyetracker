@@ -1,14 +1,13 @@
-from kivy.app import App
-from kivy.factory import Factory
-
+#!/usr/bin/python
+from kivy.config import Config
 from kivy.core.window import Window
+from helpers import get_local_str_util, create_log, get_video_fps, props, save_session_variables
+
+from kivy.app import App
+
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
 
-from kivy.config import Config
-from helpers import get_local_str_util, create_log, get_video_fps, props, save_session_variables
-import os
-from kivy.clock import Clock
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
@@ -19,7 +18,7 @@ Window.clearcolor = (1, 1, 1, 1)
 from replay_screen import ReplayScreen
 from tracker_screen import TrackerScreen
 import logging
-logging.basicConfig(filename='~/logs/main.log', level=logging.DEBUG)
+logging.basicConfig(filename='./logs/main.log', level=logging.DEBUG)
 
 Window.set_icon('./assets/icon.png')
 

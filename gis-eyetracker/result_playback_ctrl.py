@@ -15,7 +15,7 @@ from kivy.config import Config
 from collections import deque
 
 import logging
-logging.basicConfig(filename='~/logs/result_playback_ctrl.log',level=logging.DEBUG)
+logging.basicConfig(filename='./logs/result_playback_ctrl.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)

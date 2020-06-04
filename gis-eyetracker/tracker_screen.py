@@ -24,13 +24,15 @@ from video_feed_ctrl import VideoCanvas
 from table import Table
 from floatInput import FloatInput
 from infobar import InfoBar
+from select_box import SelectBox, select_box_inline
+
 from kivy.core.window import Window
 from kivy.clock import Clock
 import cv2
 
 
 import logging
-logging.basicConfig(filename='~/logs/tracker_screen.log',level=logging.DEBUG)
+logging.basicConfig(filename='./logs/tracker_screen.log',level=logging.DEBUG)
 
 import platform
 from collections import deque
@@ -356,7 +358,20 @@ class TrackerScreen(Screen):
             if not filenames[0] == path:
                 video_path = os.path.join(path, filenames[0])
                 if "json" == filenames[0].split(".")[-1]:
-                    video_path, this_fps = parse_json_source(video_path)
+                    # video_path, this_fps = parse_json_source(video_path)
+                    select_box_xtrl = select_box_inline(label="select_src", options=[("option_1",
+                                                                              lambda: print("clicked option 1"))])
+                    self.ids["select_in_series"].set_options ([("option_1",
+                                                             lambda: print("clicked option 1")),
+                                                            ("option_2",
+                                                             lambda: print("clicked option 22")),
+                                                            ])
+
+                    print(self.ids["select_in_series"].options)
+
+                    # self.ids["select_in_series"].clear_widgets()
+                    # self.ids["select_in_series"].add_widget(select_box_xtrl)
+                    this_fps = 0.0
                 else:
                     this_fps = get_video_fps(video_path)
 

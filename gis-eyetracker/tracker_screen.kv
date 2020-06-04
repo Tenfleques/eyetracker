@@ -7,6 +7,8 @@
     txt_box_video_rate: txt_box_video_rate
     lbl_video_fps_in_use: lbl_video_fps_in_use
     video_canvas:video_canvas
+    select_in_series: select_in_series
+
     BoxLayout:
         orientation: 'vertical'
         id: main_view_parent
@@ -88,10 +90,18 @@
                             id: btn_play
                             text: root.get_local_str("_start")
                             on_release: root.btn_play_click()
-                    FloatInput:
-                        id: txt_box_video_rate
-                        text: root.get_default_from_prev_session('txt_box_video_rate',"")
-                        size_hint: (.9, None)
-                        height: 25
-                        multiline:False
-                        font_size: dp(13)
+                    GridLayout:
+                        rows: 2
+                        SelectBox:
+                            id: select_in_series
+                            options: []
+                            text: "select"
+                            size_hint_y: None
+                            height: 25
+                        FloatInput:
+                            id: txt_box_video_rate
+                            text: root.get_default_from_prev_session('txt_box_video_rate',"")
+                            size_hint_y: None
+                            height: 25
+                            multiline:False
+                            font_size: dp(13)
