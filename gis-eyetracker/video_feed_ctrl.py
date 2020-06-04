@@ -15,6 +15,7 @@ from kivy.lang.builder import Builder
 from kivy.config import Config
 import logging
 import numpy as np
+import os
 
 logging.basicConfig(filename='./logs/video_feed_ctrl.log', level=logging.DEBUG)
 
@@ -31,6 +32,8 @@ class VideoCanvas(Image):
     video_capture = None
 
     initial_window_state = Window.fullscreen
+    video_src = ""
+    video_output = None
 
     def on_start(self):
         frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
@@ -40,6 +43,11 @@ class VideoCanvas(Image):
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
         self.texture = texture
+
+    def reset(self):
+        self.video_frames.clear()
+        self.video_frame_index = 0
+        self.video_output = None
 
     def is_playing(self):
         return self.video_interval is not None
@@ -55,7 +63,7 @@ class VideoCanvas(Image):
         print("[INFO] frame {}/{}".format(current, total))
 
     def start(self, video_src="",
-              fps=1000, is_recording=True, current_frame_cb=None, end_cb=None):
+              fps=1000, is_recording=True, current_frame_cb=None, end_cb=None, output_folder="./"):
 
         if end_cb is not None:
             self.end_play_cb = end_cb
@@ -68,6 +76,8 @@ class VideoCanvas(Image):
             self.stop()
             return 1
 
+        self.video_src = video_src.split(os.sep)[-1]
+
         # can't run if video not ready can we?
         if not get_video_fps(video_src):
             return -1
@@ -76,14 +86,18 @@ class VideoCanvas(Image):
         self.initial_window_state = Window.fullscreen
         # Window.fullscreen = 'auto'
 
+        fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+        outfile = os.path.join(output_folder, "cumulative_stimuli_src.avi")
+        self.video_output = cv2.VideoWriter()
+
+        self.video_output.open(outfile, fourcc, fps, (self.height, self.width), True)
+
         # play video
         return self.play(video_src, fps, is_recording)
 
     def frames_cb(self, frame):
         frame = frame_processing(frame)
-
         # calculate position from top of screen
-
         xprime,yprime = self.to_window(self.x, self.y, False, False)
         app_window_bottom_pos_from_screen_top = Window.top + Window.height
         vid_start_pos = app_window_bottom_pos_from_screen_top - yprime  # start of video pos, after infobar
@@ -91,8 +105,9 @@ class VideoCanvas(Image):
         # x, y, width, height
         frame_coords = (Window.left + xprime, vid_start_from_screen_top, self.width, self.height)
 
-        self.video_frames.append(Frame(self.video_frame_index, coords=frame_coords))
+        self.video_frames.append(Frame(self.video_frame_index, coords=frame_coords, src=self.video_src))
         self.video_frame_index += 1
+        self.video_output.write(frame)
 
         return frame
 
@@ -123,6 +138,7 @@ class VideoCanvas(Image):
             return
 
         self.video_capture.release()
+        self.video_output.release()
 
         # viewpoint_size = (Window.width, Window.height)
 

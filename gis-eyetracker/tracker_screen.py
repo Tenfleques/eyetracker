@@ -48,20 +48,25 @@ widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "tracker_scre
 
 def still_image_to_video(img_path, duration):
     frame = cv2.imread(img_path)
-    fps = 5
-    frames_count = fps * duration
-    video_path = "{}-{}.mov".format(img_path, duration)
+    frames_count = duration
+    fps = 1.0
+    video_path = "{}-{}.avi".format(img_path, duration)
+
+    if os.path.exists(video_path):
+        if filetype.is_video(video_path):
+            return video_path, fps
 
     frame_id = 0
     fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
     out_video = cv2.VideoWriter()
     success = out_video.open(video_path, fourcc, fps, (frame.shape[1], frame.shape[0]), True)
+
     while frame_id < frames_count:
         frame_id += 1
         out_video.write(frame)
     out_video.release()
 
-    return video_path
+    return video_path, fps
 
 
 def parse_json_source(path):
@@ -176,6 +181,8 @@ class TrackerScreen(Screen):
             # emergency close
             self.stop(True)
             return
+        # clear stored frame indices
+        self.video_feed_ctrl.reset()
 
         # create new session
         self.session_name = "exp-{}".format(time.strftime("%Y-%m-%d_%H-%M-%S"))
@@ -201,19 +208,37 @@ class TrackerScreen(Screen):
         # toggle play button to stop
         self.ids["btn_play"].text = self.get_local_str("_stop")
 
+        if filetype.is_video(self.ids['lbl_src_video'].text):
+            fps = get_video_fps(self.ids['lbl_src_video'].text)
+            started = self.video_feed_ctrl.start(self.ids['lbl_src_video'].text, fps, end_cb=self.stop)
+        else:
+            try:
+                self.play_sequence()
+            except Exception as er:
+                self.__tracker_app_log("{}-{}".format(get_local_str_util('_video_src_error'), er))
+                print("[ERROR] error playing sequence", er)
+
+        rec_title = "{} [{}]".format(get_local_str_util('_appname'), self.session_name)
+        Window.set_title(rec_title)
+
+    def play_sequence(self):
         with open(self.ids['lbl_src_video'].text) as fp:
             json_source_array = json.load(fp)
             fp.close()
             path_root = os.sep.join(self.ids['lbl_src_video'].text.split(os.sep)[:-1])
-            print(path_root)
+
+            if not isinstance(json_source_array, list):
+                json_source_array = [json_source_array]
+
             len_sources = len(json_source_array)
             i = 1
             for json_source in json_source_array:
                 end_cb = None
                 if len_sources - i == 0:
                     end_cb = self.stop
+                i += 1
 
-                abs_path = os.path.join(path_root, json_source["path"])
+                abs_path = os.path.join(path_root, json_source["name"])
                 self.__tracker_app_log("{}-{}".format(self.session_name, json_source["name"]))
                 # update window to have name of session
                 rec_title = "{} [{}-{}]".format(get_local_str_util('_appname'), self.session_name, json_source["name"])
@@ -221,16 +246,12 @@ class TrackerScreen(Screen):
 
                 if filetype.is_image(abs_path):
                     # get the desired FPS
-                    fps = float(json_source["duration"])
+                    vid_path, fps = still_image_to_video(abs_path, json_source["duration"])
                     started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
 
                 if filetype.is_video(abs_path):
                     fps = get_video_fps(abs_path)
                     started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
-
-                i += 1
-        rec_title = "{} [{}]".format(get_local_str_util('_appname'), self.session_name)
-        Window.set_title(rec_title)
 
     def set_button_play_start(self):
         self.ids["btn_play"].text = self.get_local_str("_start")

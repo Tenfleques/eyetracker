@@ -204,12 +204,11 @@ class ReplayScreen(Screen):
         viewpoint_size = None
         session_timeline_path = os.path.join(self.ids['lbl_input_dir'].text, filename)
         cam_video_path = os.path.join(self.ids['lbl_input_dir'].text, "out-video.avi")
+        cumulative_stimuli_src = os.path.join(self.ids['lbl_input_dir'].text, "cumulative_stimuli_src.avi")
         end_cb=lambda t: self.set_button_play_start(True)
 
         # toggle play button to stop
         self.set_button_play_start()
-        # get path to video
-        video_src = self.ids['lbl_src_video'].text
 
         # set fps
         self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
@@ -217,7 +216,7 @@ class ReplayScreen(Screen):
         self.video_feed_ctrl.toggle_maintain_track(self.ids["chkbx_maintain_track"].state == 'down')
         self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state == 'down')
 
-        started = self.video_feed_ctrl.start(video_src, session_timeline_path,
+        started = self.video_feed_ctrl.start(cumulative_stimuli_src, session_timeline_path,
                                              viewpoint_size, cam_video_path, self.progress_cb,
                                              end_cb)
 

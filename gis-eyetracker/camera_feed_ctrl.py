@@ -19,12 +19,14 @@ class Frame:
     y = 0.0
     width = 0.0
     height = 0.0
+    src = "0"
 
-    def __init__(self, frame_id, coords=(0, 0, 0, 0), f=None):
+    def __init__(self, frame_id, coords=(0, 0, 0, 0), f=None, src=""):
         self.timestamp = time.time()
         self.frame_id = frame_id
         self.img_data = f
         self.x, self.y, self.width, self.height = coords
+        self.src = src
 
     def update(self):
         self.timestamp = time.time()
@@ -36,7 +38,8 @@ class Frame:
             "x": self.x,
             "y": self.y,
             "width": self.width,
-            "height": self.height
+            "height": self.height,
+            "src": self.src
         }
 
     def save_to_file(self, path):

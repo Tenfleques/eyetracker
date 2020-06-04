@@ -86,7 +86,8 @@ class ResultVideoCanvas(Image):
     def get_fps(self):
         return self.video_fps
 
-    def current_frame_cb(self, current, total, record=None):
+    @staticmethod
+    def current_frame_cb(current, total, record=None):
         print("[INFO] frame {}/{}".format(current, total))
 
     def pause_play(self):
@@ -171,7 +172,6 @@ class ResultVideoCanvas(Image):
         if os.path.isfile(image_grab_path):
             self.bg_image = cv2.imread(image_grab_path)
             self.bg_frame[:, :, :] = self.bg_image
-
 
         self.timestamp_keys = [i for i in self.session_timeline.keys()]
         float_timestamp_keys = [float(i) for i in self.timestamp_keys]
