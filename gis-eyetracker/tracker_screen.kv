@@ -76,14 +76,15 @@
                     cols: 1
                     padding: [5, 5, 5, 5]
                     GridLayout:
-                        # cols: 3
+                        cols: 2
                         padding: [5, 5, 5, 5]
                         rows: 1
                         size_hint_y: None
                         height: 45
-                        # NormalLabel:
-                        #     text: root.get_local_str("_frequency_in_use")
-                        #     size_hint_y: None
+                        halign: 'right'
+                        NormalLabel:
+                            text: ""
+                            size_hint_y: None
                         # NormalLabel:
                         #     text: root.txt_box_video_rate.text
                         #     id: lbl_video_fps_in_use
