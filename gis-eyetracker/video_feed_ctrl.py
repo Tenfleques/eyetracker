@@ -50,7 +50,8 @@ class VideoCanvas(Image):
     def get_progress(self):
         return self.session_timeline_index, len(self.timestamp_keys)
 
-    def current_frame_cb(self, current, total):
+    @staticmethod
+    def current_frame_cb(current, total):
         print("[INFO] frame {}/{}".format(current, total))
 
     def start(self, video_src="",

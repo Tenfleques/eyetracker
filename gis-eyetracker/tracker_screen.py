@@ -29,6 +29,7 @@ from select_box import SelectBox, select_box_inline
 from kivy.core.window import Window
 from kivy.clock import Clock
 import cv2
+import filetype
 
 
 import logging
@@ -152,16 +153,6 @@ class TrackerScreen(Screen):
         # creates path from session name and chosen catalog
         return os.path.join(self.ids['lbl_output_dir'].text, self.session_name)
 
-    def stimuli_video_ready(self):
-        ready = False
-        # checks if video path is a file, if it's even a video file
-        if get_video_fps(self.ids['lbl_src_video'].text):
-            return True
-
-        self.__tracker_app_log(self.get_local_str("_load_stimuli_video"))
-
-        return ready
-
     @staticmethod
     def __tracker_app_log(text, log_label='app_log'):
         # give feedback to the user of what is happening behind the scenes
@@ -186,13 +177,8 @@ class TrackerScreen(Screen):
             self.stop(True)
             return
 
-        # can't run session if video stimuli not ready can we?
-        if not self.stimuli_video_ready():
-            return
-
         # create new session
         self.session_name = "exp-{}".format(time.strftime("%Y-%m-%d_%H-%M-%S"))
-
         # get new session dir
         output_dir = self.__get_session_directory()
         if output_dir is None:
@@ -200,29 +186,51 @@ class TrackerScreen(Screen):
         # create the new session dir
         os.makedirs(output_dir, exist_ok=True)
 
-        # update window to have name of session
-        Window.set_title("{} [{}]".format(get_local_str_util('_appname'), self.session_name))
         # fires up camera
-        camera_up = self.camera_feed_ctrl.start(output_path=output_dir,
-              camera_index=0, save_images=False)
+        camera_up = self.camera_feed_ctrl.start(output_path=output_dir, camera_index=0, save_images=False)
 
         # cancel everything if camera failed to start
         if not camera_up:
             self.__tracker_app_log(self.get_local_str("_problem_waiting_camera"))
             return
 
-        # toggle play button to stop
-        self.ids["btn_play"].text = self.get_local_str("_stop")
-        # get path to video
-        video_src = self.ids['lbl_src_video'].text
-        # get the desired FPS
-        fps = float(self.ids['txt_box_video_rate'].text)
-        started = self.video_feed_ctrl.start(video_src, fps, end_cb=self.stop)
-
-        print("[INFO] started video player {} ".format(started))
         if self.tracker_ctrl is None:
             self.tracker_ctrl = TrackerCtrl()
         self.tracker_ctrl.start()
+
+        # toggle play button to stop
+        self.ids["btn_play"].text = self.get_local_str("_stop")
+
+        with open(self.ids['lbl_src_video'].text) as fp:
+            json_source_array = json.load(fp)
+            fp.close()
+            path_root = os.sep.join(self.ids['lbl_src_video'].text.split(os.sep)[:-1])
+            print(path_root)
+            len_sources = len(json_source_array)
+            i = 1
+            for json_source in json_source_array:
+                end_cb = None
+                if len_sources - i == 0:
+                    end_cb = self.stop
+
+                abs_path = os.path.join(path_root, json_source["path"])
+                self.__tracker_app_log("{}-{}".format(self.session_name, json_source["name"]))
+                # update window to have name of session
+                rec_title = "{} [{}-{}]".format(get_local_str_util('_appname'), self.session_name, json_source["name"])
+                Window.set_title(rec_title)
+
+                if filetype.is_image(abs_path):
+                    # get the desired FPS
+                    fps = float(json_source["duration"])
+                    started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+
+                if filetype.is_video(abs_path):
+                    fps = get_video_fps(abs_path)
+                    started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+
+                i += 1
+        rec_title = "{} [{}]".format(get_local_str_util('_appname'), self.session_name)
+        Window.set_title(rec_title)
 
     def set_button_play_start(self):
         self.ids["btn_play"].text = self.get_local_str("_start")
@@ -356,29 +364,11 @@ class TrackerScreen(Screen):
         self.set_default_from_prev_session('filechooser', path)
         if len(filenames):
             if not filenames[0] == path:
-                video_path = os.path.join(path, filenames[0])
-                if "json" == filenames[0].split(".")[-1]:
-                    # video_path, this_fps = parse_json_source(video_path)
-                    select_box_xtrl = select_box_inline(label="select_src", options=[("option_1",
-                                                                              lambda: print("clicked option 1"))])
-                    self.ids["select_in_series"].set_options ([("option_1",
-                                                             lambda: print("clicked option 1")),
-                                                            ("option_2",
-                                                             lambda: print("clicked option 22")),
-                                                            ])
-
-                    print(self.ids["select_in_series"].options)
-
-                    # self.ids["select_in_series"].clear_widgets()
-                    # self.ids["select_in_series"].add_widget(select_box_xtrl)
-                    this_fps = 0.0
-                else:
-                    this_fps = get_video_fps(video_path)
-
-                self.ids["txt_box_video_rate"].text = str(this_fps)
-                self.set_default_from_prev_session("txt_box_video_rate", this_fps)
-                self.ids['lbl_src_video'].text = video_path
-                self.set_default_from_prev_session("lbl_src_video", video_path)
+                src_path = os.path.join(path, filenames[0])
+                # self.ids["txt_box_video_rate"].text = str(this_fps)
+                # self.set_default_from_prev_session("txt_box_video_rate", this_fps)
+                self.ids['lbl_src_video'].text = src_path
+                self.set_default_from_prev_session("lbl_src_video", src_path)
 
         self.dismiss_popup()
 
