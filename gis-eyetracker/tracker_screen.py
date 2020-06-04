@@ -266,7 +266,7 @@ class TrackerScreen(Screen):
         # stop video capture feed and callback toggle play button ready for next experiment
         if self.video_feed_ctrl is not None and emergency:
             process_data = process_data and self.video_feed_ctrl.is_playing()
-            self.video_feed_ctrl.stop()
+            self.video_feed_ctrl.stop(emergency)
 
         if process_data:
             self.__after_recording()
@@ -307,7 +307,11 @@ class TrackerScreen(Screen):
             info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_feed_ctrl.get_frames())
             out_video_path = os.path.join(output_dir, "cumulative_stimuli_src")
             # save the frames of the stimuli used
-            self.video_feed_ctrl.save_video(out_video_path, self.actual_video_stimuli_fps)
+            save_video_thread = Thread(target=self.video_feed_ctrl.save_video,
+                                       args=(out_video_path, self.actual_video_stimuli_fps))
+            save_video_thread.start()
+
+            self.processes.append(save_video_thread)
 
             # log the actual video FPS
             if self.actual_video_stimuli_fps:

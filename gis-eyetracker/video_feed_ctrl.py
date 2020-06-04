@@ -106,8 +106,6 @@ class VideoCanvas(Image):
     def play(self, video_src, fps, is_recording=True):
         cb = lambda f: f
         if is_recording:
-            self.video_frames.clear()
-            self.video_frame_index = 0
             cb = self.frames_cb
 
         self.video_capture = cv2.VideoCapture(video_src)
@@ -123,7 +121,7 @@ class VideoCanvas(Image):
                                                       self.update_video_canvas(dt, self.video_capture, cb), 1.0/fps)
         return 0
 
-    def stop(self):
+    def stop(self, emergency=False):
         # stop video feed
         # we are not even running, are we?
         if self.video_capture is None:
@@ -143,7 +141,8 @@ class VideoCanvas(Image):
             # get actual FPS details for stimuli video
             info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_frames)
 
-        self.end_play_cb()
+        if not emergency:
+            self.end_play_cb()
 
     def get_actual_fps(self):
         return self.actual_video_stimuli_fps
@@ -186,12 +185,16 @@ class VideoCanvas(Image):
         if fps == 0:
             _, _, fps = process_fps(self.video_frames)
 
-        sh = self.video_frames[0]
+        print("[INFO] start of video writing")
+        sh = self.video_frames[0].img_data.shape
 
+        print("[INFO] start of video writing  of shape {}".format(sh))
         success = out_video.open(out_path, fourcc, fps, (sh[1], sh[0]), True)
         for frame in self.video_frames:
             out_video.write(frame.img_data)
         out_video.release()
+
+        print("[INFO] end of video writing")
 
     def get_frames(self):
         return self.video_frames
