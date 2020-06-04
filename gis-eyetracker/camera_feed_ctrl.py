@@ -21,10 +21,10 @@ class Frame:
     height = 0.0
     src = "0"
 
-    def __init__(self, frame_id, coords=(0, 0, 0, 0), f=None, src=""):
+    def __init__(self, frame_id, coords=(0, 0, 0, 0), img_data=None, src=""):
         self.timestamp = time.time()
         self.frame_id = frame_id
-        self.img_data = f
+        self.img_data = img_data
         self.x, self.y, self.width, self.height = coords
         self.src = src
 

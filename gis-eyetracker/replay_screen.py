@@ -2,7 +2,6 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.popup import Popup
-import json
 
 from helpers import get_local_str_util, create_log, get_video_fps, props, \
     get_default_from_prev_session, set_default_from_prev_session
@@ -15,19 +14,17 @@ from infobar import InfoBar
 from framedetails import FrameDetails
 
 from kivy.core.window import Window
-
 from collections import deque
-
 from kivy.config import Config
 import logging
+from kivy.lang.builder import Builder
+import os
+from loaddialog import LoadDialog
+
 logging.basicConfig(filename='./logs/replay_screen.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
-
-from kivy.lang.builder import Builder
-import os
-from loaddialog import LoadDialog
 
 widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "replay_screen.kv"))
 
@@ -56,7 +53,7 @@ class ReplayScreen(Screen):
 
     @staticmethod
     def get_local_str(key):
-        # gets the localized string for litera text on the UI
+        # gets the localized string for literal text on the UI
         return get_local_str_util(key)
 
     @staticmethod
@@ -208,7 +205,6 @@ class ReplayScreen(Screen):
             self.set_button_play_start()
             return
 
-
         # list the files inside the input dir
         files = os.listdir(self.ids['lbl_input_dir'].text)
         filename = "tracker-timeline.json"
@@ -291,24 +287,6 @@ class ReplayScreen(Screen):
 
         self._popup = Popup(title=self.get_local_str("_select_directory"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()
-
-    # loading video file dialog
-    def show_load_video(self):
-        content = LoadDialog(load=self.load_video, cancel=self.dismiss_popup)
-        self._popup = Popup(title=self.get_local_str("_select_src_video"), content=content, size_hint=(0.9, 0.9))
-        self._popup.open()
-
-    def load_video(self, path, filenames):
-        lbl_src_video = self.ids['lbl_src_video']
-        self.set_default_from_prev_session('filechooser', path)
-
-        if len(filenames):
-            if not filenames[0] == path:
-                video_path = os.path.join(path, filenames[0])
-                lbl_src_video.text = video_path
-                self.set_default_from_prev_session("lbl_src_video", video_path)
-
-        self.dismiss_popup()
 
     def load(self, path, filename):
         lbl_input_dir = self.ids['lbl_input_dir']

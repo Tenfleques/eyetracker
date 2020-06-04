@@ -193,7 +193,11 @@ class ResultVideoCanvas(Image):
             self.current_frame_cb = current_frame_cb
 
         with open(session_timeline_path, "r") as fp:
-            self.session_timeline = json.load(fp)
+            all_session = json.load(fp)
+            for k in all_session.keys():
+                if all_session[k]["video"] is not None and all_session[k]["camera"] is not None:
+                    self.session_timeline[k] = all_session[k]
+
             fp.close()
 
         self.SCREEN_SIZE = viewpoint_size
@@ -319,22 +323,22 @@ class ResultVideoCanvas(Image):
             if self.current_vid_frame_id != record["video"]["frame_id"]:
                 self.current_vid_frame_id = record["video"]["frame_id"]
 
-            self.v_frame = self.get_video_frame_at(self.current_vid_frame_id)
-            if "width" in record["video"]:
-                # updated version with cordinates
-                self.v_frame = cv2.resize(self.v_frame, (int(record["video"]["width"]),
-                                                         int(record["video"]["height"])))
-                self.v_x = int(record["video"]["x"])
-                self.v_y = int(record["video"]["y"])
-                self.sh[0] = int(record["video"]["width"])
-                self.sh[1] = int(record["video"]["height"])
+            if self.video_track:
+                self.v_frame = self.get_video_frame_at(self.current_vid_frame_id)
+                if "width" in record["video"]:
+                    # updated version with cordinates
+                    self.v_frame = cv2.resize(self.v_frame, (int(record["video"]["width"]),
+                                                             int(record["video"]["height"])))
+                    self.v_x = int(record["video"]["x"])
+                    self.v_y = int(record["video"]["y"])
+                    self.sh[0] = int(record["video"]["width"])
+                    self.sh[1] = int(record["video"]["height"])
 
-                self.c_start_x = self.v_x + self.sh[0] + 40
-                try:
-                    if self.video_track:
+                    self.c_start_x = self.v_x + self.sh[0] + 40
+                    try:
                         self.bg_frame[self.v_y:self.sh[1] + self.v_y, self.v_x:self.sh[0] + self.v_x, :] = self.v_frame
-                except ValueError as err:
-                    print("[ERROR] a video resize error occurred {}".format(err))
+                    except ValueError as err:
+                        print("[ERROR] a video resize error occurred {}".format(err))
 
         # add gaze feed data
         if record["gaze"] is not None and self.tracker_track:
@@ -359,8 +363,8 @@ class ResultVideoCanvas(Image):
             if self.current_cam_frame_id != record["camera"]["frame_id"]:
                 self.current_cam_frame_id = record["camera"]["frame_id"]
 
+            if self.camera_track:
                 self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
-            # if self.camera_track:
                 self.c_frame = cv2.resize(self.c_frame, (self.c_width, self.c_height))
                 b_sh = self.bg_frame.shape
                 self.bg_frame[:self.c_height, b_sh[1] - self.c_width:, :] = self.c_frame

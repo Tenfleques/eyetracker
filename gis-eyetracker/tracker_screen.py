@@ -69,23 +69,6 @@ def still_image_to_video(img_path, duration):
     return video_path, fps
 
 
-def parse_json_source(path):
-    video_path = ""
-    try:
-        with open(path) as fp:
-            json_source = json.load(fp)
-            fp.close()
-
-            if json_source["type"] == "image":
-                video_path = still_image_to_video(json_source["path"], json_source["duration"])
-
-            if json_source["type"] == "video":
-                video_path = json_source["path"]
-    except Exception as er:
-        print("[ERROR] error {}".format(er))
-
-    return video_path
-
 
 class TrackerScreen(Screen):
     tracker_ctrl = None
@@ -170,21 +153,6 @@ class TrackerScreen(Screen):
         except Exception as er:
             print("[ERROR] {}".format(er))
 
-    def cum_seq_video(self, **kwargs):
-        frame = kwargs.get("frame", None)
-        if frame is None:
-            return
-        if self.cumulative_sim_video is None:
-            # fireup the sequence writer
-            fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
-            self.cumulative_sim_video = cv2.VideoWriter()
-            out_video_path = os.path.join(self.__get_session_directory(), "cumulative_stimuli_src.avi")
-            dims = (frame.shape[1], frame.shape[0])
-            success = self.cumulative_sim_video.open(out_video_path, fourcc, 30, dims, True)
-
-        if self.cumulative_sim_video is not None:
-            self.cumulative_sim_video.write(frame)
-
     def btn_play_click(self):
         """
         connects to the camera, video, tracker adapters
@@ -221,9 +189,9 @@ class TrackerScreen(Screen):
             self.__tracker_app_log(self.get_local_str("_problem_waiting_camera"))
             return
 
+        # init the tracker device
         if self.tracker_ctrl is None:
             self.tracker_ctrl = TrackerCtrl()
-        self.tracker_ctrl.start()
 
         # toggle play button to stop
         self.ids["btn_play"].text = self.get_local_str("_stop")
@@ -237,6 +205,9 @@ class TrackerScreen(Screen):
             except Exception as er:
                 self.__tracker_app_log("{}-{}".format(get_local_str_util('_video_src_error'), er))
                 print("[ERROR] error playing sequence", er)
+        
+        # start the tracker device
+        self.tracker_ctrl.start()
 
         rec_title = "{} [{}]".format(get_local_str_util('_appname'), self.session_name)
         Window.set_title(rec_title)
@@ -273,13 +244,11 @@ class TrackerScreen(Screen):
         if filetype.is_image(abs_path):
             # get the desired FPS
             vid_path, fps = still_image_to_video(abs_path, json_source["duration"])
-            started = self.video_feed_ctrl.start(vid_path, fps,
-                                                 current_frame_cb=self.cum_seq_video, end_cb=end_cb)
+            started = self.video_feed_ctrl.start(vid_path, fps, end_cb=end_cb)
 
         if filetype.is_video(abs_path):
             fps = get_video_fps(abs_path)
-            started = self.video_feed_ctrl.start(abs_path, fps,
-                                                 current_frame_cb=self.cum_seq_video, end_cb=end_cb)
+            started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
 
     def set_button_play_start(self):
         self.ids["btn_play"].text = self.get_local_str("_start")
@@ -336,6 +305,9 @@ class TrackerScreen(Screen):
 
             # get actual FPS details for stimuli video
             info_1, info_2, self.actual_video_stimuli_fps = process_fps(self.video_feed_ctrl.get_frames())
+            out_video_path = os.path.join(output_dir, "cumulative_stimuli_src")
+            # save the frames of the stimuli used
+            self.video_feed_ctrl.save_video(out_video_path, self.actual_video_stimuli_fps)
 
             # log the actual video FPS
             if self.actual_video_stimuli_fps:

@@ -97,7 +97,7 @@ class VideoCanvas(Image):
         # x, y, width, height
         frame_coords = (Window.left + xprime, vid_start_from_screen_top, self.width, self.height)
 
-        self.video_frames.append(Frame(self.video_frame_index, coords=frame_coords, src=self.video_src))
+        self.video_frames.append(Frame(self.video_frame_index, img_data=frame, coords=frame_coords, src=self.video_src))
         self.current_frame_cb(frame=frame, current=self.video_frame_index, total=0)
         self.video_frame_index += 1
         return frame
@@ -151,7 +151,7 @@ class VideoCanvas(Image):
         # get the canvas for drawing
         # read next frame
         ret, frame = cap.read()
-        bg_frame = np.zeros((int(self.height), int(self.width), 3), dtype=np.uint8)
+        bg_frame = np.full((int(self.height), int(self.width), 3), 255, dtype=np.uint8)
 
         if not ret:
             # end of video
@@ -174,6 +174,23 @@ class VideoCanvas(Image):
         # update video canvas
         self.texture = texture
 #        print(props(self))
+
+    def save_video(self, out_path, fps=0):
+        if len(self.video_frames) < 1:
+            return
+        out_path = out_path + ".avi"
+
+        fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+        out_video = cv2.VideoWriter()
+        if fps == 0:
+            _, _, fps = process_fps(self.video_frames)
+
+        sh = self.video_frames[0]
+
+        success = out_video.open(out_path, fourcc, fps, (sh[1], sh[0]), True)
+        for frame in self.video_frames:
+            out_video.write(frame.img_data)
+        out_video.release()
 
     def get_frames(self):
         return self.video_frames
