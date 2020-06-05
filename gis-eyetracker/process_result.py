@@ -12,6 +12,17 @@ import sys
 import logging
 logging.basicConfig(filename='./logs/process_result.log',level=logging.DEBUG)
 
+
+def get_keyed_group(frames, timeline_keys=deque()):
+    p_fs = {}
+    for frame in frames:
+        if "timestamp" in frame:
+            timeline_keys.append(frame["timestamp"])
+            p_fs[frame["timestamp"]] = frame
+
+    return p_fs, timeline_keys
+
+
 def create_timeline(tracker_data, video_data):
     gaze_frames = tracker_data["gaze"]
     pos_frames = tracker_data["pos"]
@@ -22,37 +33,11 @@ def create_timeline(tracker_data, video_data):
 
     timeline_keys = deque()
 
-    g_fs = {}
-    c_fs = {}
-    v_fs = {}
-    o_fs = {}
-    p_fs = {}
-
-    print(len(pos_frames))
-    for frame in pos_frames:
-        if "timestamp" in frame:
-            timeline_keys.append(frame["timestamp"])
-            p_fs[frame["timestamp"]] = frame
-
-    for frame in origin_frames:
-        if "timestamp" in frame:
-            timeline_keys.append(frame["timestamp"])
-            o_fs[frame["timestamp"]] = frame
-
-    for frame in gaze_frames:
-        if "timestamp" in frame:
-            timeline_keys.append(frame["timestamp"])
-            g_fs[frame["timestamp"]] = frame
-
-    for frame in camera_frames:
-        if "timestamp" in frame:
-            timeline_keys.append(frame["timestamp"])
-            c_fs[frame["timestamp"]] = frame
-
-    for frame in video_frames:
-        if "timestamp" in frame:
-            timeline_keys.append(frame["timestamp"])
-            v_fs[frame["timestamp"]] = frame
+    g_fs, timeline_keys = get_keyed_group(gaze_frames, timeline_keys)
+    c_fs, timeline_keys = get_keyed_group(camera_frames, timeline_keys)
+    v_fs, timeline_keys = get_keyed_group(video_frames, timeline_keys)
+    o_fs, timeline_keys = get_keyed_group(origin_frames, timeline_keys)
+    p_fs, timeline_keys = get_keyed_group(pos_frames, timeline_keys)
 
     last_gaze_frame = None
     last_pos_frame = None
@@ -73,19 +58,19 @@ def create_timeline(tracker_data, video_data):
         last_video_frame = copy.copy(v_fs.get(key, last_video_frame))
 
         if last_gaze_frame is not None:
-            if (last_camera_frame is not None) or (last_video_frame is not None):
+            if (last_camera_frame is not None) and (last_video_frame is not None):
                 sess_timeline[key] = {
                     "gaze": last_gaze_frame,
                     "camera": last_camera_frame,
                     "video": last_video_frame,
-                    "pos" : last_pos_frame,
-                    "origin" : last_origin_frame
+                    "pos": last_pos_frame,
+                    "origin": last_origin_frame
                 }
 
     return sess_timeline
 
 
-def process_demo_video(video_path, session_timeline,cam_video_path="",
+def process_demo_video(video_path, session_timeline, cam_video_path="",
                        cb=lambda: print("[INFO] finished processing "
                                                                                          "video")):
     timestamp_keys = session_timeline.keys()
