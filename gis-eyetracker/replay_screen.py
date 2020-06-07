@@ -20,6 +20,7 @@ import logging
 from kivy.lang.builder import Builder
 import os
 from loaddialog import LoadDialog
+from threading import Thread
 
 logging.basicConfig(filename='./logs/replay_screen.log',level=logging.DEBUG)
 
@@ -40,6 +41,7 @@ class ReplayScreen(Screen):
     video_interval = None
 
     session_name = None
+    vid_ctrl_set = False
 
     @staticmethod
     def get_default_from_prev_session(key, default=''):
@@ -187,12 +189,38 @@ class ReplayScreen(Screen):
         step_size = int(self.ids["txt_box_step_size"].text)
         self.video_feed_ctrl.step_forward(step_size)
 
+    def btn_export_video_click(self):
+        if not self.input_dir_ready():
+            return
+
+        if self.ids["replay_video_canvas"].get_is_exporting():
+            self.__tracker_app_log(self.get_local_str("_export_module_busy"), "tracker_log")
+            return 
+        
+        # list the files inside the input dir
+        files = os.listdir(self.ids['lbl_input_dir'].text)
+        filename = "tracker-timeline.json"
+        if filename not in files:
+            print("[ERROR] the tracker timeline file could not be found ")
+            self.__tracker_app_log(self.get_local_str("_error_loading_session"), "camera_log")
+            return
+
+        session_timeline_path = os.path.join(self.ids['lbl_input_dir'].text, filename)
+        cam_video_path = os.path.join(self.ids['lbl_input_dir'].text, "out-video.avi")
+        cumulative_stimuli_src = os.path.join(self.ids['lbl_input_dir'].text, "cumulative_stimuli_src.avi")
+
+        maintain_track = self.ids["chkbx_maintain_track"].state == 'down'
+        video_track = self.ids["chkbx_video_track"].state == 'down'
+        tracker_track = self.ids["chkbx_tracker_track"].state == 'down'
+        camera_track = self.ids["chkbx_camera_track"].state == 'down'
+        bg_is_screen = self.ids["chkbx_bg_is_grab"].state == 'down'
+
+        p = Thread(target=self.ids["replay_video_canvas"].export_as_video, args=(cumulative_stimuli_src, session_timeline_path, cam_video_path,
+                                             bg_is_screen, video_track, camera_track, tracker_track, maintain_track))
+        p.start()
+        self.processes.append(p)
+
     def btn_play_click(self):
-        """
-        connects to the camera, video, tracker adapters
-        runs till stop or end of stimuli video.
-        :return:
-        """
         if not self.input_dir_ready():
             return
 
@@ -212,7 +240,6 @@ class ReplayScreen(Screen):
             print("[ERROR] the tracker timeline file could not be found ")
             self.__tracker_app_log(self.get_local_str("_error_loading_session"), "camera_log")
 
-        viewpoint_size = None
         session_timeline_path = os.path.join(self.ids['lbl_input_dir'].text, filename)
         cam_video_path = os.path.join(self.ids['lbl_input_dir'].text, "out-video.avi")
         cumulative_stimuli_src = os.path.join(self.ids['lbl_input_dir'].text, "cumulative_stimuli_src.avi")
@@ -230,8 +257,7 @@ class ReplayScreen(Screen):
         self.video_feed_ctrl.toggle_camera_track(self.ids["chkbx_camera_track"].state == 'down')
         self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state == 'down')
 
-        started = self.video_feed_ctrl.start(cumulative_stimuli_src, session_timeline_path,
-                                             viewpoint_size, cam_video_path, self.progress_cb,
+        started = self.video_feed_ctrl.start(cumulative_stimuli_src, session_timeline_path, cam_video_path, self.progress_cb,
                                              end_cb)
 
         print("[INFO] started video player {} ".format(started))
@@ -289,8 +315,13 @@ class ReplayScreen(Screen):
         self._popup.open()
 
     def load(self, path, filename):
-        lbl_input_dir = self.ids['lbl_input_dir']
-        lbl_input_dir.text = path
+        if os.path.exists(path):
+            if not os.path.isdir(path):
+                path = os.path.dirname(path)
+
+        lbl_output_dir = self.ids['lbl_input_dir']
+        lbl_output_dir.text = path
+
         self.set_default_from_prev_session('lbl_input_dir', path)
         self.set_default_from_prev_session('filechooser', path)
         self.dismiss_popup()

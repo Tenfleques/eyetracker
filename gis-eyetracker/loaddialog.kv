@@ -1,19 +1,28 @@
 #:kivy 1.10.0
 <LoadDialog>:
     filechooser: filechooser
+    user_path_insert:user_path_insert
     BoxLayout:
         size: root.size
         pos: root.pos
         orientation: "vertical"
         BoxLayout:
-            orientation: "horizontal"
+            orientation: "vertical"
             size_hint_y: None
-            height: 30
+            height: 70
             NormalLabel:
                 markup:True
                 text: "[b]" + root.filechooser.path + "[/b]"
                 color: (1,1,1,1)
                 font_size: dp(14)
+            TextInput:
+                id: user_path_insert
+                on_text_validate: root.on_path_validate(self)
+                size_hint_y: None
+                height: 30
+                multiline:False
+                font_size: dp(13)
+                text: root.filechooser.path
         FileChooserListView:
             id: filechooser
             dirselect: True

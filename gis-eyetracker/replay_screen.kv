@@ -14,6 +14,7 @@
     chkbx_camera_track:chkbx_camera_track
     chkbx_tracker_track:chkbx_tracker_track
     chkbx_video_track:chkbx_video_track
+    video_export_progress:video_export_progress
     # tabbed_main_view:tabbed_main_view
     # tabbed_timeline_item:tabbed_timeline_item
     BoxLayout:
@@ -63,27 +64,54 @@
                                     background_color: (1, 1, 1, 1)
                                     rows: 5
                                     size_hint_y: None
-                                    height: 150
+                                    height: 200
                                     padding: [0, 10, 0, 0]
                                     GridLayout:
-                                        cols: 2
+                                        rows: 2
                                         size_hint_y: None
-                                        height: 30
-                                        NormalLabel:
-                                            id:lbl_tracker_track
-                                            text: root.get_local_str("_tracker_track")
-                                            color: [0, 0, 0, 1]
-                                            size_hint_x: .6
+                                        height: 80
+                                        GridLayout:
+                                            rows: 2
+                                            halign: 'right'
                                             size_hint_y: None
-                                            height: 20
-                                            halign: 'left'
-                                        CheckBox:
-                                            id: chkbx_tracker_track
-                                            size_hint: (None, None)
-                                            color: [0,0,0,1]
-                                            size_hint_y: None
-                                            height: 20
-                                            state: 'down'
+                                            height: 50
+                                            padding: [5, 0, 5, 0]
+                                            GridLayout:
+                                                cols: 2
+                                                halign: 'right'
+                                                size_hint_y: None
+                                                height: 30
+                                                padding: [0, 0, 5, 0]
+                                                NormalLabel:
+                                                    text: ""
+                                                NormalButton:
+                                                    id: export_video
+                                                    text: root.get_local_str("_export_video")
+                                                    on_release: root.btn_export_video_click()
+                                                    size_hint_x: None
+                                                    width: '220dp'
+                                            ProgressBar:
+                                                id:video_export_progress
+                                                value: 0
+                                                max: 100
+                                            
+                                        GridLayout:
+                                            cols: 2
+                                            NormalLabel:
+                                                id:lbl_tracker_track
+                                                text: root.get_local_str("_tracker_track")
+                                                color: [0, 0, 0, 1]
+                                                size_hint_x: .6
+                                                size_hint_y: None
+                                                height: 20
+                                                halign: 'left'
+                                            CheckBox:
+                                                id: chkbx_tracker_track
+                                                size_hint: (None, None)
+                                                color: [0,0,0,1]
+                                                size_hint_y: None
+                                                height: 20
+                                                state: 'down'
                                     GridLayout:
                                         cols: 2
                                         size_hint_y: None
@@ -191,7 +219,7 @@
                 rows:1
                 cols:2
                 size_hint_y: None
-                height: 120
+                height: 130
                 background_color: (.9, .9, .9, .9)
                 GridLayout:
                     rows:3

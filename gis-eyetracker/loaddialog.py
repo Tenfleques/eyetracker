@@ -2,6 +2,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ObjectProperty
 from kivy.lang.builder import Builder
 from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session
+import os
 
 widget = Builder.load_file("./loaddialog.kv")
 
@@ -24,6 +25,10 @@ class LoadDialog(FloatLayout):
     def get_local_str(key):
         # gets the localized string for literal text on the UI
         return get_local_str_util(key)
+
+    def on_path_validate(self,ctrl):
+        if os.path.exists(ctrl.text):
+            self.ids["filechooser"].path = ctrl.text
 
     def build(self):
         return widget

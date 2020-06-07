@@ -1,4 +1,156 @@
 {
+    "_directory_not_selected": {
+        "en": "directory not selected",
+        "ru": "каталог не выбран"
+    },
+    "_problem_waiting_camera": {
+        "en": "problem waiting camera",
+        "ru": "проблема при ожиданий камеры"
+    },
+    "_stop": {
+        "en": "stop",
+        "ru": "стоп"
+    },
+    "_video_src_error": {
+        "en": "video source error",
+        "ru": "ошибка источника видео"
+    },
+    "_appname": {
+        "en": "GIS Eye Tracker MIPT",
+        "ru": "ГИС АЙ-Трекер МФТИ"
+    },
+    "_start": {
+        "en": "start",
+        "ru": "старт"
+    },
+    "_finished_recording": {
+        "en": "finished recording session",
+        "ru": "закончил запись сеанса"
+    },
+    "_actual_video_fps": {
+        "en": "actual video FPS",
+        "ru": "фактическое FPS видео"
+    },
+    "_factual_camera_fps": {
+        "en": "actual camera FPS",
+        "ru": "фактическое FPS камеры"
+    },
+    "_preparing_session_timeline": {
+        "en": "preparing the session timeline",
+        "ru": "подготовка графика сессии"
+    },
+    "_session_timeline_ready": {
+        "en": "sycnhronizing completed",
+        "ru": "синхронизация заврешена"
+    },
+    "_select_directory": {
+        "en": "select output directory",
+        "ru": "выберите выходной каталог"
+    },
+    "_select_src_video": {
+        "en": "select video",
+        "ru": "выберите видео"
+    },
+    "_load_stimuli_video": {
+        "en": "please load the stimuli video",
+        "ru": "пожалуйста загрузите видео стимулов"
+    },
+    "_export_module_busy": {
+        "en": "export module busy",
+        "ru": "модуль экспорта занят"
+    },
+    "_error_loading_session": {
+        "en": "error loading session data",
+        "ru": "ошибка при загрузки данных сеанса"
+    },
+    "_playback_started": {
+        "en": "playback started",
+        "ru": "воспроизведение началось"
+    },
+    "_playback_stopped": {
+        "en": "playback stopped",
+        "ru": "воспроизведение остановлено"
+    },
+    "_pause": {
+        "en": "pause",
+        "ru": "пауза"
+    },
+    "_playing": {
+        "en": "playing",
+        "ru": "воспроизведение"
+    },
+    "_paused": {
+        "en": "paused",
+        "ru": "приостановленное"
+    },
+    "_timeline_stage": {
+        "en": "video",
+        "ru": "видео"
+    },
+    "_frame_details": {
+        "en": "frame details",
+        "ru": "детали кадра"
+    },
+    "_export_video": {
+        "en": "export video",
+        "ru": "экспортировать видео"
+    },
+    "_tracker_track": {
+        "en": "show eye-tracker stream",
+        "ru": "показать поток трекера"
+    },
+    "_video_track": {
+        "en": "show video stream",
+        "ru": "показать поток видео"
+    },
+    "_camera_track": {
+        "en": "show camera stream",
+        "ru": "показать поток камеры"
+    },
+    "_bg_is_grab": {
+        "en": "desktop background",
+        "ru": "фон десктопа"
+    },
+    "_maintain_track": {
+        "en": "maintain gaze track",
+        "ru": "рисовать трекер gaze"
+    },
+    "_tl_table": {
+        "en": "",
+        "ru": ""
+    },
+    "_tl_charts": {
+        "en": "",
+        "ru": ""
+    },
+    "_step_back": {
+        "en": "step back",
+        "ru": "шаг назад"
+    },
+    "_step_forward": {
+        "en": "step forward",
+        "ru": "шаг вперед"
+    },
+    "_video_fps": {
+        "en": "video fps",
+        "ru": "fps видео"
+    },
+    "_step_size": {
+        "en": "step size (f)",
+        "ru": "размер шага (к)"
+    },
+    "_select_start_in_series": {
+        "en": "select start in series",
+        "ru": "выбирайте начало в серии"
+    },
+    "_btn_tracker_screen": {
+        "en": "tracker screen",
+        "ru": "экран трекера"
+    },
+    "_btn_replay_screen": {
+        "en": "session visualization screen",
+        "ru": "экран визуализации"
+    },
     "_waiting_for_camera": {
         "en": "waiting for the camera connection",
         "ru": "в ожидании подключения камеры"
@@ -27,137 +179,33 @@
         "en": "camera time",
         "ru": "время камеры"
     },
-    "_btn_tracker_screen": {
-        "en": "tracker screen",
-        "ru": "экран трекера"
+    "_session_timeline_not_found": {
+        "en": "session timeline not found",
+        "ru": "график сеанса не найден"
     },
-    "_btn_replay_screen": {
-        "en": "session visualization screen",
-        "ru": "экран визуализации сенса"
+    "_video_exists": {
+        "en": "video already exists",
+        "ru": "видео уже существует"
     },
-    "_cancel": {
-        "en": "cancel",
-        "ru": "отмена"
+    "_session_timeline_corrupted": {
+        "en": "session timeline corrupted",
+        "ru": "график сеанса поврежден"
     },
-    "_select": {
-        "en": "select",
-        "ru": "выберите"
+    "_session_timeline_empty": {
+        "en": "session timeline empty",
+        "ru": "график сеанса пуст"
     },
-    "_appname": {
-        "en": "GIS Eye Tracker MIPT",
-        "ru": "ГИС АЙ-Трекер МФТИ"
+    "_src_video_not_exists": {
+        "en": "source video missing",
+        "ru": "отсутствует исходное видео"
     },
-    "_timeline_stage": {
-        "en": "video",
-        "ru": "видео"
+    "_video_export_commences": {
+        "en": "video export commences",
+        "ru": "начинается экспорт видео"
     },
-    "_frame_details": {
-        "en": "frame details",
-        "ru": "детали кадра"
-    },
-    "_tracker_track": {
-        "en": "show eye-tracker stream",
-        "ru": "показать поток трекера"
-    },
-    "_video_track": {
-        "en": "show video stream",
-        "ru": "показать поток видео"
-    },
-    "_camera_track": {
-        "en": "show camera stream",
-        "ru": "показать поток rfvths"
-    },
-    "_bg_is_grab": {
-        "en": "desktop background",
-        "ru": "фон десктопа"
-    },
-    "_maintain_track": {
-        "en": "maintain gaze track",
-        "ru": "рисовать трекер gaze"
-    },
-    "_tl_table": {
-        "en": "",
-        "ru": ""
-    },
-    "_tl_charts": {
-        "en": "",
-        "ru": ""
-    },
-    "_directory_not_selected": {
-        "en": "directory not selected",
-        "ru": "каталог не выбран"
-    },
-    "_select_directory": {
-        "en": "select output directory",
-        "ru": "выберите выходной каталог"
-    },
-    "_step_back": {
-        "en": "step back",
-        "ru": "шаг назад"
-    },
-    "_step_forward": {
-        "en": "step forward",
-        "ru": "шаг вперед"
-    },
-    "_start": {
-        "en": "start",
-        "ru": "пуск"
-    },
-    "_stop": {
-        "en": "stop",
-        "ru": "стоп"
-    },
-    "_video_fps": {
-        "en": "video fps",
-        "ru": "fps видео"
-    },
-    "_step_size": {
-        "en": "step size (f)",
-        "ru": "размер шага (к)"
-    },
-    "_load_stimuli_video": {
-        "en": "please load the stimuli video",
-        "ru": "пожалуйста загрузите видео стимулов"
-    },
-    "_error_loading_session": {
-        "en": "error loading session data",
-        "ru": "ошибка при загрузки данных сеанса"
-    },
-    "_playback_started": {
-        "en": "playback started",
-        "ru": "воспроизведение началось"
-    },
-    "_playback_stopped": {
-        "en": "playback stopped",
-        "ru": "воспроизведение остановлено"
-    },
-    "_pause": {
-        "en": "pause",
-        "ru": "пауза"
-    },
-    "_playing": {
-        "en": "playing",
-        "ru": "воспроизведение"
-    },
-    "_paused": {
-        "en": "paused",
-        "ru": "приостановленное"
-    },
-    "_timestamp": {
-        "en": "timestamp",
-        "ru": "отметка времени"
-    },
-    "_gaze": {
-        "en": "gaze",
-        "ru": "gaze"
-    },
-    "_camera": {
-        "en": "camera",
-        "ru": "камера"
-    },
-    "_video": {
-        "en": "video",
-        "ru": "видео"
+    "_export_video_finished": {
+        "en": "video export is finished",
+        "ru": "экспорт видео завершен"
     },
     "_connected_tracker": {
         "en": "tracker connected",
@@ -191,45 +239,33 @@
         "en": "error saving tracker data",
         "ru": "ошибка сохранения данных трекера"
     },
-    "_select_src_video": {
-        "en": "select video",
-        "ru": "выберите видео"
+    "_cancel": {
+        "en": "cancel",
+        "ru": "отмена"
+    },
+    "_select": {
+        "en": "select",
+        "ru": "выберите"
+    },
+    "_timestamp": {
+        "en": "timestamp",
+        "ru": "отметка времени"
+    },
+    "_gaze": {
+        "en": "gaze",
+        "ru": "gaze"
+    },
+    "_camera": {
+        "en": "camera",
+        "ru": "камера"
+    },
+    "_video": {
+        "en": "video",
+        "ru": "видео"
     },
     "_frequency_in_use": {
         "en": "stimuli FPS in use",
         "ru": "FPS стимулы"
-    },
-    "_select_start_in_series": {
-        "en": "select start in series",
-        "ru": "выбирайте начало в серии"
-    },
-    "_problem_waiting_camera": {
-        "en": "problem waiting camera",
-        "ru": "проблема при ожиданий камеры"
-    },
-    "_video_src_error": {
-        "en": "video source error",
-        "ru": "ошибка источника видео"
-    },
-    "_finished_recording": {
-        "en": "finished recording session",
-        "ru": "закончил запись сеанса"
-    },
-    "_actual_video_fps": {
-        "en": "actual video FPS",
-        "ru": "фактическое FPS видео"
-    },
-    "_factual_camera_fps": {
-        "en": "actual camera FPS",
-        "ru": "фактическое FPS камеры"
-    },
-    "_preparing_session_timeline": {
-        "en": "preparing the session timeline",
-        "ru": "подготовка графика сессии"
-    },
-    "_session_timeline_ready": {
-        "en": "sycnhronizing completed",
-        "ru": "синхронизация заврешена"
     },
     "_frame_info": {
         "en": "frame info",

@@ -1,9 +1,11 @@
+from kivy.app import App
 import numpy as np
+import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
 import matplotlib.pyplot as plt
-import logging
-logging.basicConfig(filename='./logs/view_trackbox.log',level=logging.DEBUG)
+matplotlib.use("module://kivy.garden.matplotlib.backend_kivy")
+from kivy.garden.matplotlib import FigureCanvasKivyAgg
 
 trackbox =  {
         "front": {
@@ -108,4 +110,18 @@ ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
 
-plt.show()
+# plt.show()
+
+
+class ChartApp(App):
+
+    def build(self):
+        self.ids["chart_area"].add_widget(FigureCanvasKivyAgg(plt.gcf()))
+        pass
+
+    def on_pause(self):
+        return True
+
+
+if __name__ == '__main__':
+    ChartApp().run()

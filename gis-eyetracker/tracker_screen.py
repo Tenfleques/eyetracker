@@ -391,20 +391,29 @@ class TrackerScreen(Screen):
             print(err)
 
     def load_video(self, path, filenames):
-        self.set_default_from_prev_session('filechooser', path)
+        src_path = None
         if len(filenames):
             if not filenames[0] == path:
                 src_path = os.path.join(path, filenames[0])
-                # self.ids["txt_box_video_rate"].text = str(this_fps)
-                # self.set_default_from_prev_session("txt_box_video_rate", this_fps)
-                self.ids['lbl_src_video'].text = src_path
-                self.set_default_from_prev_session("lbl_src_video", src_path)
+        
+        if self.get_default_from_prev_session("lbl_src_video") != path:
+            if os.path.isfile(path):
+                src_path = path
+
+        if src_path is not None:
+            self.ids['lbl_src_video'].text = src_path
+            self.set_default_from_prev_session("lbl_src_video", src_path)
 
         self.dismiss_popup()
 
     def load(self, path, filename):
+        if os.path.exists(path):
+            if not os.path.isdir(path):
+                path = os.path.dirname(path)
+
         lbl_output_dir = self.ids['lbl_output_dir']
         lbl_output_dir.text = path
+
         self.set_default_from_prev_session('lbl_output_dir', path)
         self.set_default_from_prev_session('filechooser', path)
         self.dismiss_popup()

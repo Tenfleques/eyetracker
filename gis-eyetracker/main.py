@@ -44,6 +44,7 @@ class GisApp(App):
         app = App.get_running_app()
         app.root.ids["replay_screen"].start_all()
         app.root.ids["screen_manager"].transition = FadeTransition()
+        app.root.screen_manager.current = 'replay_screen'
         Window.set_title(get_local_str_util('_appname'))
 
     def on_stop(self):

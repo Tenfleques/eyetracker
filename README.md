@@ -72,11 +72,24 @@ ctypes
 
 `python -m pip install kivy==1.11.1`
 
-### TODO 
+# versions
 
-1. improve the video playback FPS  [Done]
-2. add Mac OS support to the tracker and the application [Done]
-3. improve the GUI [Still too technical]
+### v1.0.0 June 1 2020
+1. Records Tracker data, Video frames, Camera frames 
+2. Exports timeline
+3. Replays recorded session 
+
+### v1.0.1 June 4 2020
+1. Improvements to UI
+2. Stimuli source can be JSON with description of duration to support image input 
+3. User can choose which data streams to view during playback
+4. Faster playback, video and camera frames are preloaded to memory 
+
+### v1.0.1[nightly-1] June 6 2020
+1. Adds combined video export on user demand
+2. Bugfix incompatibility of frame sizes when replaying sessions recorded on different machines
+3. User can type/paste path to source directory in the load dialog
+    
 
 
 

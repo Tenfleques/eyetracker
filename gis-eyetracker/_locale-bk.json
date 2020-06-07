@@ -1,51 +1,51 @@
 {
-    "_directory_not_selected": {
-        "en": "directory not selected",
-        "ru": "каталог не выбран"
+    "_waiting_for_camera": {
+        "en": "waiting for the camera connection",
+        "ru": "в ожидании подключения камеры"
     },
-    "_load_stimuli_video": {
-        "en": "please load the stimuli video",
-        "ru": "пожалуйста загрузите видео стимулов"
+    "_gave_up_waiting_camera": {
+        "en": "gave up waiting for the camera",
+        "ru": "отказался от ожидания камеры"
     },
-    "_problem_waiting_camera": {
-        "en": "problem waiting camera",
-        "ru": "проблема при ожиданий камеры"
+    "_started_camera": {
+        "en": "camera started",
+        "ru": "камера включена"
     },
-    "_stop": {
-        "en": "stop",
-        "ru": "стоп"
+    "_stopped_camera": {
+        "en": "camera stopped",
+        "ru": "камера отключена"
     },
-    "_start": {
-        "en": "start",
-        "ru": "пуск"
+    "_tracker_time": {
+        "en": "tracker time",
+        "ru": "время трекера "
     },
-    "_actual_video_fps": {
-        "en": "actual video FPS",
-        "ru": "фактическое FPS видео"
+    "_video_time": {
+        "en": "video time ",
+        "ru": "время видео"
     },
-    "_factual_camera_fps": {
-        "en": "actual camera FPS",
-        "ru": "фактическое FPS камеры"
+    "_camera_time": {
+        "en": "camera time",
+        "ru": "время камеры"
     },
-    "_preparing_session_timeline": {
-        "en": "preparing the session timeline",
-        "ru": "подготовка графика сессии"
+    "_btn_tracker_screen": {
+        "en": "tracker screen",
+        "ru": "экран трекера"
     },
-    "_session_timeline_ready": {
-        "en": "sycnhronizing completed",
-        "ru": "синхронизация заврешена"
+    "_btn_replay_screen": {
+        "en": "session visualization screen",
+        "ru": "экран визуализации"
     },
-    "_select_directory": {
-        "en": "select output directory",
-        "ru": "выберите выходной каталог"
+    "_cancel": {
+        "en": "cancel",
+        "ru": "отмена"
     },
-    "_select_src_video": {
-        "en": "select video",
-        "ru": "выберите видео"
+    "_select": {
+        "en": "select",
+        "ru": "выберите"
     },
-    "_pause": {
-        "en": "pause",
-        "ru": "пауза"
+    "_appname": {
+        "en": "GIS Eye Tracker MIPT",
+        "ru": "ГИС АЙ-Трекер МФТИ"
     },
     "_timeline_stage": {
         "en": "video",
@@ -54,6 +54,18 @@
     "_frame_details": {
         "en": "frame details",
         "ru": "детали кадра"
+    },
+    "_tracker_track": {
+        "en": "show eye-tracker stream",
+        "ru": "показать поток трекера"
+    },
+    "_video_track": {
+        "en": "show video stream",
+        "ru": "показать поток видео"
+    },
+    "_camera_track": {
+        "en": "show camera stream",
+        "ru": "показать поток камеры"
     },
     "_bg_is_grab": {
         "en": "desktop background",
@@ -71,6 +83,14 @@
         "en": "",
         "ru": ""
     },
+    "_directory_not_selected": {
+        "en": "directory not selected",
+        "ru": "каталог не выбран"
+    },
+    "_select_directory": {
+        "en": "select output directory",
+        "ru": "выберите выходной каталог"
+    },
     "_step_back": {
         "en": "step back",
         "ru": "шаг назад"
@@ -78,6 +98,14 @@
     "_step_forward": {
         "en": "step forward",
         "ru": "шаг вперед"
+    },
+    "_start": {
+        "en": "start",
+        "ru": "пуск"
+    },
+    "_stop": {
+        "en": "stop",
+        "ru": "стоп"
     },
     "_video_fps": {
         "en": "video fps",
@@ -87,53 +115,121 @@
         "en": "step size (f)",
         "ru": "размер шага (к)"
     },
+    "_load_stimuli_video": {
+        "en": "please load the stimuli video",
+        "ru": "пожалуйста загрузите видео стимулов"
+    },
+    "_error_loading_session": {
+        "en": "error loading session data",
+        "ru": "ошибка при загрузки данных сеанса"
+    },
+    "_playback_started": {
+        "en": "playback started",
+        "ru": "воспроизведение началось"
+    },
+    "_playback_stopped": {
+        "en": "playback stopped",
+        "ru": "воспроизведение остановлено"
+    },
+    "_pause": {
+        "en": "pause",
+        "ru": "пауза"
+    },
+    "_playing": {
+        "en": "playing",
+        "ru": "воспроизведение"
+    },
+    "_paused": {
+        "en": "paused",
+        "ru": "приостановленное"
+    },
+    "_timestamp": {
+        "en": "timestamp",
+        "ru": "отметка времени"
+    },
+    "_gaze": {
+        "en": "gaze",
+        "ru": "gaze"
+    },
+    "_camera": {
+        "en": "camera",
+        "ru": "камера"
+    },
+    "_video": {
+        "en": "video",
+        "ru": "видео"
+    },
+    "_connected_tracker": {
+        "en": "tracker connected",
+        "ru": "трекер подключен"
+    },
+    "_failed_to_connect_tracker": {
+        "en": "failed to connect tracker",
+        "ru": "не удалось подключить трекер"
+    },
+    "_stopped_tracking": {
+        "en": "stopped tracking",
+        "ru": "перестал отслеживать трекером"
+    },
+    "_error_stopping_tracking": {
+        "en": "error stopping tracking",
+        "ru": "ошибка остановки отслеживания"
+    },
+    "_disconnected_tracker": {
+        "en": "disconnected tracker device",
+        "ru": "трекер отключен"
+    },
+    "_error_disconnecting_tracker": {
+        "en": "error disconnecting tracker",
+        "ru": "ошибка при отключении трекера"
+    },
+    "_saved_tracker": {
+        "en": "saved tracker data",
+        "ru": "сохраненные данные трекера"
+    },
+    "_error_saving_tracker_session": {
+        "en": "error saving tracker data",
+        "ru": "ошибка сохранения данных трекера"
+    },
+    "_select_src_video": {
+        "en": "select video",
+        "ru": "выберите видео"
+    },
     "_frequency_in_use": {
         "en": "stimuli FPS in use",
         "ru": "FPS стимулы"
     },
-    "_btn_tracker_screen": {
-        "en": "tracker screen",
-        "ru": "экран трекера"
+    "_select_start_in_series": {
+        "en": "select start in series",
+        "ru": "выбирайте начало в серии"
     },
-    "_btn_replay_screen": {
-        "en": "session visualization screen",
-        "ru": "экран визуализации сенса"
+    "_problem_waiting_camera": {
+        "en": "problem waiting camera",
+        "ru": "проблема при ожиданий камеры"
     },
-    "_tracker_time": {
-        "en": "tracker time",
-        "ru": "время трекера "
+    "_video_src_error": {
+        "en": "video source error",
+        "ru": "ошибка источника видео"
     },
-    "_video_time": {
-        "en": "video time ",
-        "ru": "время видео"
+    "_finished_recording": {
+        "en": "finished recording session",
+        "ru": "закончил запись сеанса"
     },
-    "_camera_time": {
-        "en": "camera time",
-        "ru": "время камеры"
+    "_actual_video_fps": {
+        "en": "actual video FPS",
+        "ru": "фактическое FPS видео"
     },
-    "_cancel": {
-        "en": "cancel",
-        "ru": "отмена"
+    "_factual_camera_fps": {
+        "en": "actual camera FPS",
+        "ru": "фактическое FPS камеры"
     },
-    "_select": {
-        "en": "select",
-        "ru": "выберите"
+    "_preparing_session_timeline": {
+        "en": "preparing the session timeline",
+        "ru": "подготовка графика сессии"
     },
-    "_timestamp": {
-        "en": "_timestamp",
-        "ru": "_timestamp"
-    },
-    "_gaze": {
-        "en": "_gaze",
-        "ru": "_gaze"
-    },
-    "_camera": {
-        "en": "_camera",
-        "ru": "_camera"
-    },
-    "_video": {
-        "en": "_video",
-        "ru": "_video"
+    "_session_timeline_ready": {
+        "en": "sycnhronizing completed",
+        "ru": "синхронизация заврешена"
     },
     "_frame_info": {
         "en": "frame info",
@@ -206,10 +302,6 @@
     "_log": {
         "en": "log",
         "ru": "отчеты"
-    },
-    "_appname": {
-        "en": "GIS Eye Tracker MIPT",
-        "ru": "ГИС АЙ-Трекер МФТИ"
     },
     "_press_q_to_quit": {
         "en": "press q/Q to quit",
