@@ -41,7 +41,7 @@ i.e
    
  The camera frames can be controlled by the CameraCtrl class in `camera_feed_ctrl.py` 
 
- The video frames are controlled by the main module
+ The video frames are controlled by the video_feed_ctrl module
  
  To process translations, between english and russian languages literals edit the _locale.json
  
@@ -77,7 +77,7 @@ ctypes
 
 https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sharing 
 
-# versions
+# Changelog
 
 ### v1.0.0 June 1 2020
 1. Records Tracker data, Video frames, Camera frames 
