@@ -129,6 +129,14 @@ class ResultVideoCanvas(Image):
 
     def get_fps(self):
         return self.video_fps
+    
+    def reset(self):
+        self.session_timeline_index = 0
+        self.video_frames.clear()
+        self.camera_frames.clear()
+        
+        self.current_vid_frame_id = 0
+        self.current_cam_frame_id = 0
 
     @staticmethod
     def current_frame_cb(current, total, record=None):
@@ -256,7 +264,7 @@ class ResultVideoCanvas(Image):
         self.path_history.clear()
 
         if not os.path.isfile(video_path):
-             self.__tracker_app_log(get_local_str_util("_src_video_not_exists"))
+            self.__tracker_app_log(get_local_str_util("_src_video_not_exists"))
             return
 
         if len(self.video_frames) == 0:

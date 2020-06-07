@@ -321,7 +321,10 @@ class ReplayScreen(Screen):
 
         lbl_output_dir = self.ids['lbl_input_dir']
         lbl_output_dir.text = path
-
+        if self.video_feed_ctrl is not None:
+            self.video_feed_ctrl.stop()
+            self.video_feed_ctrl.reset()
+        
         self.set_default_from_prev_session('lbl_input_dir', path)
         self.set_default_from_prev_session('filechooser', path)
         self.dismiss_popup()

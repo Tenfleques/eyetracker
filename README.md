@@ -72,6 +72,11 @@ ctypes
 
 `python -m pip install kivy==1.11.1`
 
+
+### Binaries
+
+https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sharing 
+
 # versions
 
 ### v1.0.0 June 1 2020
@@ -85,7 +90,7 @@ ctypes
 3. User can choose which data streams to view during playback
 4. Faster playback, video and camera frames are preloaded to memory 
 
-### v1.0.1[nightly-1] June 6 2020
+### v1.0.2 June 6 2020
 1. Adds combined video export on user demand
 2. Bugfix incompatibility of frame sizes when replaying sessions recorded on different machines
 3. User can type/paste path to source directory in the load dialog
