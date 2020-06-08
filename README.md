@@ -99,7 +99,7 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 3. User can type/paste path to source directory in the load dialog
 
 ### v1.0.3 June 8 2020
-[gis-eye-tracker-mipt.v1.0.3](https://drive.google.com/file/d/19u009XUpTa2okOf0svw8bMlMmKz-0sVA/view?usp=sharing)
+[gis-eye-tracker-mipt.v1.0.3](https://drive.google.com/file/d/19vT2oSnrzUhL4xwNMhqAWNygRoYWc55A/view?usp=sharing)
 1. Add frame skipping 
 2. Add optimal frame skipping 
 3. Frame skipping is on user demand 
