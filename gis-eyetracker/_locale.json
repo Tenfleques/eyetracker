@@ -131,6 +131,10 @@
         "en": "step forward",
         "ru": "шаг вперед"
     },
+    "_frame_step": {
+        "en": "frame step",
+        "ru": "шаг кадров"
+    },
     "_video_fps": {
         "en": "video fps",
         "ru": "fps видео"
@@ -183,6 +187,10 @@
         "en": "session timeline not found",
         "ru": "график сеанса не найден"
     },
+    "_src_video_not_exists": {
+        "en": "source video missing",
+        "ru": "отсутствует исходное видео"
+    },
     "_video_exists": {
         "en": "video already exists",
         "ru": "видео уже существует"
@@ -194,10 +202,6 @@
     "_session_timeline_empty": {
         "en": "session timeline empty",
         "ru": "график сеанса пуст"
-    },
-    "_src_video_not_exists": {
-        "en": "source video missing",
-        "ru": "отсутствует исходное видео"
     },
     "_video_export_commences": {
         "en": "video export commences",
