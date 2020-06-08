@@ -11,6 +11,8 @@ import numpy as np
 from PIL import ImageGrab
 import os
 import time
+import math
+
 from kivy.config import Config
 from collections import deque
 from threading import Thread
@@ -19,9 +21,7 @@ import logging
 logging.basicConfig(filename='./logs/result_playback_ctrl.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
-Config.set('graphics', 'maxfps', 100)
-
-print(Config.get('graphics', 'maxfps'))
+Config.set('graphics', 'maxfps', 0)
 
 def video_export_progress_cb(current, total):
     # give feedback to the user of what is happening behind the scenes
@@ -47,6 +47,7 @@ class ResultVideoCanvas(Image):
     timestamp_keys = []
     video_fps = None
     frame_skip = 1
+    use_optimal_step = False
 
     is_paused = False
 
@@ -63,7 +64,7 @@ class ResultVideoCanvas(Image):
 
     initial_window_state = Window.fullscreen
     # for writing tracke on the video
-    radius = 10
+    radius = 15
     color = (0, 255, 0)
     thickness = 2
 
@@ -90,6 +91,9 @@ class ResultVideoCanvas(Image):
     processes = []
     SCREEN_SIZE = ImageGrab.grab().size
     is_exporting_busy = False
+
+    def set_use_optimal_step(self, val):
+        self.use_optimal_step = bool(val)
 
     def set_frame_skip(self, step):
         if not isinstance(step, int):
@@ -337,6 +341,7 @@ class ResultVideoCanvas(Image):
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         # update video canvas
         self.texture = texture
+        # get the real current fps
 
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
@@ -410,8 +415,14 @@ class ResultVideoCanvas(Image):
                     self.bg_frame = cv2.circle(self.bg_frame, (i[0], i[1]), 2, (0, 0, 255, 1), self.thickness)
 
         self.current_frame_cb(self.session_timeline_index, len_timeline, record)
+
+        optimal_frame_step = math.ceil(self.get_fps()/Clock.get_fps())
         if dt:
-            self.session_timeline_index += self.frame_skip
+            if self.use_optimal_step:
+                self.session_timeline_index += optimal_frame_step
+            else:
+                self.session_timeline_index += self.frame_skip
+                self.__tracker_app_log("{}: {}".format(get_local_str_util("_optimal_step"), optimal_frame_step), log_label='stimuli_video_log')
 
         return self.bg_frame
 

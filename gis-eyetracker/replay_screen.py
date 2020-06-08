@@ -97,6 +97,7 @@ class ReplayScreen(Screen):
         self.ids["chkbx_tracker_track"].bind(state=self.toggle_tracker_track)
         self.ids["chkbx_camera_track"].bind(state=self.toggle_camera_track)
         self.ids["chkbx_video_track"].bind(state=self.toggle_video_track)
+        self.ids["chkbx_use_optimal_step"].bind(state=self.set_use_optimal_step)
 
     def toggle_bg_is_screen(self, checkbox, value):
         if self.video_feed_ctrl is None:
@@ -122,6 +123,12 @@ class ReplayScreen(Screen):
         if self.video_feed_ctrl is None:
             return
         self.video_feed_ctrl.toggle_camera_track(value == 'down')
+    
+    def set_use_optimal_step(self, checkbox, value):
+        if self.video_feed_ctrl is None:
+            return
+        self.video_feed_ctrl.set_use_optimal_step(value == 'down')
+        
 
     def set_playback_step(self, ctrl):
         if not ctrl.text:
@@ -144,6 +151,8 @@ class ReplayScreen(Screen):
             return
 
         self.video_feed_ctrl.set_fps(fps)
+    
+    
 
     def input_dir_ready(self):
         lbl_input_dir = self.ids['lbl_input_dir']
@@ -269,6 +278,8 @@ class ReplayScreen(Screen):
         self.video_feed_ctrl.toggle_tracker_track(self.ids["chkbx_tracker_track"].state == 'down')
         self.video_feed_ctrl.toggle_camera_track(self.ids["chkbx_camera_track"].state == 'down')
         self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state == 'down')
+
+        self.video_feed_ctrl.set_use_optimal_step(self.ids["chkbx_use_optimal_step"].state == 'down')
 
         started = self.video_feed_ctrl.start(cumulative_stimuli_src, session_timeline_path, cam_video_path, self.progress_cb,
                                              end_cb)

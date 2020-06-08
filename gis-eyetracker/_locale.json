@@ -123,6 +123,10 @@
         "en": "",
         "ru": ""
     },
+    "_use_optimal_step": {
+        "en": "optimal frame step",
+        "ru": "использовать оптимальный шаг"
+    },
     "_step_back": {
         "en": "step back",
         "ru": "шаг назад"
@@ -190,6 +194,10 @@
     "_src_video_not_exists": {
         "en": "source video missing",
         "ru": "отсутствует исходное видео"
+    },
+    "_optimal_step": {
+        "en": "optimal frame step",
+        "ru": "оптимальный шаг"
     },
     "_video_exists": {
         "en": "video already exists",

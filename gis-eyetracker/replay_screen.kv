@@ -14,6 +14,7 @@
     chkbx_camera_track:chkbx_camera_track
     chkbx_tracker_track:chkbx_tracker_track
     chkbx_video_track:chkbx_video_track
+    chkbx_use_optimal_step: chkbx_use_optimal_step
     video_export_progress:video_export_progress
     # tabbed_main_view:tabbed_main_view
     # tabbed_timeline_item:tabbed_timeline_item
@@ -239,9 +240,37 @@
                             text: root.get_local_str("_select_directory")
                             on_release: root.show_load()
                             size_hint: (None, None)
-                            width: '220dp'
+                            width: '250dp'
                             height: '25dp'
-
+                    GridLayout:
+                        halign: 'right'
+                        cols: 3
+                        size_hint_y: None
+                        height: 30
+                        GridLayout:
+                            halign: 'right'
+                            rows: 1
+                        GridLayout:
+                            halign: 'right'
+                            rows: 1
+                            size_hint_x: None
+                            width: '250dp'
+                            padding: [0, 5, 0, 5]
+                            NormalLabel:
+                                id:lbl_use_optimal_step
+                                text: root.get_local_str("_use_optimal_step")
+                                color: [0,0,0,1]
+                                size_hint_y: None
+                                height: 20
+                                halign: 'left'
+                            CheckBox:
+                                id:chkbx_use_optimal_step
+                                size_hint: (None, None)
+                                color: [0,0,0,1]
+                                size_hint_y: None
+                                size_hint_x: None
+                                width: 15
+                                height: 15
 
 
                 GridLayout:
@@ -254,6 +283,25 @@
                         size_hint_y: None
                         height:45
                         background_color: (.9, .9, .9, 1)
+                        GridLayout:
+                            rows: 1
+                            halign: 'left'
+                            padding: [0, 5, 0, 0]
+                            NormalButton:
+                                id: btn_play
+                                size_hint_x: 1
+                                text: root.get_local_str("_start")
+                                on_release: root.btn_play_click()
+                        GridLayout:
+                            rows: 1
+                            halign: 'right'
+                            padding: [5, 5, 5, 5]
+                            NormalButton:
+                                id: btn_stop
+                                size_hint_x: 1
+                                text: root.get_local_str("_stop")
+                                on_release: root.btn_stop_click()
+
                         GridLayout:
                             rows: 1
                             halign: 'left'
@@ -273,24 +321,7 @@
                                 size_hint_x: 1
                                 text: root.get_local_str("_step_forward")
                                 on_release: root.btn_step_forward_click()
-                        GridLayout:
-                            rows: 1
-                            halign: 'left'
-                            padding: [5, 5, 5, 5]
-                            NormalButton:
-                                id: btn_play
-                                size_hint_x: 1
-                                text: root.get_local_str("_start")
-                                on_release: root.btn_play_click()
-                        GridLayout:
-                            rows: 1
-                            halign: 'right'
-                            padding: [0, 5, 0, 0]
-                            NormalButton:
-                                id: btn_stop
-                                size_hint_x: 1
-                                text: root.get_local_str("_stop")
-                                on_release: root.btn_stop_click()
+                        
 
                     GridLayout:
                         rows: 1
@@ -323,7 +354,6 @@
                                     font_size: dp(13)
                                 NormalLabel:
                                     text: root.get_local_str("_video_fps")
-                            
                         GridLayout:
                             rows: 2
                             padding: [5, 0, 0, 0]
