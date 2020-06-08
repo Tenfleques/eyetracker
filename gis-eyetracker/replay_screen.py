@@ -269,7 +269,7 @@ class ReplayScreen(Screen):
         self.set_button_play_start()
 
         # set fps
-        self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
+        # self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
         # set step size
         self.set_playback_step(self.ids["txt_box_replay_frame_step"])
 
