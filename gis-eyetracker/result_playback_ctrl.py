@@ -45,16 +45,19 @@ class ResultVideoCanvas(Image):
     session_timeline = {}
     session_timeline_index = 0
     timestamp_keys = []
-    video_fps = None
+    video_fps = 100
+    base_fps = 200
     frame_skip = 1
-    use_optimal_step = False
-
+    use_optimal_step = True
+    stop_threads = False
     is_paused = False
 
     video_interval = None
 
     video_capture = None
-    bg_frame = None
+
+    SCREEN_SIZE = ImageGrab.grab().size
+    bg_frame = np.zeros((SCREEN_SIZE[0], SCREEN_SIZE[1], 3), dtype=np.uint8)
 
     video_frames = deque()
     camera_frames = deque()
@@ -89,7 +92,6 @@ class ResultVideoCanvas(Image):
 
     path_history = deque()
     processes = []
-    SCREEN_SIZE = ImageGrab.grab().size
     is_exporting_busy = False
 
     def set_use_optimal_step(self, val):
@@ -140,8 +142,10 @@ class ResultVideoCanvas(Image):
     def get_progress(self):
         return self.session_timeline_index, len(self.timestamp_keys)
 
-    def get_fps(self):
-        return self.video_fps
+    def get_fps(self, current=True):
+        if current:
+            return self.video_fps
+        return self.base_fps
     
     def reset(self):
         self.session_timeline_index = 0
@@ -187,17 +191,23 @@ class ResultVideoCanvas(Image):
                 self.video_interval.cancel()
 
     def step_to_frame(self, index):
+        if self.video_interval is not None:
+            # pause the playback for a moment
+            if not self.is_paused:
+                self.video_interval.cancel()
+         
+
         if isinstance(index, float):
             len_tl = len(self.timestamp_keys)
             index = min(int(index), len_tl - 1)
 
         if not isinstance(index, int):
             return
-
-        if self.video_interval is not None:
-            # pause the playback for a moment
-            if not self.is_paused:
-                self.video_interval.cancel()
+        
+        if index <= 0:
+            if not self.is_paused and self.video_interval is not None:
+                self.video_interval()
+            return
 
         self.session_timeline_index = index
 
@@ -207,23 +217,28 @@ class ResultVideoCanvas(Image):
         self.update_video_canvas(1)
 
     def step_forward(self, step_size):
-        if self.video_interval is None:
-            return
+        # if self.video_interval is None:
+        #     return
 
-        len_tl = len(self.timestamp_keys) - 1
+        len_tl = len(self.timestamp_keys)
         self.session_timeline_index = min(self.session_timeline_index + step_size, len_tl)
         self.update_video_canvas(1)
 
     def step_backward(self, step_size):
-        if self.video_interval is None:
-            return
+        # if self.video_interval is None:
+        #     return
 
         self.session_timeline_index = max(self.session_timeline_index - step_size, 0)
         self.update_video_canvas(1)
 
-    @staticmethod
-    def _populate_frames(vid, the_container):
+    def __get_stop_threads(self):
+        return self.stop_threads
+        
+    def _populate_frames(self, vid, the_container):
         while vid.isOpened():
+            if self.__get_stop_threads():
+                break
+
             ret, frame = vid.read()
             if not ret:
                 break
@@ -302,8 +317,9 @@ class ResultVideoCanvas(Image):
 
         diff = max(float_timestamp_keys) - min(float_timestamp_keys)
 
+        self.base_fps = len_keys / diff
         if self.video_fps is None:
-            self.set_fps(len_keys / (diff * 3))  # multiplies by three coz of gaze, pos, and origin
+            self.set_fps(self.base_fps)  
 
         self.v_frame = None
         self.c_frame = None
@@ -326,6 +342,9 @@ class ResultVideoCanvas(Image):
         frame = self.bg_frame
         if dt:
             frame = self.frames_cb(dt)
+        
+        if frame is None:
+            return 
 
         buf_raw = cv2.flip(frame, 0)
         if buf_raw is None:
@@ -416,13 +435,13 @@ class ResultVideoCanvas(Image):
 
         self.current_frame_cb(self.session_timeline_index, len_timeline, record)
 
-        optimal_frame_step = math.ceil(self.get_fps()/Clock.get_fps())
+        optimal_frame_step = self.get_fps()/Clock.get_fps()
         if dt:
             if self.use_optimal_step:
-                self.session_timeline_index += optimal_frame_step
+                self.session_timeline_index += math.ceil(optimal_frame_step)
             else:
                 self.session_timeline_index += self.frame_skip
-                self.__tracker_app_log("{}: {}".format(get_local_str_util("_optimal_step"), optimal_frame_step), log_label='stimuli_video_log')
+                self.__tracker_app_log("{}: {:.4}".format(get_local_str_util("_optimal_step"), optimal_frame_step), log_label='stimuli_video_log')
 
         return self.bg_frame
 
@@ -447,12 +466,12 @@ class ResultVideoCanvas(Image):
             self.video_interval = None
             # reset the timeline index
             # self.session_timeline_index = 0
-
+        self.stop_threads = True
         for p in self.processes:
             p.join()
 
         self.update_video_canvas(None)
-        self.end_play_cb("")
+        self.end_play_cb(arg=None)
     
     def get_is_exporting(self):
         return self.is_exporting_busy
@@ -568,6 +587,8 @@ class ResultVideoCanvas(Image):
         for key in timestamp_keys:
             counter += 1
             record = session_timeline[key]
+            if self.__get_stop_threads():
+                break
             
             if record["video"] is not None:
                 if current_vid_frame_id != record["video"]["frame_id"]:

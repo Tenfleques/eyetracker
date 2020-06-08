@@ -6,15 +6,15 @@
     btn_play: btn_play
     replay_video_canvas:replay_video_canvas
     video_progress: video_progress
-    txt_box_step_size: txt_box_step_size
-    txt_box_replay_video_rate:txt_box_replay_video_rate
+    # txt_box_step_size: txt_box_step_size
+    # txt_box_replay_video_rate:txt_box_replay_video_rate
     frame_details: frame_details
     chkbx_bg_is_grab:chkbx_bg_is_grab
     chkbx_maintain_track:chkbx_maintain_track
     chkbx_camera_track:chkbx_camera_track
     chkbx_tracker_track:chkbx_tracker_track
     chkbx_video_track:chkbx_video_track
-    chkbx_use_optimal_step: chkbx_use_optimal_step
+    # chkbx_use_optimal_step: chkbx_use_optimal_step
     video_export_progress:video_export_progress
     # tabbed_main_view:tabbed_main_view
     # tabbed_timeline_item:tabbed_timeline_item
@@ -242,37 +242,42 @@
                             size_hint: (None, None)
                             width: '250dp'
                             height: '25dp'
-                    GridLayout:
-                        halign: 'right'
-                        cols: 3
-                        size_hint_y: None
-                        height: 30
-                        GridLayout:
-                            halign: 'right'
-                            rows: 1
-                        GridLayout:
-                            halign: 'right'
-                            rows: 1
-                            size_hint_x: None
-                            width: '250dp'
-                            padding: [0, 5, 0, 5]
-                            NormalLabel:
-                                id:lbl_use_optimal_step
-                                text: root.get_local_str("_use_optimal_step")
-                                color: [0,0,0,1]
-                                size_hint_y: None
-                                height: 20
-                                halign: 'left'
-                            CheckBox:
-                                id:chkbx_use_optimal_step
-                                size_hint: (None, None)
-                                color: [0,0,0,1]
-                                size_hint_y: None
-                                size_hint_x: None
-                                width: 15
-                                height: 15
-
-
+                    # GridLayout:
+                    #     halign: 'right'
+                    #     cols: 2
+                    #     GridLayout:
+                    #         rows: 1
+                    #         padding: [0, 5, 0, 0]
+                    #         NormalLabel:
+                    #             id:lbl_use_optimal_step
+                    #             text: root.get_local_str("_use_optimal_step")
+                    #             color: [0,0,0,1]
+                    #             size_hint_y: None
+                    #             height: 20
+                    #             halign: 'left'
+                    #         CheckBox:
+                    #             id:chkbx_use_optimal_step
+                    #             size_hint: (None, None)
+                    #             color: [0,0,0,1]
+                    #             size_hint_y: None
+                    #             # size_hint_x: None
+                    #             # width: 15
+                    #             height: 15
+                    #             state: 'down'
+                    #     GridLayout:
+                    #         rows: 2
+                    #         padding: [5, 5, 5, 5]
+                    #         size_hint_x: None
+                    #         width: '250dp'
+                    #         IntegerInput:
+                    #             id: txt_box_replay_frame_step
+                    #             text: root.get_default_from_prev_session('txt_box_frame_step',"1")
+                    #             size_hint_y: None
+                    #             height: 25
+                    #             multiline:False
+                    #             font_size: dp(13)
+                    #         NormalLabel:
+                    #             text: root.get_local_str("_frame_step")
                 GridLayout:
                     id: tools_pane
                     size_hint_x: .4
@@ -321,7 +326,6 @@
                                 size_hint_x: 1
                                 text: root.get_local_str("_step_forward")
                                 on_release: root.btn_step_forward_click()
-                        
 
                     GridLayout:
                         rows: 1
@@ -329,31 +333,31 @@
                         padding_y: [0, 0]
                         padding_x: [5, 5]
                         GridLayout:
-                            cols: 3
-                            GridLayout:
-                                rows: 2
-                                padding: [0, 0, 0, 0]
-                                IntegerInput:
-                                    id: txt_box_replay_frame_step
-                                    text: root.get_default_from_prev_session('txt_box_replay_video_rate',"1")
-                                    size_hint: (.8, None)
-                                    height: 25
-                                    multiline:False
-                                    font_size: dp(13)
-                                NormalLabel:
-                                    text: root.get_local_str("_frame_step")
+                            cols: 2                            
                             GridLayout:
                                 rows: 2
                                 padding: [5, 0, 0, 0]
-                                FloatInput:
-                                    id: txt_box_replay_video_rate
-                                    text: root.get_default_from_prev_session('txt_box_replay_video_rate',"60")
+                                SelectBox:
+                                    id: select_box_replay_speed
+                                    text: root.get_local_str('_select_box_replay_speed')
+                                    background_color: (.9, .9, .9, 1)
                                     size_hint: (.8, None)
                                     height: 25
                                     multiline:False
                                     font_size: dp(13)
-                                NormalLabel:
-                                    text: root.get_local_str("_video_fps")
+                                
+                            # GridLayout:
+                            #     rows: 2
+                            #     padding: [5, 0, 0, 0]
+                            #     FloatInput:
+                            #         id: txt_box_replay_video_rate
+                            #         text: root.get_default_from_prev_session('txt_box_replay_video_rate',"60")
+                            #         size_hint: (.8, None)
+                            #         height: 25
+                            #         multiline:False
+                            #         font_size: dp(13)
+                            #     NormalLabel:
+                            #         text: root.get_local_str("_video_fps")
                         GridLayout:
                             rows: 2
                             padding: [5, 0, 0, 0]

@@ -56,7 +56,4 @@ class GisApp(App):
 
 
 if __name__ == '__main__':
-    try:
-        GisApp().run()
-    except Exception as err:
-        print(err)
+    GisApp().run()

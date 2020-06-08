@@ -124,8 +124,12 @@
         "ru": ""
     },
     "_use_optimal_step": {
-        "en": "optimal frame step",
-        "ru": "использовать оптимальный шаг"
+        "en": "play in realtime",
+        "ru": "воспроизведение в реальном времени"
+    },
+    "_frame_step": {
+        "en": "skip frames",
+        "ru": "пропустить кадры"
     },
     "_step_back": {
         "en": "step back",
@@ -135,9 +139,9 @@
         "en": "step forward",
         "ru": "шаг вперед"
     },
-    "_frame_step": {
-        "en": "frame step",
-        "ru": "шаг кадров"
+    "_select_box_replay_speed": {
+        "en": "playback speed",
+        "ru": "скорость воспроизведения"
     },
     "_video_fps": {
         "en": "video fps",

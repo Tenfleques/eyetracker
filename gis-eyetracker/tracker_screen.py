@@ -24,7 +24,6 @@ from video_feed_ctrl import VideoCanvas
 from table import Table
 from floatInput import FloatInput
 from infobar import InfoBar
-from select_box import SelectBox, select_box_inline
 
 from kivy.core.window import Window
 from kivy.clock import Clock
