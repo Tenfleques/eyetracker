@@ -88,6 +88,8 @@ class ReplayScreen(Screen):
 
     def start_all(self):
         self.ids["txt_box_replay_video_rate"].bind(on_text_validate=self.set_playback_fps)
+        self.ids["txt_box_replay_frame_step"].bind(on_text_validate=self.set_playback_step)
+
         self.ids["video_progress"].bind(on_touch_up=self.step_to_frame)
 
         self.ids["chkbx_bg_is_grab"].bind(state=self.toggle_bg_is_screen)
@@ -120,6 +122,15 @@ class ReplayScreen(Screen):
         if self.video_feed_ctrl is None:
             return
         self.video_feed_ctrl.toggle_camera_track(value == 'down')
+
+    def set_playback_step(self, ctrl):
+        if not ctrl.text:
+            return
+
+        if self.video_feed_ctrl is None:
+            return
+        step = int(ctrl.text)
+        self.video_feed_ctrl.set_frame_skip(step)
 
     def set_playback_fps(self, ctrl):
         if not ctrl.text:
@@ -250,6 +261,8 @@ class ReplayScreen(Screen):
 
         # set fps
         self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
+        # set step size
+        self.set_playback_step(self.ids["txt_box_replay_frame_step"])
 
         self.video_feed_ctrl.toggle_maintain_track(self.ids["chkbx_maintain_track"].state == 'down')
         self.video_feed_ctrl.toggle_video_track(self.ids["chkbx_video_track"].state == 'down')

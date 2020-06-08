@@ -19,7 +19,9 @@ import logging
 logging.basicConfig(filename='./logs/result_playback_ctrl.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
-Config.set('graphics', 'maxfps', 0)
+Config.set('graphics', 'maxfps', 100)
+
+print(Config.get('graphics', 'maxfps'))
 
 def video_export_progress_cb(current, total):
     # give feedback to the user of what is happening behind the scenes
@@ -44,6 +46,7 @@ class ResultVideoCanvas(Image):
     session_timeline_index = 0
     timestamp_keys = []
     video_fps = None
+    frame_skip = 1
 
     is_paused = False
 
@@ -87,6 +90,12 @@ class ResultVideoCanvas(Image):
     processes = []
     SCREEN_SIZE = ImageGrab.grab().size
     is_exporting_busy = False
+
+    def set_frame_skip(self, step):
+        if not isinstance(step, int):
+            return
+            
+        self.frame_skip = max(1, int(step))
 
     def toggle_bg_is_screen(self, state=None):
         if state is None:
@@ -402,7 +411,7 @@ class ResultVideoCanvas(Image):
 
         self.current_frame_cb(self.session_timeline_index, len_timeline, record)
         if dt:
-            self.session_timeline_index += 1
+            self.session_timeline_index += self.frame_skip
 
         return self.bg_frame
 

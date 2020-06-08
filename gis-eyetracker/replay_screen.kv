@@ -224,7 +224,7 @@
                 GridLayout:
                     rows:3
                     id: main
-                    size_hint_x: .65
+                    size_hint_x: .6
                     padding: [5, 5, 5, 5]
                     GridLayout:
                         rows: 1
@@ -246,7 +246,7 @@
 
                 GridLayout:
                     id: tools_pane
-                    size_hint_x: .35
+                    size_hint_x: .4
                     rows: 2
                     padding: [5, 5, 5, 5]
                     GridLayout:
@@ -254,31 +254,43 @@
                         size_hint_y: None
                         height:45
                         background_color: (.9, .9, .9, 1)
-                        NormalButton:
-                            id: btn_step_backward
-                            text: root.get_local_str("_step_back")
-                            on_release: root.btn_step_backward_click()
-                        NormalLabel:
-                            text: ''
-                            size_hint_x: 0.01
-                        NormalButton:
-                            id: btn_step_forward
-                            text: root.get_local_str("_step_forward")
-                            on_release: root.btn_step_forward_click()
-                        NormalLabel:
-                            text: ''
-                            size_hint_x: .01
-                        NormalButton:
-                            id: btn_play
-                            text: root.get_local_str("_start")
-                            on_release: root.btn_play_click()
-                        NormalLabel:
-                            text: ''
-                            size_hint_x: 0.01
-                        NormalButton:
-                            id: btn_stop
-                            text: root.get_local_str("_stop")
-                            on_release: root.btn_stop_click()
+                        GridLayout:
+                            rows: 1
+                            halign: 'left'
+                            padding: [0, 5, 0, 5]
+                            NormalButton:
+                                id: btn_step_backward
+                                size_hint_x: 1
+                                text: root.get_local_str("_step_back")
+                                on_release: root.btn_step_backward_click()
+                        
+                        GridLayout:
+                            rows: 1
+                            halign: 'right'
+                            padding: [5, 5, 0, 0]
+                            NormalButton:
+                                id: btn_step_forward
+                                size_hint_x: 1
+                                text: root.get_local_str("_step_forward")
+                                on_release: root.btn_step_forward_click()
+                        GridLayout:
+                            rows: 1
+                            halign: 'left'
+                            padding: [5, 5, 5, 5]
+                            NormalButton:
+                                id: btn_play
+                                size_hint_x: 1
+                                text: root.get_local_str("_start")
+                                on_release: root.btn_play_click()
+                        GridLayout:
+                            rows: 1
+                            halign: 'right'
+                            padding: [0, 5, 0, 0]
+                            NormalButton:
+                                id: btn_stop
+                                size_hint_x: 1
+                                text: root.get_local_str("_stop")
+                                on_release: root.btn_stop_click()
 
                     GridLayout:
                         rows: 1
@@ -286,21 +298,35 @@
                         padding_y: [0, 0]
                         padding_x: [5, 5]
                         GridLayout:
-                            rows: 2
-                            FloatInput:
-                                id: txt_box_replay_video_rate
-                                text: root.get_default_from_prev_session('txt_box_replay_video_rate',"")
-                                size_hint: (.8, None)
-                                height: 25
-                                multiline:False
-                                font_size: dp(13)
-                            NormalLabel:
-                                text: root.get_local_str("_video_fps")
-                        NormalLabel:
-                            text: ''
-                            size_hint_x: 0.01
+                            cols: 3
+                            GridLayout:
+                                rows: 2
+                                padding: [0, 0, 0, 0]
+                                IntegerInput:
+                                    id: txt_box_replay_frame_step
+                                    text: root.get_default_from_prev_session('txt_box_replay_video_rate',"1")
+                                    size_hint: (.8, None)
+                                    height: 25
+                                    multiline:False
+                                    font_size: dp(13)
+                                NormalLabel:
+                                    text: root.get_local_str("_frame_step")
+                            GridLayout:
+                                rows: 2
+                                padding: [5, 0, 0, 0]
+                                FloatInput:
+                                    id: txt_box_replay_video_rate
+                                    text: root.get_default_from_prev_session('txt_box_replay_video_rate',"60")
+                                    size_hint: (.8, None)
+                                    height: 25
+                                    multiline:False
+                                    font_size: dp(13)
+                                NormalLabel:
+                                    text: root.get_local_str("_video_fps")
+                            
                         GridLayout:
                             rows: 2
+                            padding: [5, 0, 0, 0]
                             IntegerInput:
                                 id: txt_box_step_size
                                 text: root.get_default_from_prev_session('txt_box_step_size',"10")
