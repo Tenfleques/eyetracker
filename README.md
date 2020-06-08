@@ -80,26 +80,26 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 # Changelog
 
 ### v1.0.0 June 1 2020
-[binary v1.0.0](https://drive.google.com/file/d/19qfBZYu1MFLIm-piw-WG4E_Tnr5Q8SvG/view?usp=sharing) 
+[gis-eye-tracker-mipt.v1.0.0](https://drive.google.com/file/d/19qfBZYu1MFLIm-piw-WG4E_Tnr5Q8SvG/view?usp=sharing) 
 1. Records Tracker data, Video frames, Camera frames 
 2. Exports timeline
 3. Replays recorded session 
 
 ### v1.0.1 June 4 2020
-[binary v1.0.1](https://drive.google.com/file/d/19tVGFxqfCK-UdPXCM71L3b1jpx3iVzz5/view?usp=sharing  )
+[gis-eye-tracker-mipt.v1.0.1](https://drive.google.com/file/d/19tVGFxqfCK-UdPXCM71L3b1jpx3iVzz5/view?usp=sharing  )
 1. Improvements to UI
 2. Stimuli source can be JSON with description of duration to support image input 
 3. User can choose which data streams to view during playback
 4. Faster playback, video and camera frames are preloaded to memory 
 
 ### v1.0.2 June 6 2020
-[binary v1.0.1](https://drive.google.com/file/d/19ttTYVzQAse1i7ebikz2DqthzJWXP3pN/view?usp=sharing )
+[gis-eye-tracker-mipt.v1.0.1](https://drive.google.com/file/d/19ttTYVzQAse1i7ebikz2DqthzJWXP3pN/view?usp=sharing )
 1. Add combined video export on user demand
 2. Bugfix incompatibility of frame sizes when replaying sessions recorded on different machines
 3. User can type/paste path to source directory in the load dialog
 
 ### v1.0.3 June 8 2020
-[binary v1.0.3](https://drive.google.com/file/d/19u009XUpTa2okOf0svw8bMlMmKz-0sVA/view?usp=sharing)
+[gis-eye-tracker-mipt.v1.0.3](https://drive.google.com/file/d/19u009XUpTa2okOf0svw8bMlMmKz-0sVA/view?usp=sharing)
 1. Add frame skipping 
 
 
