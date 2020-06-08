@@ -97,7 +97,10 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 1. Adds combined video export on user demand
 2. Bugfix incompatibility of frame sizes when replaying sessions recorded on different machines
 3. User can type/paste path to source directory in the load dialog
-    
+
+### v1.0.03 June 8 2020
+[binary v1.0.3](https://drive.google.com/file/d/19u009XUpTa2okOf0svw8bMlMmKz-0sVA/view?usp=sharing)
+1. Adds frame skipping 
 
 
 
