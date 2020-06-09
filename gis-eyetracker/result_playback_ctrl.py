@@ -66,7 +66,7 @@ class ResultVideoCanvas(Image):
     current_cam_frame_id = 0
 
     initial_window_state = Window.fullscreen
-    # for writing tracke on the video
+    # for writing tracker on the video
     radius = 15
     color = (0, 255, 0)
     thickness = 2
@@ -93,7 +93,6 @@ class ResultVideoCanvas(Image):
     tracker_track = False
     video_track = False
 
-    path_history = deque()
     processes = []
     is_exporting_busy = False
 

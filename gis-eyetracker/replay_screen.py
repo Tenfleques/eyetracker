@@ -88,7 +88,7 @@ class ReplayScreen(Screen):
         print("[INFO] closed all processes in replay screen ")
 
     def start_all(self):
-        # self.ids["txt_box_replay_video_rate"].bind(on_text_validate=self.set_playback_fps)
+        self.ids["txt_box_replay_video_speed"].bind(on_text_validate=self.set_playback_fps)
         # self.ids["txt_box_replay_frame_step"].bind(on_text_validate=self.set_playback_step)
 
         speeds = [("{}x".format(i), self.set_playback_fps) for i in [.1, .25, .5, 1, 1.5, 2, 2.5, 3]]
@@ -312,7 +312,10 @@ class ReplayScreen(Screen):
         # callback when showing the video is ended 
         end_cb=lambda **kwargs: self.set_button_play_start(True)
         
-        fps = self.speed_times_fps(self.ids["select_box_replay_speed"].text)
+        if self.ids["txt_box_replay_video_speed"].text == "1":
+            fps = self.speed_times_fps(self.ids["select_box_replay_speed"].text)
+        else:
+            fps = self.speed_times_fps(self.ids["txt_box_replay_video_speed"].text)
 
         self.video_feed_ctrl.set_fps(fps)
 
@@ -322,8 +325,8 @@ class ReplayScreen(Screen):
         fps = self.video_feed_ctrl.get_fps()
         
         if fps:
-            if "txt_box_replay_video_rate" in self.ids:
-                self.ids["txt_box_replay_video_rate"].text = "{:.5}".format(fps)
+            if "txt_box_replay_video_speed" in self.ids:
+                self.ids["txt_box_replay_video_speed"].text = "{:.5}".format(fps)
 
     def progress_cb(self, current, total=None, frame_details=None):
         video_progress = self.ids["video_progress"]

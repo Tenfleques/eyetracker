@@ -7,7 +7,7 @@
     replay_video_canvas:replay_video_canvas
     video_progress: video_progress
     # txt_box_step_size: txt_box_step_size
-    # txt_box_replay_video_rate:txt_box_replay_video_rate
+    txt_box_replay_video_speed:txt_box_replay_video_speed
     frame_details: frame_details
     chkbx_bg_is_grab:chkbx_bg_is_grab
     chkbx_maintain_track:chkbx_maintain_track
@@ -82,9 +82,18 @@
                                                 halign: 'right'
                                                 size_hint_y: None
                                                 height: 30
-                                                padding: [0, 0, 5, 0]
-                                                NormalLabel:
-                                                    text: ""
+                                                padding: [0, 0, 0, 0]
+                                                GridLayout:
+                                                    rows: 2
+                                                    padding: [0, 5, 5, 0]
+                                                    SelectBox:
+                                                        id: select_box_replay_speed
+                                                        text: "1x"
+                                                        background_color: (.9, .9, .9, 1)
+                                                        size_hint_y: None
+                                                        height: 25
+                                                        multiline:False
+                                                        font_size: dp(13)
                                                 NormalButton:
                                                     id: export_video
                                                     text: root.get_local_str("_export_video")
@@ -329,42 +338,28 @@
 
                     GridLayout:
                         rows: 1
-                        cols: 3
-                        padding_y: [0, 0]
-                        padding_x: [5, 5]
-                        GridLayout:
-                            cols: 2                            
-                            GridLayout:
-                                rows: 2
-                                padding: [5, 0, 0, 0]
-                                SelectBox:
-                                    id: select_box_replay_speed
-                                    text: root.get_local_str('_select_box_replay_speed')
-                                    background_color: (.9, .9, .9, 1)
-                                    size_hint: (.8, None)
-                                    height: 25
-                                    multiline:False
-                                    font_size: dp(13)
-                                
-                            # GridLayout:
-                            #     rows: 2
-                            #     padding: [5, 0, 0, 0]
-                            #     FloatInput:
-                            #         id: txt_box_replay_video_rate
-                            #         text: root.get_default_from_prev_session('txt_box_replay_video_rate',"60")
-                            #         size_hint: (.8, None)
-                            #         height: 25
-                            #         multiline:False
-                            #         font_size: dp(13)
-                            #     NormalLabel:
-                            #         text: root.get_local_str("_video_fps")
                         GridLayout:
                             rows: 2
-                            padding: [5, 0, 0, 0]
+                            padding: [0, 0, 5, 0]
+                            size_hint_x: .5
+                            FloatInput:
+                                id: txt_box_replay_video_speed
+                                text: "1"
+                                size_hint: (.8, None)
+                                height: 25
+                                multiline:False
+                                font_size: dp(13)
+                            NormalLabel:
+                                text: root.get_local_str("_video_fps")
+                        
+                        GridLayout:
+                            rows: 2
+                            padding: [0, 0, 0, 0]
+                            size_hint_x: .5
                             IntegerInput:
                                 id: txt_box_step_size
                                 text: root.get_default_from_prev_session('txt_box_step_size',"10")
-                                size_hint: (.6, None)
+                                size_hint: (.8, None)
                                 height: 25
                                 multiline:False
                                 font_size: dp(13)
