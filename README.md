@@ -109,6 +109,7 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 1. Add user playback speed by select
 2. Remove the empirical controls from v1.0.3
 3. Memory efficient. No longer preload video frames to memory
+4. Add video FPS controller together with speed multiplier
 
 
 
