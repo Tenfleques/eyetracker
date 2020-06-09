@@ -152,7 +152,7 @@ class ReplayScreen(Screen):
         except Exception as err:
             spd = 1
 
-        return spd * self.video_feed_ctrl.get_fps(False)
+        return spd * self.video_feed_ctrl.get_fps()
 
     def set_playback_fps(self, ctrl=None):
         if self.video_feed_ctrl is None:

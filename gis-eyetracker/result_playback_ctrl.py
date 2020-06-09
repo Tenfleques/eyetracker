@@ -144,7 +144,7 @@ class ResultVideoCanvas(Image):
     def get_progress(self):
         return self.session_timeline_index, len(self.timestamp_keys)
 
-    def get_fps(self, current=True):
+    def get_fps(self, current=True):        
         if current:
             return self.video_fps
         return self.base_fps
@@ -318,9 +318,8 @@ class ResultVideoCanvas(Image):
 
         diff = max(float_timestamp_keys) - min(float_timestamp_keys)
 
-        self.base_fps = len_keys / diff
-        if self.video_fps is None:
-            self.set_fps(self.base_fps)  
+        self.base_fps = len_keys / max(diff,1)
+        self.set_fps(self.base_fps)  
 
         self.v_frame = None
         self.c_frame = None
