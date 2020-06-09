@@ -74,6 +74,9 @@ class ResultVideoCanvas(Image):
     v_frame = None
     c_frame = None
 
+    camera_frames_cap = None
+    video_frames_cap = None
+
     sh = []
     v_x = 0.0
     v_y = 0.0
@@ -296,24 +299,25 @@ class ResultVideoCanvas(Image):
             return
 
         if len(self.video_frames) == 0:
-            video_capture = cv2.VideoCapture(video_path)
+            self.video_frames_cap = cv2.VideoCapture(video_path)
 
-            vid_populate_thread = Thread(target=self._populate_frames, args=(video_capture, self.video_frames))
+            # vid_populate_thread = Thread(target=self._populate_frames, args=(video_capture, self.video_frames))
 
-            vid_populate_thread.start()
-            self.processes.append(vid_populate_thread)
+            # vid_populate_thread.start()
+            # self.processes.append(vid_populate_thread)
+            
 
             self.v_x, self.v_y = (0, 0)
 
         if os.path.isfile(cam_video_path) and len(self.camera_frames) == 0:
-            camera_capture = cv2.VideoCapture(cam_video_path)
-            if camera_capture is not None:
-                w, h = (camera_capture.get(cv2.CAP_PROP_FRAME_WIDTH),
-                        camera_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            self.camera_frames_cap = cv2.VideoCapture(cam_video_path)
+            if self.camera_frames_cap is not None:
+                w, h = (self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_WIDTH),
+                        self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-                cam_populate_thread = Thread(target=self._populate_frames, args=(camera_capture, self.camera_frames))
-                cam_populate_thread.start()
-                self.processes.append(cam_populate_thread)
+                # cam_populate_thread = Thread(target=self._populate_frames, args=(self.camera_frames_cap, self.camera_frames))
+                # cam_populate_thread.start()
+                # self.processes.append(cam_populate_thread)
 
         diff = max(float_timestamp_keys) - min(float_timestamp_keys)
 
@@ -384,7 +388,8 @@ class ResultVideoCanvas(Image):
                 self.current_vid_frame_id = record["video"]["frame_id"]
 
             if self.video_track:
-                self.v_frame = self.get_video_frame_at(self.current_vid_frame_id)
+                # self.v_frame = self.get_video_frame_at(self.current_vid_frame_id)
+                self.v_frame = self.get_capture_frame_at(self.current_vid_frame_id, self.video_frames_cap)
                 if "width" in record["video"]:
                     sz = (int(record["video"]["width"]), int(record["video"]["height"]))
                     self.v_frame = cv2.resize(self.v_frame, sz)
@@ -405,7 +410,8 @@ class ResultVideoCanvas(Image):
                 self.current_cam_frame_id = record["camera"]["frame_id"]
 
             if self.camera_track:
-                self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
+                # self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
+                self.c_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.camera_frames_cap)
 
                 rel_w = 0.25 * self.bg_frame.shape[1]
                 rel_h = rel_w * self.bg_frame.shape[0]/ self.bg_frame.shape[1]
@@ -455,6 +461,19 @@ class ResultVideoCanvas(Image):
             return self.camera_frames[index]
         return np.zeros((self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
 
+    def get_capture_frame_at(self, index, cap):
+        if cap is not None:
+            frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            # fps = cap.get(cv2.CAP_PROP_FPS)
+            if index < frame_count:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, index)
+                success, frame = cap.read()
+                if success:
+                    return frame
+
+        return np.zeros((self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
+
+
     def stop(self):
 
         # Window.fullscreen = self.initial_window_state
@@ -465,8 +484,14 @@ class ResultVideoCanvas(Image):
             # nullifies the schedule handle
             self.video_interval = None
             # reset the timeline index
-            # self.session_timeline_index = 0
+            self.session_timeline_index = 0
         self.stop_threads = True
+
+        if self.camera_frames_cap is not None:
+            self.camera_frames_cap.release()
+        if self.video_frames_cap is not None:
+            self.camera_frames_cap.release()
+
         for p in self.processes:
             p.join()
 
