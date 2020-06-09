@@ -108,6 +108,7 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 [gis-eye-tracker-mipt.v1.0.4](https://drive.google.com/file/d/19vT2oSnrzUhL4xwNMhqAWNygRoYWc55A/view?usp=sharing)
 1. Add user playback speed by select
 2. Remove the empirical controls from v1.0.3
+3. Memory efficient. No longer preload video frames to memory
 
 
 
