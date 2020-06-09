@@ -292,8 +292,6 @@ class ResultVideoCanvas(Image):
         if self.session_timeline_index >= len_keys - 1:
             self.session_timeline_index = 0
 
-        self.path_history.clear()
-
         if not os.path.isfile(video_path):
             self.__tracker_app_log(get_local_str_util("_src_video_not_exists"))
             return
@@ -429,15 +427,21 @@ class ResultVideoCanvas(Image):
             self.xo = int(self.bg_frame.shape[1] * xr)
             self.yo = int(self.bg_frame.shape[0] * yr)
 
-            self.path_history.append((self.xo, self.yo))
 
         if self.xo is not None and self.yo is not None and self.tracker_track:
             self.bg_frame = cv2.circle(self.bg_frame, (self.xo, self.yo),
                                        self.radius, self.color, self.thickness)
             if self.maintain_track:
                 # write all the positions of the track from 0 - this index
-                for i in self.path_history:
-                    self.bg_frame = cv2.circle(self.bg_frame, (i[0], i[1]), 2, (0, 0, 255, 1), self.thickness)
+                for i in range(self.session_timeline_index):
+                    his_key = self.timestamp_keys[i]
+                    if "gaze" in self.session_timeline[his_key]:
+                        xr = self.session_timeline[his_key]["gaze"]['x']
+                        yr = self.session_timeline[his_key]["gaze"]['y']
+
+                        xr = int(self.bg_frame.shape[1] * xr)
+                        yr = int(self.bg_frame.shape[0] * yr)
+                        self.bg_frame = cv2.circle(self.bg_frame, (xr, yr), 2, (0, 0, 255, 1), self.thickness)
 
         self.current_frame_cb(self.session_timeline_index, len_timeline, record)
 
