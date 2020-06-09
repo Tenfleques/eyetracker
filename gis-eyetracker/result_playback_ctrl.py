@@ -598,7 +598,7 @@ class ResultVideoCanvas(Image):
         float_timestamp_keys = [float(i) for i in timestamp_keys]
         diff = max(float_timestamp_keys) - min(float_timestamp_keys)
 
-        vid_fps = len_keys / (diff * 3)  # multiplies by three coz of gaze, pos, and origin
+        vid_fps = len_keys/max(diff,1)
 
         counter = 0
         current_vid_frame_id = 0
