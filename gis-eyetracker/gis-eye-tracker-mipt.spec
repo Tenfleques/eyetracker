@@ -24,11 +24,11 @@ exe = EXE(pyz,
           [],
           exclude_binaries=True,
           name='gis-eye-tracker-mipt',
-          debug=True,
+          debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True, icon='assets\\icon.ico')
+          console=False, icon='assets\\icon.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
