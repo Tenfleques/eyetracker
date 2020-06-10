@@ -96,10 +96,10 @@ class gen_MATRIX(BoxLayout):
         self.blay1 = SettingBox(orientation = 'vertical', size_hint = [0.3, 1.0])
         
         self.blay1.add_widget(Label(text = 'Размеры матрицы:', size_hint = [1.0, 0.4]))
-        s1 = Parameter(key = 'MWidth', label = 'Ширина:', startval = 10, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
-        s2 = Parameter(key = 'MHeigh', label = 'Высота:', startval = 10, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
-        s3 = Parameter(key = 'MFontSz', label = 'Размер шрифта:', startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
-        s4 = Parameter(key = 'MLetDist', label = 'Расстояние между буквами:', startval = 20, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s1 = Parameter(key = 'MWidth', label = "_width", startval = 10, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
+        s2 = Parameter(key = 'MHeigh', label = "_height", startval = 10, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s3 = Parameter(key = 'MFontSz', label = "_font_size", startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s4 = Parameter(key = 'MLetDist', label = "_letter_spacing", startval = 20, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
         self.blay1.add_widget(s1)
         self.blay1.add_widget(s2)
         self.blay1.add_widget(s3)
@@ -118,8 +118,8 @@ class gen_MATRIX(BoxLayout):
         
         self.blay1.add_widget(self.files)
         self.blay1.add_widget(Label(text = 'Расположение в матрице\n(0 - случайная координата):'))
-        s5 = Parameter(key = 'MWidthPos', label = 'По ширине:', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
-        s6 = Parameter(key = 'MHeighPos', label = 'По высоте:', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s5 = Parameter(key = 'MWidthPos', label = '_on_width', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s6 = Parameter(key = 'MHeighPos', label = '_on_height', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
         
         self.blay1.add_widget(s5)
         self.blay1.add_widget(s6)

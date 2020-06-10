@@ -132,8 +132,8 @@ class gen_TRAJECT(BoxLayout):
         self.blay_speed = SettingBox(orientation = 'vertical', size_hint = [0.5,1.0])
         
         
-        s1 = Parameter(key = 'MaxSpeed', label = 'Максимальная скорость:', startval = 200, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
-        s2 = Parameter(key = 'MinSpeed', label = 'Минимальная скорость:', startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s1 = Parameter(key = 'MaxSpeed', label = '_max_speed:', startval = 200, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
+        s2 = Parameter(key = 'MinSpeed', label = '_min_speed', startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
         
         
         

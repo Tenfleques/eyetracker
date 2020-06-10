@@ -344,7 +344,8 @@ class ReplayScreen(Screen):
             self.ids["btn_play"].text = self.get_local_str("_start")
             self.__tracker_app_log(self.get_local_str("_playback_stopped"), "camera_log")
             
-            self.video_feed_ctrl.reset()
+            if self.video_feed_ctrl is not None:
+                self.video_feed_ctrl.reset()
             return
 
         if self.get_local_str("_start") == self.ids["btn_play"].text:

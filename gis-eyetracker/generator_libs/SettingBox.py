@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -12,6 +13,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 from kivy.lang import Builder
 import os
+from helpers import get_local_str_util
 Builder.load_file(os.path.join(os.path.dirname(__file__),'SettingBox.kv'))
 
 Window.show_cursor = True
@@ -27,10 +29,10 @@ def decision(probability):
     return random.random() < probability
 
 class Parameter(BoxLayout):
-    def __init__(self, key, inputtype = 'int', label = "label", halign_in = 'right', valign_in = 'middle', startval = -1, **kwargs):
-        print('newone')
+    def __init__(self, key, inputtype = 'int', label = "", halign_in = 'right', valign_in = 'middle', startval = -1, **kwargs):
+        label = get_local_str_util(label)
         super(Parameter, self).__init__(**kwargs)
-        print(label)
+        # print(label)
         self.ids['l_val'].text = label
         self.ids['l_val'].halign = halign_in
         self.ids['l_val'].valign = valign_in
@@ -41,9 +43,9 @@ class Parameter(BoxLayout):
         self.value = str(startval)
         
         if (inputtype=='int'):
-            self.ids['t_val'].input_filter = 'int';
+            self.ids['t_val'].input_filter = 'int'
         elif(inputtype == 'float'):
-            self.ids['t_val'].input_filter = 'float';
+            self.ids['t_val'].input_filter = 'float'
         elif(inputtype == 'text'):
             pass
         
@@ -78,6 +80,7 @@ class Parameter(BoxLayout):
 
 class Changer(BoxLayout):
     def __init__(self, label = "label1", startval = -1, **kwargs):
+        label = get_local_str_util(label)
         super(Changer, self).__init__(**kwargs)
         print(label)
         self.ids['l_val'].text = label
@@ -101,6 +104,7 @@ class Changer(BoxLayout):
 class SettingBox(BoxLayout):
     ValueDict = {}
     def __init__(self, label = "label1", startval = -1, **kwargs):
+        label = get_local_str_util(label)
         super(SettingBox, self).__init__(**kwargs)
         self.active_button = Button()
     def update(self):

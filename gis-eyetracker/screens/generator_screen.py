@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -32,8 +33,8 @@ GlobVideoSetMenu = Popup(title = 'Настройки', size_hint = [0.3,0.3])
 def InitGlobSet():
     window_sizes=Window.size
     s3 = Parameter(key = 'FPS', label = 'FPS:', startval = 60)
-    s4 = Parameter(key = 'Width', label = 'Ширина:', startval = window_sizes[0])
-    s5 = Parameter(key = 'Heigh', label = 'Высота:', startval = window_sizes[1])
+    s4 = Parameter(key = 'Width', label = "_width", startval = window_sizes[0])
+    s5 = Parameter(key = 'Heigh', label = "_height", startval = window_sizes[1])
         
     GlobVideoSet.add_widget(s3)
     GlobVideoSet.add_widget(s4)
