@@ -108,6 +108,7 @@ class VideoCanvas(Image):
         if is_recording:
             cb = self.frames_cb
 
+        
         self.video_capture = cv2.VideoCapture(video_src)
 
         em_fps = self.video_capture.get(cv2.CAP_PROP_FPS)

@@ -88,8 +88,8 @@
         "ru": "видео"
     },
     "_frame_details": {
-        "en": "frame details",
-        "ru": "детали кадра"
+        "en": "frame details during experiment",
+        "ru": "детали кадра во время эксперимента"
     },
     "_export_video": {
         "en": "export video",
@@ -139,10 +139,6 @@
         "en": "step forward",
         "ru": "шаг вперед"
     },
-    "_select_box_replay_speed": {
-        "en": "playback speed",
-        "ru": "скорость воспроизведения"
-    },
     "_video_fps": {
         "en": "video fps",
         "ru": "fps видео"
@@ -179,17 +175,37 @@
         "en": "camera stopped",
         "ru": "камера отключена"
     },
-    "_tracker_time": {
-        "en": "tracker time",
-        "ru": "время трекера "
+    "_device": {
+        "en": "device",
+        "ru": "дивайс"
     },
-    "_video_time": {
-        "en": "video time ",
-        "ru": "время видео"
+    "_time": {
+        "en": "time",
+        "ru": "время"
     },
-    "_camera_time": {
-        "en": "camera time",
-        "ru": "время камеры"
+    "_fps": {
+        "en": "FPS",
+        "ru": "кадр/с"
+    },
+    "_gaze": {
+        "en": "gaze",
+        "ru": "gaze"
+    },
+    "_pos": {
+        "en": "pos",
+        "ru": "pos"
+    },
+    "_origin": {
+        "en": "origin",
+        "ru": "origin"
+    },
+    "_stimuli_video": {
+        "en": "stimuli source",
+        "ru": "источник стимулов"
+    },
+    "_camera": {
+        "en": "camera",
+        "ru": "камера"
     },
     "_session_timeline_not_found": {
         "en": "session timeline not found",
@@ -199,9 +215,9 @@
         "en": "source video missing",
         "ru": "отсутствует исходное видео"
     },
-    "_optimal_step": {
-        "en": "optimal frame step",
-        "ru": "оптимальный шаг"
+    "_optimal_frame_skip": {
+        "en": "optimal frame skip",
+        "ru": "оптимальный пропуск кадра"
     },
     "_video_exists": {
         "en": "video already exists",
@@ -267,17 +283,25 @@
         "en": "timestamp",
         "ru": "отметка времени"
     },
-    "_gaze": {
-        "en": "gaze",
-        "ru": "gaze"
-    },
-    "_camera": {
-        "en": "camera",
-        "ru": "камера"
-    },
     "_video": {
         "en": "video",
         "ru": "видео"
+    },
+    "_select_box_replay_speed": {
+        "en": "playback speed",
+        "ru": "скорость воспроизведения"
+    },
+    "_tracker_time": {
+        "en": "tracker time",
+        "ru": "время трекера "
+    },
+    "_video_time": {
+        "en": "video time ",
+        "ru": "время видео"
+    },
+    "_camera_time": {
+        "en": "camera time",
+        "ru": "время камеры"
     },
     "_frequency_in_use": {
         "en": "stimuli FPS in use",

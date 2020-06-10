@@ -82,6 +82,10 @@ class ReplayScreen(Screen):
     def stop_all(self):
         print("[INFO] closing processes in replay screen")
         self.stop()
+
+        if self.video_feed_ctrl is not None:
+            self.video_feed_ctrl.kill()
+
         for p in self.processes:
             # join all other running processes
             p.join()
@@ -103,6 +107,7 @@ class ReplayScreen(Screen):
         self.ids["chkbx_camera_track"].bind(state=self.toggle_camera_track)
         self.ids["chkbx_video_track"].bind(state=self.toggle_video_track)
         # self.ids["chkbx_use_optimal_step"].bind(state=self.set_use_optimal_step)
+        self.init_video_player()
 
     def toggle_bg_is_screen(self, checkbox, value):
         if self.video_feed_ctrl is None:
@@ -142,6 +147,7 @@ class ReplayScreen(Screen):
         if self.video_feed_ctrl is None:
             return
         step = int(ctrl.text)
+
         self.video_feed_ctrl.set_frame_skip(step)
 
     def speed_times_fps(self, txt):
@@ -152,7 +158,7 @@ class ReplayScreen(Screen):
         except Exception as err:
             spd = 1
 
-        return spd * self.video_feed_ctrl.get_fps()
+        return spd * self.video_feed_ctrl.get_fps(False)
 
     def set_playback_fps(self, ctrl=None):
         if self.video_feed_ctrl is None:
@@ -280,46 +286,37 @@ class ReplayScreen(Screen):
         self.video_feed_ctrl.toggle_camera_track(self.ids["chkbx_camera_track"].state == 'down')
         self.video_feed_ctrl.toggle_bg_is_screen(self.ids["chkbx_bg_is_grab"].state == 'down')
 
-        # set fps
-        # self.set_playback_fps(self.ids["txt_box_replay_video_rate"])
-        # set step size
-        # self.set_playback_step(self.ids["txt_box_replay_frame_step"])
-        # self.video_feed_ctrl.load_videos(session_timeline_path, cam_video_path, cumulative_stimuli_src)
+        initialized = self.video_feed_ctrl.initialized(cumulative_stimuli_src,
+              session_timeline_path, cam_video_path, self.progress_cb)
 
-        # self.video_feed_ctrl.set_use_optimal_step(self.ids["chkbx_use_optimal_step"].state == 'down')
+        if not initialized:
+            return False
 
-        return session_timeline_path, cam_video_path, cumulative_stimuli_src 
+        fps = self.speed_times_fps(self.ids["txt_box_replay_video_speed"].text)
+
+        self.video_feed_ctrl.set_fps(fps)
+
+        return initialized
 
     def btn_play_click(self):
         if not self.input_dir_ready():
             return
-
-        session_timeline_path, cam_video_path, cumulative_stimuli_src  = self.init_video_player()
-        
-        if session_timeline_path is None or cam_video_path is None or cumulative_stimuli_src is None:
-            return 
-            
+    
         # if playing pause
-        if self.video_feed_ctrl.is_playing():
-            self.video_feed_ctrl.pause_play()
-            self.set_button_play_start()
-            return
-
-        session_timeline_path, cam_video_path, cumulative_stimuli_src  = self.init_video_player()
+        if self.video_feed_ctrl is not None:
+            if self.video_feed_ctrl.is_playing():
+                self.video_feed_ctrl.pause_play()
+                self.set_button_play_start()
+                return
+        
+        initialized  = self.init_video_player()
         # toggle play button to stop
         self.set_button_play_start()
 
         # callback when showing the video is ended 
         end_cb=lambda **kwargs: self.set_button_play_start(True)
         
-        if self.ids["txt_box_replay_video_speed"].text == "1":
-            fps = self.speed_times_fps(self.ids["select_box_replay_speed"].text)
-        else:
-            fps = self.speed_times_fps(self.ids["txt_box_replay_video_speed"].text)
-
-        self.video_feed_ctrl.set_fps(fps)
-
-        started = self.video_feed_ctrl.start(cumulative_stimuli_src, session_timeline_path, cam_video_path, self.progress_cb, end_cb)
+        started = self.video_feed_ctrl.start(self.progress_cb, end_cb)
 
         self.__tracker_app_log(self.get_local_str("_playback_started"), "camera_log")
         fps = self.video_feed_ctrl.get_fps()
@@ -328,25 +325,28 @@ class ReplayScreen(Screen):
             if "txt_box_replay_video_speed" in self.ids:
                 self.ids["txt_box_replay_video_speed"].text = "{:.5}".format(fps)
 
-    def progress_cb(self, current, total=None, frame_details=None):
+    def progress_cb(self, current=0, total=None, **kwargs):
         video_progress = self.ids["video_progress"]
         if total is None:
             total = video_progress.max
 
         if total != video_progress.max:
             video_progress.max = total
+        
+        if current and total:
+            video_log = "{}/{}".format(current, total)
+            self.__tracker_app_log(video_log, "app_log")
+            video_progress.value = current
 
-        video_log = "{}/{}".format(current, total)
-        self.__tracker_app_log(video_log, "app_log")
-        video_progress.value = current
-
-        if frame_details is not None:
-            self.ids["frame_details"].update(frame_details)
+        
+        self.ids["frame_details"].update(**kwargs)
 
     def set_button_play_start(self, force_stop=False):
         if force_stop:
             self.ids["btn_play"].text = self.get_local_str("_start")
             self.__tracker_app_log(self.get_local_str("_playback_stopped"), "camera_log")
+            
+            self.video_feed_ctrl.reset()
             return
 
         if self.get_local_str("_start") == self.ids["btn_play"].text:

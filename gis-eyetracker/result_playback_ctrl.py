@@ -77,12 +77,6 @@ class ResultVideoCanvas(Image):
     camera_frames_cap = None
     video_frames_cap = None
 
-    sh = []
-    v_x = 0.0
-    v_y = 0.0
-
-    xo = None
-    yo = None
     c_width = None
     c_height = None
     c_start_x = None
@@ -95,6 +89,12 @@ class ResultVideoCanvas(Image):
 
     processes = []
     is_exporting_busy = False
+
+    current_video_path = None
+    current_session_timeline_path = None
+    current_cam_video_path = None
+
+    session_is_playing = False
 
     def set_use_optimal_step(self, val):
         self.use_optimal_step = bool(val)
@@ -136,7 +136,7 @@ class ResultVideoCanvas(Image):
         self.camera_track = bool(state)
 
     def is_playing(self):
-        return self.video_interval is not None
+        return self.session_is_playing
 
     def end_play_cb(self, **kwargs):
         pass
@@ -150,15 +150,13 @@ class ResultVideoCanvas(Image):
         return self.base_fps
     
     def reset(self):
-        self.session_timeline_index = 0
-        self.video_frames.clear()
-        self.camera_frames.clear()
-        
+        self.session_is_playing = False
+        self.session_timeline_index = 0        
         self.current_vid_frame_id = 0
         self.current_cam_frame_id = 0
 
     @staticmethod
-    def current_frame_cb(current, total, record=None):
+    def current_frame_cb(current, total, record=None, **kwargs):
         print("[INFO] frame {}/{}".format(current, total))
 
     @staticmethod
@@ -198,9 +196,8 @@ class ResultVideoCanvas(Image):
             if not self.is_paused:
                 self.video_interval.cancel()
          
-
+        len_tl = len(self.timestamp_keys)
         if isinstance(index, float):
-            len_tl = len(self.timestamp_keys)
             index = min(int(index), len_tl - 1)
 
         if not isinstance(index, int):
@@ -216,22 +213,22 @@ class ResultVideoCanvas(Image):
         if not self.is_paused and self.video_interval is not None:
             self.video_interval()
 
-        self.update_video_canvas(1)
+        self.update_video_canvas(index)
 
     def step_forward(self, step_size):
         # if self.video_interval is None:
         #     return
 
         len_tl = len(self.timestamp_keys)
-        self.session_timeline_index = min(self.session_timeline_index + step_size, len_tl)
-        self.update_video_canvas(1)
+        index = min(self.session_timeline_index + step_size, len_tl)
+        self.update_video_canvas(index)
 
     def step_backward(self, step_size):
         # if self.video_interval is None:
         #     return
 
-        self.session_timeline_index = max(self.session_timeline_index - step_size, 0)
-        self.update_video_canvas(1)
+        index = max(self.session_timeline_index - step_size, 0)
+        self.update_video_canvas(index)
 
     def __get_stop_threads(self):
         return self.stop_threads
@@ -248,14 +245,15 @@ class ResultVideoCanvas(Image):
         vid.release()
         return
 
-    def start(self, video_path,
-              session_timeline_path, cam_video_path,
-              current_frame_cb, end_cb):
-
-        if end_cb is not None:
-            self.end_play_cb = end_cb
+    def initialized(self, video_path,
+              session_timeline_path, cam_video_path, current_frame_cb):
+        
         if current_frame_cb is not None:
             self.current_frame_cb = current_frame_cb
+    
+        if self.current_video_path == video_path and self.current_session_timeline_path == session_timeline_path and self.current_cam_video_path == cam_video_path:
+            self.reset()
+            return False
 
         with open(session_timeline_path, "r") as fp:
             all_session = json.load(fp)
@@ -281,30 +279,26 @@ class ResultVideoCanvas(Image):
         self.timestamp_keys = [i for i in self.session_timeline.keys()]
         float_timestamp_keys = [float(i) for i in self.timestamp_keys]
         len_keys = len(self.timestamp_keys)
+        diff = max(float_timestamp_keys) - min(float_timestamp_keys)
+        self.base_fps = len_keys / max(diff,1)
+        self.set_fps(self.base_fps)
 
         if len_keys == 0:
             error_text = "[ERROR] timeline is empty"
             end_cb(error_text)
             self.__tracker_app_log(get_local_str_util("_session_timeline_not_found"))
-            return
+            return False
 
         if self.session_timeline_index >= len_keys - 1:
             self.session_timeline_index = 0
 
         if not os.path.isfile(video_path):
             self.__tracker_app_log(get_local_str_util("_src_video_not_exists"))
-            return
+            return False
 
         if len(self.video_frames) == 0:
-            self.video_frames_cap = cv2.VideoCapture(video_path)
+            self.video_frames_cap = cv2.VideoCapture(video_path)            
 
-            # vid_populate_thread = Thread(target=self._populate_frames, args=(video_capture, self.video_frames))
-
-            # vid_populate_thread.start()
-            # self.processes.append(vid_populate_thread)
-            
-
-            self.v_x, self.v_y = (0, 0)
 
         if os.path.isfile(cam_video_path) and len(self.camera_frames) == 0:
             self.camera_frames_cap = cv2.VideoCapture(cam_video_path)
@@ -312,19 +306,25 @@ class ResultVideoCanvas(Image):
                 w, h = (self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_WIDTH),
                         self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-                # cam_populate_thread = Thread(target=self._populate_frames, args=(self.camera_frames_cap, self.camera_frames))
-                # cam_populate_thread.start()
-                # self.processes.append(cam_populate_thread)
+        self.current_frame_cb(cam_fps=self.camera_frames_cap.get(cv2.CAP_PROP_FPS), 
+            vid_fps=self.video_frames_cap.get(cv2.CAP_PROP_FPS),
+            gaze_fps=self.base_fps/3.0, pos_fps=self.base_fps/3.0, origin_fps=self.base_fps/3.0)
 
-        diff = max(float_timestamp_keys) - min(float_timestamp_keys)
+        self.current_video_path = video_path
+        self.current_session_timeline_path = session_timeline_path
+        self.current_cam_video_path = cam_video_path
 
-        self.base_fps = len_keys / max(diff,1)
-        self.set_fps(self.base_fps)  
+        return True
+
+    def start(self, current_frame_cb, end_cb):
+
+        if end_cb is not None:
+            self.end_play_cb = end_cb
+        if current_frame_cb is not None:
+            self.current_frame_cb = current_frame_cb
 
         self.v_frame = None
         self.c_frame = None
-        self.xo = None
-        self.yo = None
 
         # if playing stop
         if self.video_interval is not None:
@@ -336,6 +336,7 @@ class ResultVideoCanvas(Image):
         # Window.fullscreen = 'auto'
         # play video
         self.pause_play()
+        self.session_is_playing = True
 
     def update_video_canvas(self, dt):
         # read next frame
@@ -360,7 +361,16 @@ class ResultVideoCanvas(Image):
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         # update video canvas
         self.texture = texture
-        # get the real current fps
+        
+    
+    def __set_session_timeline_index(self, value):
+        self.session_timeline_index = value
+    
+    def __get_session_timeline_index(self):
+        return self.session_timeline_index
+    
+    def __get_video_interval(self):
+        return self.video_interval
 
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
@@ -371,10 +381,17 @@ class ResultVideoCanvas(Image):
 
         len_timeline = len(self.timestamp_keys)
 
+        optimal_frame_step = self.get_fps()/Clock.get_fps()
+
+        if isinstance(dt, int):
+            self.session_timeline_index = dt
+        else:
+            self.session_timeline_index = self.__get_session_timeline_index()
+        
         if self.session_timeline_index >= len_timeline:
             self.stop()
             return None
-
+            
         key = self.timestamp_keys[self.session_timeline_index]
         record = self.session_timeline[key]
 
@@ -422,12 +439,12 @@ class ResultVideoCanvas(Image):
             xr = record["gaze"]['x']
             yr = record["gaze"]['y']
 
-            self.xo = int(self.bg_frame.shape[1] * xr)
-            self.yo = int(self.bg_frame.shape[0] * yr)
+            xo = int(self.bg_frame.shape[1] * xr)
+            yo = int(self.bg_frame.shape[0] * yr)
 
 
-        if self.xo is not None and self.yo is not None and self.tracker_track:
-            self.bg_frame = cv2.circle(self.bg_frame, (self.xo, self.yo),
+        if xo is not None and yo is not None and self.tracker_track:
+            self.bg_frame = cv2.circle(self.bg_frame, (xo, yo),
                                        self.radius, self.color, self.thickness)
             if self.maintain_track:
                 # write all the positions of the track from 0 - this index
@@ -441,15 +458,17 @@ class ResultVideoCanvas(Image):
                         yr = int(self.bg_frame.shape[0] * yr)
                         self.bg_frame = cv2.circle(self.bg_frame, (xr, yr), 2, (0, 0, 255, 1), self.thickness)
 
-        self.current_frame_cb(self.session_timeline_index, len_timeline, record)
+        self.current_frame_cb(self.session_timeline_index, len_timeline, frame_details=record)
 
-        optimal_frame_step = self.get_fps()/Clock.get_fps()
         if dt:
             if self.use_optimal_step:
-                self.session_timeline_index += math.ceil(optimal_frame_step)
+                val = self.session_timeline_index + max(math.floor(optimal_frame_step), 1)
             else:
-                self.session_timeline_index += self.frame_skip
-                self.__tracker_app_log("{}: {:.4}".format(get_local_str_util("_optimal_step"), optimal_frame_step), log_label='stimuli_video_log')
+                val = self.session_timeline_index + self.frame_skip
+            
+            self.__set_session_timeline_index(val)
+            
+            self.__tracker_app_log("{}: {:.4}".format(get_local_str_util("_optimal_frame_skip"), optimal_frame_step), log_label='stimuli_video_log')
 
         return self.bg_frame
 
@@ -475,29 +494,26 @@ class ResultVideoCanvas(Image):
 
         return np.zeros((self.SCREEN_SIZE[1], self.SCREEN_SIZE[0], 3), dtype=np.uint8)
 
+    def kill(self):
+        if self.camera_frames_cap is not None:
+            self.camera_frames_cap.release()
+        if self.video_frames_cap is not None:
+            self.video_frames_cap.release()
+        
+        self.stop_threads = True
+        
+        for p in self.processes:
+            p.join()
 
     def stop(self):
-
         # Window.fullscreen = self.initial_window_state
-
         if self.video_interval is not None:
             # cancel schedule
             self.video_interval.cancel()
             # nullifies the schedule handle
             self.video_interval = None
             # reset the timeline index
-            self.session_timeline_index = 0
-        self.stop_threads = True
-
-        if self.camera_frames_cap is not None:
-            self.camera_frames_cap.release()
-        if self.video_frames_cap is not None:
-            self.camera_frames_cap.release()
-
-        for p in self.processes:
-            p.join()
-
-        self.update_video_canvas(None)
+        self.reset()
         self.end_play_cb(arg=None)
     
     def get_is_exporting(self):
