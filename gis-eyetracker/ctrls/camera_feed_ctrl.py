@@ -7,9 +7,6 @@ import os
 import sys
 from helpers import get_local_str_util
 
-import logging
-logging.basicConfig(filename='./logs/camera_feed_ctrl.log',level=logging.DEBUG)
-
 
 class Frame:
     timestamp = 0  # double

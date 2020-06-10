@@ -15,10 +15,8 @@ Config.set('graphics', 'maxfps', 0)
 Window.size = (1200, 800)
 Window.clearcolor = (1, 1, 1, 1)
 
-from replay_screen import ReplayScreen
-from tracker_screen import TrackerScreen
-import logging
-logging.basicConfig(filename='./logs/main.log', level=logging.DEBUG)
+from screens.replay_screen import ReplayScreen
+from screens.tracker_screen import TrackerScreen
 
 Window.set_icon('./assets/icon.png')
 

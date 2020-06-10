@@ -5,8 +5,6 @@ import platform
 from helpers import get_local_str_util
 import os
 # from gaze_listener import LogRecordSocketReceiver
-import logging
-logging.basicConfig(filename='./logs/view_trackbox.log',level=logging.DEBUG)
 
 CString = POINTER(c_char)
 

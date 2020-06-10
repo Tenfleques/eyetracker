@@ -2,28 +2,26 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.popup import Popup
+from kivy.core.window import Window
+from collections import deque
+from kivy.config import Config
+from kivy.lang.builder import Builder
+import os
 
 from helpers import get_local_str_util, create_log, get_video_fps, props, \
     get_default_from_prev_session, set_default_from_prev_session
 
-from result_playback_ctrl import ResultVideoCanvas
-from table import Table
-from floatInput import FloatInput
-from integerInput import IntegerInput
-from infobar import InfoBar
-from framedetails import FrameDetails
-from select_box import SelectBox
+from ctrls.result_playback_ctrl import ResultVideoCanvas
+from ctrls.table import Table
+from ctrls.floatInput import FloatInput
+from ctrls.integerInput import IntegerInput
+from ctrls.infobar import InfoBar
+from ctrls.framedetails import FrameDetails
+from ctrls.select_box import SelectBox
+from ctrls.loaddialog import LoadDialog
 
-from kivy.core.window import Window
-from collections import deque
-from kivy.config import Config
-import logging
-from kivy.lang.builder import Builder
-import os
-from loaddialog import LoadDialog
+
 from threading import Thread
-
-logging.basicConfig(filename='./logs/replay_screen.log',level=logging.DEBUG)
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
@@ -319,8 +317,8 @@ class ReplayScreen(Screen):
         started = self.video_feed_ctrl.start(self.progress_cb, end_cb)
 
         self.__tracker_app_log(self.get_local_str("_playback_started"), "camera_log")
-        fps = self.video_feed_ctrl.get_fps()
-        
+
+        fps = self.video_feed_ctrl.get_fps(False)
         if fps:
             if "txt_box_replay_video_speed" in self.ids:
                 self.ids["txt_box_replay_video_speed"].text = "{:.5}".format(fps)

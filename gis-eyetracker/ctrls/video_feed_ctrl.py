@@ -3,21 +3,17 @@
 from kivy.uix.image import Image
 from kivy.graphics.texture import Texture
 from kivy.clock import Clock
-import json
-from helpers import frame_processing, process_fps, get_video_fps, props
-
 from kivy.core.window import Window
-import cv2
-from collections import deque
-from camera_feed_ctrl import Frame
 from kivy.lang.builder import Builder
-
 from kivy.config import Config
-import logging
+
 import numpy as np
 import os
-
-logging.basicConfig(filename='./logs/video_feed_ctrl.log', level=logging.DEBUG)
+import json
+import cv2
+from collections import deque
+from helpers import frame_processing, process_fps, get_video_fps, props
+from ctrls.camera_feed_ctrl import Frame
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)

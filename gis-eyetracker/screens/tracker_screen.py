@@ -10,29 +10,20 @@ from kivy.uix.popup import Popup
 import json
 import time
 from threading import Thread
-from helpers import get_local_str_util, create_log, get_video_fps, get_default_from_prev_session, set_default_from_prev_session, process_fps
-
-from process_result import gaze_stimuli
-
 from kivy.lang.builder import Builder
 import os
 
-from camera_feed_ctrl import CameraFeedCtrl
-from tracker_ctrl import TrackerCtrl
-from loaddialog import LoadDialog
-from video_feed_ctrl import VideoCanvas
-from table import Table
-from floatInput import FloatInput
-from infobar import InfoBar
+from helpers import get_local_str_util, create_log, get_video_fps, get_default_from_prev_session, set_default_from_prev_session, process_fps
+from helpers.process_result import gaze_stimuli
+from ctrls.camera_feed_ctrl import CameraFeedCtrl
+from ctrls.tracker_ctrl import TrackerCtrl
+from ctrls.loaddialog import LoadDialog
+from ctrls.video_feed_ctrl import VideoCanvas
 
 from kivy.core.window import Window
 from kivy.clock import Clock
 import cv2
 import filetype
-
-
-import logging
-logging.basicConfig(filename='./logs/tracker_screen.log',level=logging.DEBUG)
 
 import platform
 from collections import deque
