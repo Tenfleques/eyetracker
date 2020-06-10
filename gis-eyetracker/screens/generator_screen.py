@@ -20,9 +20,9 @@ from generator_libs.gen_traject import gen_TRAJECT
 from generator_libs.gen_stim_series import gen_SERIES
 
 from generator_libs.SettingBox import *
+p = os.path.dirname(__file__)
+PATH = os.path.join(os.path.dirname(p), 'user')
 
-from pathlib import Path
-PATH = str(Path(__file__).parent.absolute()).replace('\\','/')+'/user'
 print("current dir:", PATH)
 
 

@@ -20,7 +20,8 @@ from generator_libs.VideoGenerator import *
 from generator_libs.SettingBox import *
 from generator_libs.MatrixImageGen import *
 
-PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), '/user')
+p = os.path.dirname(__file__)
+PATH = os.path.join(os.path.dirname(p), 'user')
 print("current dir:", PATH)
 
 import scipy.misc
