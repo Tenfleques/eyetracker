@@ -2,21 +2,18 @@
 from kivy.config import Config
 from kivy.core.window import Window
 from helpers import get_local_str_util, create_log, get_video_fps, props, save_session_variables
-
 from kivy.app import App
-
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
-
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
 Window.size = (1200, 800)
-Window.clearcolor = (1, 1, 1, 1)
 
 from screens.replay_screen import ReplayScreen
 from screens.tracker_screen import TrackerScreen
+from screens.generator_screen import GeneratorScreen
 
 Window.set_icon('./assets/icon.png')
 
@@ -41,8 +38,9 @@ class GisApp(App):
         print("[INFO] starting ")
         app = App.get_running_app()
         app.root.ids["replay_screen"].start_all()
+        app.root.ids["generator_screen"].build()
         app.root.ids["screen_manager"].transition = FadeTransition()
-        app.root.screen_manager.current = 'replay_screen'
+        # app.root.screen_manager.current = 'replay_screen'
         Window.set_title(get_local_str_util('_appname'))
 
     def on_stop(self):

@@ -67,7 +67,7 @@
             size: self.size
             pos: self.pos
 
-BackgroundGridLayout:
+GridLayout:
     screen_manager: screen_manager
     tracker_screen:tracker_screen
     replay_screen:replay_screen
@@ -78,6 +78,18 @@ BackgroundGridLayout:
         size_hint_y: None
         height: 35
         background_color: (.9, .9, .9, 1)
+        cols: 4
+
+        NormalButton:
+            id : btn_tracker_screen
+            text: app.get_local_str("_btn_generator_screen")
+            on_release: root.screen_manager.current = 'generator_screen'
+            size_hint: (None, None)
+            width: '180dp'
+            height: '25dp'
+            background_color: (.9, .9, .9, 1)
+            halign: 'left'
+
         NormalButton:
             id : btn_tracker_screen
             text: app.get_local_str("_btn_tracker_screen")
@@ -87,9 +99,6 @@ BackgroundGridLayout:
             height: '25dp'
             background_color: (.9, .9, .9, 1)
             halign: 'left'
-        NormalLabel:
-            text:""
-            size_hint_x: .01
         NormalButton:
             id : btn_tracker_screen
             text: app.get_local_str('_btn_replay_screen')
@@ -99,11 +108,14 @@ BackgroundGridLayout:
             height: '25dp'
             background_color: (.9, .9, .9, 1)
             halign: 'left'
-        NormalLabel:
-            text:""
+        
 
     ScreenManager:
         id: screen_manager
+        GeneratorScreen:
+            id: generator_screen
+            margin: [50,50,50,50]
+            name: 'generator_screen'
         TrackerScreen:
             id: tracker_screen
             name: 'tracker_screen'
