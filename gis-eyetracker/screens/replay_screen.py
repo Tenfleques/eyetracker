@@ -26,7 +26,9 @@ from threading import Thread
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "replay_screen.kv"))
+p = os.path.dirname(__file__)
+p = os.path.dirname(p)
+widget = Builder.load_file(os.path.join(p, "replay_screen.kv"))
 
 
 class ReplayScreen(Screen):

@@ -7,7 +7,9 @@ import math
 from helpers import get_local_str_util
 from datetime import datetime
 
-widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "framedetails.kv"))
+p = os.path.dirname(__file__)
+p = os.path.dirname(p)
+widget = Builder.load_file(os.path.join(p, "framedetails.kv"))
 
 
 class FrameDetails(GridLayout):

@@ -33,7 +33,9 @@ from kivy.config import Config
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "tracker_screen.kv"))
+p = os.path.dirname(__file__)
+p = os.path.dirname(p)
+widget = Builder.load_file(os.path.join(p, "tracker_screen.kv"))
 
 
 def still_image_to_video(img_path, duration):

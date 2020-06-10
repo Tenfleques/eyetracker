@@ -14,7 +14,10 @@ from kivy.uix.label import Label
 from kivy.lang import Builder
 import os
 from helpers import get_local_str_util
-Builder.load_file(os.path.join(os.path.dirname(__file__),'SettingBox.kv'))
+
+p = os.path.dirname(__file__)
+p = os.path.dirname(p)
+Builder.load_file(os.path.join(p,'SettingBox.kv'))
 
 Window.show_cursor = True
 # Create both screens. Please note the root.manager.current: this is how
