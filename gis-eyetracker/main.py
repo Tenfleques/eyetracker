@@ -5,6 +5,7 @@ from helpers import get_local_str_util, create_log, get_video_fps, props, save_s
 from kivy.app import App
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
+from kivy.clock import Clock
 
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
@@ -38,7 +39,7 @@ class GisApp(App):
         print("[INFO] starting ")
         app = App.get_running_app()
         app.root.ids["replay_screen"].start_all()
-        app.root.ids["generator_screen"].build()
+        Clock.schedule_once(lambda dt: app.root.ids["generator_screen"].build())
         app.root.ids["screen_manager"].transition = FadeTransition()
         # app.root.screen_manager.current = 'replay_screen'
         Window.set_title(get_local_str_util('_appname'))

@@ -82,8 +82,6 @@ class TrackerScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if platform.system() == 'Darwin':
-            print("[INFO] Running on Mac OS")
 
         Clock.schedule_once(lambda dt: self.ids["video_canvas"].on_start())
 

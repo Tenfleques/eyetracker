@@ -1,11 +1,35 @@
 {
-    "_width": {
-        "en" : "width",
-        "ru" : "Ширина"
+    "_device": {
+        "en": "device",
+        "ru": "дивайс"
     },
-    "_height": {
-        "en" : "height",
-        "ru" : "Высота"
+    "_time": {
+        "en": "time",
+        "ru": "время"
+    },
+    "_fps": {
+        "en": "FPS",
+        "ru": "кадр/с"
+    },
+    "_gaze": {
+        "en": "gaze",
+        "ru": "gaze"
+    },
+    "_pos": {
+        "en": "pos",
+        "ru": "pos"
+    },
+    "_origin": {
+        "en": "origin",
+        "ru": "origin"
+    },
+    "_stimuli_video": {
+        "en": "stimuli source",
+        "ru": "источник стимулов"
+    },
+    "_camera": {
+        "en": "camera",
+        "ru": "камера"
     },
     "_btn_generator_screen": {
         "en": "stimuli source generator",
@@ -19,89 +43,17 @@
         "en": "session visualization screen",
         "ru": "экран визуализации"
     },
+    "_cancel": {
+        "en": "cancel",
+        "ru": "отмена"
+    },
+    "_select": {
+        "en": "select",
+        "ru": "выберите"
+    },
     "_appname": {
         "en": "GIS Eye Tracker MIPT",
         "ru": "ГИС АЙ-Трекер МФТИ"
-    },
-    "_directory_not_selected": {
-        "en": "directory not selected",
-        "ru": "каталог не выбран"
-    },
-    "_problem_waiting_camera": {
-        "en": "problem waiting camera",
-        "ru": "проблема при ожиданий камеры"
-    },
-    "_stop": {
-        "en": "stop",
-        "ru": "стоп"
-    },
-    "_video_src_error": {
-        "en": "video source error",
-        "ru": "ошибка источника видео"
-    },
-    "_start": {
-        "en": "start",
-        "ru": "старт"
-    },
-    "_finished_recording": {
-        "en": "finished recording session",
-        "ru": "закончил запись сеанса"
-    },
-    "_actual_video_fps": {
-        "en": "actual video FPS",
-        "ru": "фактическое FPS видео"
-    },
-    "_factual_camera_fps": {
-        "en": "actual camera FPS",
-        "ru": "фактическое FPS камеры"
-    },
-    "_preparing_session_timeline": {
-        "en": "preparing the session timeline",
-        "ru": "подготовка графика сессии"
-    },
-    "_session_timeline_ready": {
-        "en": "sycnhronizing completed",
-        "ru": "синхронизация заврешена"
-    },
-    "_select_directory": {
-        "en": "select output directory",
-        "ru": "выберите выходной каталог"
-    },
-    "_select_src_video": {
-        "en": "select video",
-        "ru": "выберите видео"
-    },
-    "_load_stimuli_video": {
-        "en": "please load the stimuli video",
-        "ru": "пожалуйста загрузите видео стимулов"
-    },
-    "_export_module_busy": {
-        "en": "export module busy",
-        "ru": "модуль экспорта занят"
-    },
-    "_error_loading_session": {
-        "en": "error loading session data",
-        "ru": "ошибка при загрузки данных сеанса"
-    },
-    "_playback_started": {
-        "en": "playback started",
-        "ru": "воспроизведение началось"
-    },
-    "_playback_stopped": {
-        "en": "playback stopped",
-        "ru": "воспроизведение остановлено"
-    },
-    "_pause": {
-        "en": "pause",
-        "ru": "пауза"
-    },
-    "_playing": {
-        "en": "playing",
-        "ru": "воспроизведение"
-    },
-    "_paused": {
-        "en": "paused",
-        "ru": "приостановленное"
     },
     "_timeline_stage": {
         "en": "video",
@@ -143,6 +95,14 @@
         "en": "",
         "ru": ""
     },
+    "_directory_not_selected": {
+        "en": "directory not selected",
+        "ru": "каталог не выбран"
+    },
+    "_select_directory": {
+        "en": "select output directory",
+        "ru": "выберите выходной каталог"
+    },
     "_use_optimal_step": {
         "en": "play in realtime",
         "ru": "воспроизведение в реальном времени"
@@ -150,6 +110,14 @@
     "_frame_step": {
         "en": "skip frames",
         "ru": "пропустить кадры"
+    },
+    "_start": {
+        "en": "start",
+        "ru": "старт"
+    },
+    "_stop": {
+        "en": "stop",
+        "ru": "стоп"
     },
     "_step_back": {
         "en": "step back",
@@ -167,9 +135,81 @@
         "en": "step size (f)",
         "ru": "размер шага (к)"
     },
+    "_timestamp": {
+        "en": "timestamp",
+        "ru": "отметка времени"
+    },
+    "_video": {
+        "en": "video",
+        "ru": "видео"
+    },
+    "_load_stimuli_video": {
+        "en": "please load the stimuli video",
+        "ru": "пожалуйста загрузите видео стимулов"
+    },
+    "_select_src_video": {
+        "en": "select video",
+        "ru": "выберите видео"
+    },
     "_select_start_in_series": {
         "en": "select start in series",
         "ru": "выбирайте начало в серии"
+    },
+    "_export_module_busy": {
+        "en": "export module busy",
+        "ru": "модуль экспорта занят"
+    },
+    "_error_loading_session": {
+        "en": "error loading session data",
+        "ru": "ошибка при загрузки данных сеанса"
+    },
+    "_playback_started": {
+        "en": "playback started",
+        "ru": "воспроизведение началось"
+    },
+    "_playback_stopped": {
+        "en": "playback stopped",
+        "ru": "воспроизведение остановлено"
+    },
+    "_pause": {
+        "en": "pause",
+        "ru": "пауза"
+    },
+    "_playing": {
+        "en": "playing",
+        "ru": "воспроизведение"
+    },
+    "_paused": {
+        "en": "paused",
+        "ru": "приостановленное"
+    },
+    "_problem_waiting_camera": {
+        "en": "problem waiting camera",
+        "ru": "проблема при ожиданий камеры"
+    },
+    "_video_src_error": {
+        "en": "video source error",
+        "ru": "ошибка источника видео"
+    },
+    "_finished_recording": {
+        "en": "finished recording session",
+        "ru": "закончил запись сеанса"
+    },
+    "_actual_video_fps": {
+        "en": "actual video FPS",
+        "ru": "фактическое FPS видео"
+    },
+    "_factual_camera_fps": {
+        "en": "actual camera FPS",
+        "ru": "фактическое FPS камеры"
+    },
+    "_preparing_session_timeline": {
+        "en": "preparing the session timeline",
+        "ru": "подготовка графика сессии"
+    },
+    "_session_timeline_ready": {
+        "en": "sycnhronizing completed",
+        "ru": "синхронизация заврешена"
     },
     "_waiting_for_camera": {
         "en": "waiting for the camera connection",
@@ -186,38 +226,6 @@
     "_stopped_camera": {
         "en": "camera stopped",
         "ru": "камера отключена"
-    },
-    "_device": {
-        "en": "device",
-        "ru": "дивайс"
-    },
-    "_time": {
-        "en": "time",
-        "ru": "время"
-    },
-    "_fps": {
-        "en": "FPS",
-        "ru": "кадр/с"
-    },
-    "_gaze": {
-        "en": "gaze",
-        "ru": "gaze"
-    },
-    "_pos": {
-        "en": "pos",
-        "ru": "pos"
-    },
-    "_origin": {
-        "en": "origin",
-        "ru": "origin"
-    },
-    "_stimuli_video": {
-        "en": "stimuli source",
-        "ru": "источник стимулов"
-    },
-    "_camera": {
-        "en": "camera",
-        "ru": "камера"
     },
     "_session_timeline_not_found": {
         "en": "session timeline not found",
@@ -283,21 +291,29 @@
         "en": "error saving tracker data",
         "ru": "ошибка сохранения данных трекера"
     },
-    "_cancel": {
-        "en": "cancel",
-        "ru": "отмена"
+    "_width": {
+        "en": "width",
+        "ru": "ширина"
     },
-    "_select": {
-        "en": "select",
-        "ru": "выберите"
+    "_height": {
+        "en": "height",
+        "ru": "высота"
     },
-    "_timestamp": {
-        "en": "timestamp",
-        "ru": "отметка времени"
+    "_font_size": {
+        "en": "font size",
+        "ru": "размер шрифта"
     },
-    "_video": {
-        "en": "video",
-        "ru": "видео"
+    "_letter_spacing": {
+        "en": "letter spacing",
+        "ru": "росстояние между буквами"
+    },
+    "_on_width": {
+        "en": "width",
+        "ru": "по ширине"
+    },
+    "_on_height": {
+        "en": "on height",
+        "ru": "по высоте"
     },
     "_select_box_replay_speed": {
         "en": "playback speed",
