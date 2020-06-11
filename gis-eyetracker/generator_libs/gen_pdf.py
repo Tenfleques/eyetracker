@@ -41,7 +41,7 @@ GlobVideoSetMenu = None
 class gen_PDF(BoxLayout):
     
     DATA_LOADED = False 
-    def __init__(self, work_folder, VideoSettings, VideoSetWidget, **kwargs):
+    def __init__(self, work_folder, temp_folder, VideoSettings, VideoSetWidget, **kwargs):
         
         global GlobVideoSet 
         GlobVideoSet = VideoSettings
@@ -50,6 +50,7 @@ class gen_PDF(BoxLayout):
         
         
         self.work_folder = work_folder
+        self.tmp = temp_folder
         
         super(gen_PDF, self).__init__(**kwargs)
         #left part
@@ -75,7 +76,7 @@ class gen_PDF(BoxLayout):
         
         #blay3.add_widget(blay4)
         blay3.add_widget(Button(text = 'Настройки', on_press = self.press_settings))
-        blay3.add_widget(Button(text = 'Генерация видео', on_press = self.press_generation))
+        blay3.add_widget(Button(text = 'Генерация стимула', on_press = self.press_generation))
         
         blay2.add_widget(self.image_lay)
         blay2.add_widget(blay3)
@@ -97,7 +98,7 @@ class gen_PDF(BoxLayout):
         file = self.files.selection[-1]
         images = convert_from_path(file)
         pix = np.array(images[0])
-        im_out = self.work_folder+'tmp/'+file.split('\\')[-1]+'.png'
+        im_out = self.tmp+file.split('\\')[-1]+'.png'
         cv2.imwrite(im_out, pix)
         self.image_lay.clear_widgets()
         self.image_lay.add_widget(Image(source = im_out))

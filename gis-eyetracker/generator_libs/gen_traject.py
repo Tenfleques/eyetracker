@@ -87,7 +87,7 @@ class gen_TRAJECT(BoxLayout):
     preproc = True
     
         
-    def __init__(self, work_folder, VideoSettings, VideoSetWidget, **kwargs):
+    def __init__(self, work_folder, temp_folder, VideoSettings, VideoSetWidget, **kwargs):
         
         global GlobVideoSet 
         GlobVideoSet = VideoSettings
@@ -95,7 +95,7 @@ class gen_TRAJECT(BoxLayout):
         GlobVideoSetMenu = VideoSetWidget
         
         self.work_folder = work_folder
-        
+        self.tmp = temp_folder
         
         super(gen_TRAJECT, self).__init__(**kwargs)
         #left part
@@ -132,8 +132,8 @@ class gen_TRAJECT(BoxLayout):
         self.blay_speed = SettingBox(orientation = 'vertical', size_hint = [0.5,1.0])
         
         
-        s1 = Parameter(key = 'MaxSpeed', label = '_max_speed:', startval = 200, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
-        s2 = Parameter(key = 'MinSpeed', label = '_min_speed', startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s1 = Parameter(key = 'MaxSpeed', label = 'Максимальная скорость:', startval = 200, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
+        s2 = Parameter(key = 'MinSpeed', label = 'Минимальная скорость:', startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
         
         
         
@@ -154,19 +154,33 @@ class gen_TRAJECT(BoxLayout):
         
         blay3 = BoxLayout(size_hint = [1.0,0.1])
         blay4 = BoxLayout(orientation = 'vertical', size_hint = [1.0,1.0])
-        blay4.add_widget(Label(text = 'Длительность[секунды]:'))
-        self.dur_input = TextInput(text = '10')
-        blay4.add_widget(self.dur_input)
+        a = Label(text = 'Название стимула:', halign = 'left')
+        a.bind(size=a.setter('text_size')) 
+        blay4.add_widget(a)
+        self.name_input = TextInput(text = '')
+        blay4.add_widget(self.name_input)
         
-        #blay3.add_widget(blay4)
+        blay3.add_widget(blay4)
         blay3.add_widget(Button(text = 'Настройки', on_press = self.press_settings))
-        blay3.add_widget(Button(text = 'Генерация видео', on_press = self.press_generation))
+        blay3.add_widget(Button(text = 'Генерация стимула', on_press = self.press_generation))
         
         
         blay2.add_widget(blay3)
         self.add_widget(blay2)
         self.spacing = 2;
     
+    def gen_series_name(self, name_pref):
+        
+        number = 0
+        succ = False
+        while not succ:
+            name = name_pref+'#'+str(number)
+            filename = self.work_folder+'output/'+name+'.meta'
+            if os.path.exists(filename):
+                number = number+1
+            else:
+                return name
+
     
     def press_preproc(self, instance):
         if self.preproc:
@@ -219,12 +233,15 @@ class gen_TRAJECT(BoxLayout):
         
         
         self.cnter = self.cnter+1
-        cv2.imwrite(self.work_folder+'tmp/'+str(self.cnter)+'.png', image)
+        cv2.imwrite(self.tmp+str(self.cnter)+'.png', image)
         
+
+        name_pref = self.selected_image.split('\\')[-1][:-4]
+        self.name_input.text = self.gen_series_name(name_pref)
         
         self.contour_lay.clear_widgets()
-        print('source:',self.work_folder+'tmp/'+str(self.cnter)+'.png')
-        self.contour_lay.add_widget(Image(source = self.work_folder+'tmp/'+str(self.cnter)+'.png'))
+        print('source:',self.tmp+str(self.cnter)+'.png')
+        self.contour_lay.add_widget(Image(source = self.tmp+str(self.cnter)+'.png'))
         self.selected_countur = [a[0] for a in counters]
         self.speed_painter.reinit();
         self.speed_painter.redraw();
@@ -265,10 +282,17 @@ class gen_TRAJECT(BoxLayout):
                         
         
         self.blay_speed.update()
-        min_speed = float(self.blay_speed.ValueDict['MaxSpeed'])
-        max_speed = float(self.blay_speed.ValueDict['MinSpeed'])
+        max_speed = float(self.blay_speed.ValueDict['MaxSpeed'])
+        min_speed = float(self.blay_speed.ValueDict['MinSpeed'])
+        print('__Скорость__',min_speed,max_speed)
+        if (max_speed<min_speed):
+            pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
+            bb1 = Button(text = 'Максимальная скорость меньше минимальной', on_press = pp1.dismiss)
+            pp1.add_widget(bb1)
+            pp1.open()
+            return
         
-        fname = self.selected_image.split('\\')[-1][:-4]
+        fname = self.name_input.text#self.selected_image.split('\\')[-1][:-4]
         speed_vect = self.speed_painter.get_speed_vector(min_speed, max_speed)
         if not self.clockwise:
             self.selected_countur = self.selected_countur[::-1]

@@ -23,8 +23,10 @@ from generator_libs.gen_stim_series import gen_SERIES
 from generator_libs.SettingBox import *
 p = os.path.dirname(__file__)
 PATH = os.path.join(os.path.dirname(p), 'user')
-
-print("current dir:", PATH)
+print(p)
+PATH2FONT = '/'.join(p.split('\\')[:-1])+'/assets/main_font.ttf'
+print("GENERATOR LOG: current dir:", PATH)
+PATH2TMP = '/'.join(p.split('\\')[:-1])+'/assets/tmp/'
 
 
 GlobVideoSet = SettingBox(orientation = 'vertical')
@@ -65,9 +67,11 @@ class gen_MAIN(BoxLayout):
         os.makedirs(os.path.join(PATH,'data', 'output'), exist_ok=True)
 
         self.gen_series = gen_SERIES(os.path.join(PATH,'data/'))
-        self.gen_pdf = gen_PDF(os.path.join(PATH,'data/'), GlobVideoSet, GlobVideoSetMenu)
-        self.gen_matrix = gen_MATRIX(os.path.join(PATH,'data/'), GlobVideoSet, GlobVideoSetMenu, os.path.join(PATH,'fonts/main_font.ttf'))
-        self.gen_traject = gen_TRAJECT(os.path.join(PATH,'data/'), GlobVideoSet, GlobVideoSetMenu)
+        self.gen_pdf = gen_PDF(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu)
+        print('PATH TO FONTS:', PATH2FONT)
+        self.gen_matrix = gen_MATRIX(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu, \
+                                     PATH2FONT)
+        self.gen_traject = gen_TRAJECT(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu)
         
         self.control_lay.add_widget(Button(text = 'Созданные стимулы', size_hint = [0.9, 1.0], on_press = self.press_series))
         self.control_lay.add_widget(Button(text = 'Сгенерировать стимул-текст', on_press = self.press_pdf))

@@ -6,7 +6,7 @@ def get_Matrix_image(M, size, space, width, heigh, font_file):
     background = np.full((heigh,width,3),255).astype(dtype = 'uint8')
     dt = size+space
     #fontpath = font_file 
-    print(font_file)
+    print('FONT:',font_file)
     font = ImageFont.truetype(font_file, size)
     
     img_pil = Image.fromarray(background)
