@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -34,7 +35,6 @@ from kivy.uix.image import Image
 #Window.fullscreen = False
 Window.show_cursor = True
 window_sizes=Window.size
-# -*- coding: utf-8 -*-
 
 Config.set('graphics', 'width', window_sizes[0])
 Config.set('graphics', 'height', window_sizes[1])
