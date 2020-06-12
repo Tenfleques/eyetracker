@@ -26,7 +26,7 @@ PATH = os.path.join(os.path.dirname(p), 'user')
 print(p)
 PATH2FONT = '/'.join(p.split('\\')[:-1])+'/assets/main_font.ttf'
 print("GENERATOR LOG: current dir:", PATH)
-PATH2TMP = '/'.join(p.split('\\')[:-1])+'/assets/tmp/'
+PATH2TMP = '/'.join(p.split('\\')[:-1])+'/user/tmp/'
 
 
 GlobVideoSet = SettingBox(orientation = 'vertical')
@@ -65,7 +65,7 @@ class gen_MAIN(BoxLayout):
         os.makedirs(os.path.join(PATH,'data/'), exist_ok=True)
         os.makedirs(os.path.join(PATH,'data', 'input'), exist_ok=True)
         os.makedirs(os.path.join(PATH,'data', 'output'), exist_ok=True)
-
+        os.makedirs(os.path.join(PATH,'tmp/'), exist_ok=True)
         self.gen_series = gen_SERIES(os.path.join(PATH,'data/'))
         self.gen_pdf = gen_PDF(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu)
         print('PATH TO FONTS:', PATH2FONT)

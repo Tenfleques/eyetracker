@@ -99,11 +99,12 @@ class gen_SERIES(BoxLayout):
         path = self.work_folder+'output/'+info['path']
         
         if (stimtype=='video'):
-            video = Video(source = path)
-            self.anch.add_widget(video)
-            video.state = 'play'
-            self.anch.open()
-            Clock.schedule_once(self.my_callback, video_duration)
+            #video = Video(source = path)
+            #self.anch.add_widget(video)
+            #video.state = 'play'
+            #self.anch.open()
+            #Clock.schedule_once(self.my_callback, video_duration)
+            #os.system(path)
             return;
         
         else:
