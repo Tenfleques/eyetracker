@@ -84,11 +84,14 @@ class gen_MAIN(BoxLayout):
     def press_series(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_series)
-        self.gen_series.files._update_files() 
+        self.gen_series.files._update_files()
+        self.gen_series.selection = []
         
     def press_pdf(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_pdf)
+        self.gen_pdf.files._update_files()
+        self.gen_pdf.selection = []
         
         
     def press_matrix(self,instance):
@@ -99,6 +102,8 @@ class gen_MAIN(BoxLayout):
     def press_traject(self, instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_traject)
+        self.gen_traject.files._update_files()
+        self.gen_traject.selection = []
             
 class GeneratorScreen(Screen):
 

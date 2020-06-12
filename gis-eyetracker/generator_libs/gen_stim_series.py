@@ -104,7 +104,7 @@ class gen_SERIES(BoxLayout):
             #video.state = 'play'
             #self.anch.open()
             #Clock.schedule_once(self.my_callback, video_duration)
-            #os.system(path)
+            os.system(path)
             return;
         
         else:
