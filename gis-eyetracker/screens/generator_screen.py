@@ -26,7 +26,7 @@ PATH = os.path.join(os.path.dirname(p), 'user')
 print(p)
 PATH2FONT = '/'.join(p.split('\\')[:-1])+'/assets/main_font.ttf'
 print("GENERATOR LOG: current dir:", PATH)
-PATH2TMP = '/'.join(p.split('\\')[:-1])+'/assets/tmp/'
+PATH2TMP = '/'.join(p.split('\\')[:-1])+'/user/tmp/'
 
 
 GlobVideoSet = SettingBox(orientation = 'vertical')
@@ -65,7 +65,7 @@ class gen_MAIN(BoxLayout):
         os.makedirs(os.path.join(PATH,'data/'), exist_ok=True)
         os.makedirs(os.path.join(PATH,'data', 'input'), exist_ok=True)
         os.makedirs(os.path.join(PATH,'data', 'output'), exist_ok=True)
-
+        os.makedirs(os.path.join(PATH,'tmp/'), exist_ok=True)
         self.gen_series = gen_SERIES(os.path.join(PATH,'data/'))
         self.gen_pdf = gen_PDF(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu)
         print('PATH TO FONTS:', PATH2FONT)
@@ -84,11 +84,14 @@ class gen_MAIN(BoxLayout):
     def press_series(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_series)
-        self.gen_series.files._update_files() 
+        self.gen_series.files._update_files()
+        self.gen_series.selection = []
         
     def press_pdf(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_pdf)
+        self.gen_pdf.files._update_files()
+        self.gen_pdf.selection = []
         
         
     def press_matrix(self,instance):
@@ -99,6 +102,8 @@ class gen_MAIN(BoxLayout):
     def press_traject(self, instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_traject)
+        self.gen_traject.files._update_files()
+        self.gen_traject.selection = []
             
 class GeneratorScreen(Screen):
 
