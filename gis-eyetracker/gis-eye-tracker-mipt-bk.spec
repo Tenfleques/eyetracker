@@ -1,16 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
 from kivy_deps import sdl2, glew
-
 block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['./'],
+             pathex=['C:\\Users\\tendai\\source\\repos\\eyetracker\\gis-eyetracker'],
              binaries=[],
              datas=[],
              hiddenimports=['kivy.core.spelling_enchant', 'kivy.graphics',
-                                                                     'kivy.graphics.compiler','pkg_resources.py2_warn', 'kivy.graphics.vertex', 'ffpyplayer'
-                                                                     'win32file','win32timezone'],
+                                         'kivy.graphics.compiler','pkg_resources.py2_warn', 'kivy.graphics.vertex',
+                                         'win32file','win32timezone'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
@@ -24,12 +23,12 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='gis-track-generator-mipt',
+          name='gis-eye-tracker-mipt',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True , icon='assets\\icon.ico', onefile = True)
+          console=False, icon='assets\\icon.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
@@ -38,4 +37,5 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='gis-generator-mipt')
+               name='gis-eye-tracker-mipt')
+

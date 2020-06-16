@@ -9,7 +9,7 @@ from kivy.lang.builder import Builder
 import os
 
 from helpers import get_local_str_util, create_log, get_video_fps, props, \
-    get_default_from_prev_session, set_default_from_prev_session
+    get_default_from_prev_session, set_default_from_prev_session, file_log
 
 from ctrls.result_playback_ctrl import ResultVideoCanvas
 from ctrls.table import Table
@@ -61,7 +61,7 @@ class ReplayScreen(Screen):
 
     @staticmethod
     def show_frame_info():
-        print("[INFO] get the frame info: detailed ")
+        file_log("[INFO] get the frame info: detailed ")
 
     @staticmethod
     def __tracker_app_log(text, log_label='app_log'):
@@ -70,17 +70,17 @@ class ReplayScreen(Screen):
         try:
             app.tracker_app_log(text, log_label)
         except Exception as er:
-            print("[ERROR] {}".format(er))
+            file_log("[ERROR] {}".format(er))
 
     def build(self):
         return widget
 
     def on_stop(self):
         self.stop_all()
-        print("closing... replay screen")
+        file_log("closing... replay screen")
 
     def stop_all(self):
-        print("[INFO] closing processes in replay screen")
+        file_log("[INFO] closing processes in replay screen")
         self.stop()
 
         if self.video_feed_ctrl is not None:
@@ -89,7 +89,7 @@ class ReplayScreen(Screen):
         for p in self.processes:
             # join all other running processes
             p.join()
-        print("[INFO] closed all processes in replay screen ")
+        file_log("[INFO] closed all processes in replay screen ")
 
     def start_all(self):
         self.ids["txt_box_replay_video_speed"].bind(on_text_validate=self.set_playback_fps)
@@ -241,7 +241,7 @@ class ReplayScreen(Screen):
         files = os.listdir(self.ids['lbl_input_dir'].text)
         filename = "tracker-timeline.json"
         if filename not in files:
-            print("[ERROR] the tracker timeline file could not be found ")
+            file_log("[ERROR] the tracker timeline file could not be found ")
             self.__tracker_app_log(self.get_local_str("_error_loading_session"), "camera_log")
             return
 
@@ -273,7 +273,7 @@ class ReplayScreen(Screen):
         files = os.listdir(self.ids['lbl_input_dir'].text)
         filename = "tracker-timeline.json"
         if filename not in files:
-            print("[ERROR] the tracker timeline file could not be found ")
+            file_log("[ERROR] the tracker timeline file could not be found ")
             self.__tracker_app_log(self.get_local_str("_error_loading_session"), "camera_log")
 
         session_timeline_path = os.path.join(self.ids['lbl_input_dir'].text, filename)
@@ -321,7 +321,8 @@ class ReplayScreen(Screen):
         self.__tracker_app_log(self.get_local_str("_playback_started"), "camera_log")
 
         fps = self.video_feed_ctrl.get_fps(False)
-        if fps:
+        
+        if isinstance(fps, float):
             if "txt_box_replay_video_speed" in self.ids:
                 self.ids["txt_box_replay_video_speed"].text = "{:.5}".format(fps)
 

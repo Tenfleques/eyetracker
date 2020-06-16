@@ -16,7 +16,7 @@ import math
 from kivy.config import Config
 from collections import deque
 from threading import Thread
-from helpers import get_local_str_util
+from helpers import get_local_str_util, file_log
 
 
 Config.set('graphics', 'kivy_clock', 'free_all')
@@ -37,7 +37,7 @@ def video_export_progress_cb(current, total):
             print("replay_screen not found")
 
     except Exception as er:
-        print("[ERROR] {}".format(er))
+        file_log("[ERROR] {}".format(er))
 
 
 class ResultVideoCanvas(Image):
@@ -165,7 +165,7 @@ class ResultVideoCanvas(Image):
         try:
             app.tracker_app_log(text, log_label)
         except Exception as er:
-            print("[ERROR] {}".format(er))
+            file_log("[ERROR] {}".format(er))
 
     def pause_play(self):
         if self.video_interval is None:
@@ -253,6 +253,11 @@ class ResultVideoCanvas(Image):
         if self.current_video_path == video_path and self.current_session_timeline_path == session_timeline_path and self.current_cam_video_path == cam_video_path:
             self.reset()
             return False
+        
+        if not os.path.isfile(session_timeline_path):
+            self.__tracker_app_log(get_local_str_util("_session_timeline_not_found"))
+            file_log("[ERROR] {}".format(get_local_str_util("_session_timeline_not_found")))
+            return False
 
         with open(session_timeline_path, "r") as fp:
             all_session = json.load(fp)
@@ -286,6 +291,8 @@ class ResultVideoCanvas(Image):
             error_text = "[ERROR] timeline is empty"
             end_cb(error_text)
             self.__tracker_app_log(get_local_str_util("_session_timeline_not_found"))
+            file_log(get_local_str_util("_session_timeline_not_found"))
+            self.stop()
             return False
 
         if self.session_timeline_index >= len_keys - 1:
@@ -293,14 +300,21 @@ class ResultVideoCanvas(Image):
 
         if not os.path.isfile(video_path):
             self.__tracker_app_log(get_local_str_util("_src_video_not_exists"))
+            file_log(get_local_str_util("_src_video_not_exists"))
+            self.stop()
             return False
 
-        if len(self.video_frames) == 0:
-            self.video_frames_cap = cv2.VideoCapture(video_path)            
+        if self.video_frames_cap is not None:
+            self.video_frames_cap.release()
 
+        self.video_frames_cap = cv2.VideoCapture(video_path)
 
-        if os.path.isfile(cam_video_path) and len(self.camera_frames) == 0:
+        if os.path.isfile(cam_video_path):
+            if self.camera_frames_cap is not None:
+                self.camera_frames_cap.release()
+
             self.camera_frames_cap = cv2.VideoCapture(cam_video_path)
+
             if self.camera_frames_cap is not None:
                 w, h = (self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_WIDTH),
                         self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -414,7 +428,7 @@ class ResultVideoCanvas(Image):
                                         v_x:self.v_frame.shape[1] + v_x, :] = self.v_frame
 
                     except ValueError as err:
-                        print("[ERROR] a video resize error occurred {}".format(err))
+                        file_log("[ERROR] a video resize error occurred {}".format(err))
 
         # add camera feed data
         if record["camera"] is not None:
@@ -569,7 +583,7 @@ class ResultVideoCanvas(Image):
                 fp.close()
         except Exception as err:
             self.__tracker_app_log(get_local_str_util("_session_timeline_corrupted"))
-            print("[ERROR] occurred while reading session data {}".format(err))
+            file_log("[ERROR] occurred while reading session data {}".format(err))
 
         SCREEN_SIZE = ImageGrab.grab().size
         bg_image = np.zeros((SCREEN_SIZE[1], SCREEN_SIZE[0], 3), dtype=np.uint8)

@@ -2,9 +2,10 @@ from kivy.app import App
 from ctypes import cdll, c_int, POINTER, c_char_p, c_char, create_string_buffer, c_size_t, Structure, c_float
 import time
 import platform
-from helpers import get_local_str_util
+from helpers import get_local_str_util, file_log
 import os
-# from gaze_listener import LogRecordSocketReceiver
+from threading import Thread
+from ctrls.gaze_listener import LogRecordSocketReceiver
 
 CString = POINTER(c_char)
 
@@ -79,18 +80,18 @@ class TrackerCtrl:
             self.get_meta_json = self.__get_meta_json_win
 
         if platform.system() == 'Darwin':
-            #     self.tracker_lib = LogRecordSocketReceiver()
-            #     self.socket_thread = Thread(target=self.tracker_lib.init,)
-            #     try:
-            #         # Start the thread
-            #         self.socket_thread.start()
-            #     # When ctrl+c is received
-            #     except KeyboardInterrupt as e:
-            #         # Set the alive attribute to false
-            #         self.kill()
-            #     except Exception as ex:
-            #         self.kill()
-            #         print("[ERROR] an error connecting to the tracker log server occurred {}     ".format(ex))
+            self.tracker_lib = LogRecordSocketReceiver()
+            self.socket_thread = Thread(target=self.tracker_lib.init,)
+            try:
+                # Start the thread
+                self.socket_thread.start()
+            # When ctrl+c is received
+            except KeyboardInterrupt as e:
+                # Set the alive attribute to false
+                self.kill()
+            except Exception as ex:
+                self.kill()
+                file_log("[ERROR] an error connecting to the tracker log server occurred {}".format(ex))
 
             self.save_json = self.__save_json_mac
             self.get_json = self.__get_json_mac
@@ -108,11 +109,11 @@ class TrackerCtrl:
     def start(self):
         started = self.tracker_lib.start()
         if started == 0:
-            print("[INFO] started the tracker device {}    ".format(time.strftime("%H:%M:%S")))
+            file_log("[INFO] started the tracker device")
             self.is_up = True
             self.__tracker_app_log(get_local_str_util("_connected_tracker"), "tracker_log")
         else:
-            print("[ERROR] failed to start the tracker device {}    ".format(time.strftime("%H:%M:%S")))
+            file_log("[ERROR] failed to start the tracker device")
             self.__tracker_app_log(get_local_str_util("_failed_to_connect_tracker"), "tracker_log")
         return started
 
@@ -120,23 +121,23 @@ class TrackerCtrl:
         return self.is_up
 
     def stop(self):
-        print("[INFO] stopping the recording of tracker device data {}    ".format(time.strftime("%H:%M:%S")))
+        file_log("[INFO] stopping the recording of tracker device data")
         try:
             self.is_up = False
             self.tracker_lib.stop()
             self.__tracker_app_log(get_local_str_util("_stopped_tracking"), "tracker_log")
         except Exception as e:
-            print("[ERROR] an error occurred while stopping the tracker session {}    ".format(e))
+            file_log("[ERROR] an error occurred while stopping the tracker session {}    ".format(e))
             self.__tracker_app_log("{}: {}".format(get_local_str_util("_error_stopping_tracking"), e), "tracker_log")
 
     def kill(self):
-        print("[INFO] stopping the tracker device {}    ".format(time.strftime("%H:%M:%S")))
+        file_log("[INFO] stopping the tracker device")
         try:
             self.is_up = False
             self.tracker_lib.kill()
             self.__tracker_app_log(get_local_str_util("_disconnected_tracker"), "tracker_log")
         except Exception as e:
-            print("[ERROR] an error occurred while stopping the tracker device {}    ".format(e))
+            file_log("[ERROR] an error occurred while stopping the tracker device {}    ".format(e))
             self.__tracker_app_log("{}: {}".format(get_local_str_util("_error_disconnecting_tracker"), e), "tracker_log")
 
     def __save_json_win(self, path="./data/results.json"):
@@ -147,7 +148,7 @@ class TrackerCtrl:
             self.__tracker_app_log("{}: {}".format(get_local_str_util("_saved_tracker"), session_name), "tracker_log")
             return saved
         except Exception as err:
-            print("[ERROR] exception while trying to save he tracker data", err)
+            file_log("[ERROR] exception while trying to save he tracker data", err)
             self.__tracker_app_log("{}: {}".format(get_local_str_util("_error_saving_tracker_session"), err), "tracker_log")
 
     def __get_json_win(self):
@@ -186,8 +187,8 @@ if __name__ == "__main__":
 
 #    print("[INFO] the json from get {}", a_tracker.get_json())
 
-    print("[INFO] the track box in json")
-    print(a_tracker.get_meta_json())
+    file_log("[INFO] the track box in json")
+    file_log(a_tracker.get_meta_json())
 
     a_tracker.kill()
 

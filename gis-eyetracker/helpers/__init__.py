@@ -5,8 +5,6 @@ import json
 import os
 import cv2
 import filecmp
-import logging
-logging.basicConfig(filename='./logs/helpers.log',level=logging.DEBUG)
 
 ERROR = -1
 WARNING = 2
@@ -22,8 +20,15 @@ LOCALE["__empty"] = {
 
 timestamp = lambda x: time.mktime(time.strptime(x[0], "%H:%M:%S")) + float("0." + x[1])
 
-user_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user")
+
+p = os.path.dirname(__file__)
+p = os.path.dirname(p)
+
+user_dir = os.path.join(p, "user")
+
 prev_session_file_path = os.path.join(user_dir, "last_session.json")
+log_dir = os.path.join(user_dir, "logs")
+os.makedirs(log_dir, exist_ok=True)
 
 # load user previous session settings
 try:
@@ -43,6 +48,18 @@ except IOError:
 except Exception as e:
     print(e)
 
+
+def file_log(log_string):
+    timestr = time.strftime("%H:%M:%S")
+    logfilename = time.strftime("%Y-%m-%d")
+    
+    log_string = "{} {} {}".format(timestr, log_string, os.linesep)
+
+    log_file = os.path.join(log_dir, "{}.log".format(logfilename))
+    with open(log_file, "a") as logfp:
+        logfp.write(log_string)
+        logfp.close()
+    return
 
 def props(cls):
     return [i for i in cls.__dict__.keys() if i[:1] != '_']
@@ -78,12 +95,12 @@ def frame_processing(frame):
 
 def get_local_str_util(key):
     lang = "ru"
-    #    local_def = locale.getdefaultlocale()
-    #    if len(local_def) and local_def[0]:
-    #        sys_locale = local_def[0].split("_")[0]
-    #        if sys_locale in ["en", "ru"]:
-    #            lang = sys_locale
-    #
+    local_def = locale.getdefaultlocale()
+    if len(local_def) and local_def[0]:
+        sys_locale = local_def[0].split("_")[0]
+        if sys_locale in ["en", "ru"]:
+            lang = sys_locale
+
     if key in LOCALE.keys():
         if lang in LOCALE.get(key).keys():
             return LOCALE.get(key)[lang]
