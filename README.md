@@ -120,9 +120,9 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 
 ### v1.0.6 June 16 2020
 
-[gis-eyetracker-mipt.v1.0.6-dev] (https://drive.google.com/file/d/1_g7BRsoG4Y_1SDy_SZHbpWG4NtZ-ieXy/view?usp=sharing)
+[gis-eyetracker-mipt.v1.0.6-dev](https://drive.google.com/file/d/1_g7BRsoG4Y_1SDy_SZHbpWG4NtZ-ieXy/view?usp=sharing)
 
-[gis-eyetracker-mipt.v1.0.6] (https://drive.google.com/file/d/1_e_MJgl9XhWpQtlkZIIQIRnKoeI6V8Gt/view?usp=sharing)
+[gis-eyetracker-mipt.v1.0.6](https://drive.google.com/file/d/1_e_MJgl9XhWpQtlkZIIQIRnKoeI6V8Gt/view?usp=sharing)
 
 1. New bugfixes 
 2. Graceful handling of errors and missing files 
