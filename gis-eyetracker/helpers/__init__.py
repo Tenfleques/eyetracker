@@ -176,3 +176,5 @@ def check_talon_directory():
             dst.write(src.read())
             dst.close()
             src.close()
+
+file_log("="*80 + "{}".format(time.strftime("%H:%M:%S")))
