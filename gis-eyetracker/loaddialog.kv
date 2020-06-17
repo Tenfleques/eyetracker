@@ -26,7 +26,7 @@
         FileChooserListView:
             id: filechooser
             dirselect: True
-            path: root.get_default_from_prev_session('filechooser', default="~")
+            path: root.get_default_from_prev_session('filechooser', default=root.get_user_dir())
 
         BoxLayout:
             orientation: "horizontal"
