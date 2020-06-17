@@ -31,7 +31,7 @@ class VideoCanvas(Image):
     video_src = ""
 
     def on_start(self):
-        frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+        frame = np.zeros((int(self.height), int(self.width), 3), dtype=np.uint8)
         buf = frame.tostring()
         texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
 
@@ -140,6 +140,8 @@ class VideoCanvas(Image):
 
         if not emergency:
             self.end_play_cb()
+        # reset screen 
+        self.on_start()
 
     def get_actual_fps(self):
         return self.actual_video_stimuli_fps
