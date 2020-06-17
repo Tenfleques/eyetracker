@@ -447,6 +447,8 @@ class ResultVideoCanvas(Image):
                 start_x = self.bg_frame.shape[1] - sh[0]
                 self.bg_frame[:sh[1], start_x:, :] = self.c_frame
 
+        xo = None
+        yo = None
         # add gaze feed data
         if record["gaze"] is not None and self.tracker_track:
             xr = record["gaze"]['x']

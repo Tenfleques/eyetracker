@@ -22,6 +22,10 @@ class LoadDialog(FloatLayout):
     def set_default_from_prev_session(key, value):
         # set a variable key in this session. e.g the directory of stimuli video
         return set_default_from_prev_session(key, value)
+    
+    @staticmethod
+    def get_user_dir():
+        return os.path.join(p,"user/data")
 
     @staticmethod
     def get_local_str(key):
