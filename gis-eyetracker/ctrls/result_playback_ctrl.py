@@ -146,6 +146,7 @@ class ResultVideoCanvas(Image):
     def get_fps(self, current=True):        
         if current:
             return self.video_fps
+
         return self.base_fps
     
     def reset(self):
@@ -183,7 +184,8 @@ class ResultVideoCanvas(Image):
             self.video_interval()
 
     def set_fps(self, video_fps):
-        self.video_fps = video_fps
+        self.video_fps = max(video_fps, 1)
+
         if self.video_interval is not None:
             self.video_interval.cancel()
             self.video_interval = Clock.schedule_interval(self.update_video_canvas, 1.0/self.video_fps)
@@ -248,17 +250,20 @@ class ResultVideoCanvas(Image):
     def initialized(self, video_path,
               session_timeline_path, cam_video_path, current_frame_cb):
         
+        self.reset()
+
         if current_frame_cb is not None:
             self.current_frame_cb = current_frame_cb
     
         if self.current_video_path == video_path and self.current_session_timeline_path == session_timeline_path and self.current_cam_video_path == cam_video_path:
-            self.reset()
             return False
         
         if not os.path.isfile(session_timeline_path):
             self.__tracker_app_log(get_local_str_util("_session_timeline_not_found"))
             file_log("[ERROR] {}".format(get_local_str_util("_session_timeline_not_found")))
             return False
+
+        self.session_timeline = {}
 
         with open(session_timeline_path, "r") as fp:
             all_session = json.load(fp)
@@ -284,17 +289,18 @@ class ResultVideoCanvas(Image):
         self.timestamp_keys = [i for i in self.session_timeline.keys()]
         float_timestamp_keys = [float(i) for i in self.timestamp_keys]
         len_keys = len(self.timestamp_keys)
-        diff = max(float_timestamp_keys) - min(float_timestamp_keys)
-        self.base_fps = len_keys / max(diff,1)
-        self.set_fps(self.base_fps)
 
         if len_keys == 0:
             error_text = "[ERROR] timeline is empty"
-            end_cb(error_text)
-            self.__tracker_app_log(get_local_str_util("_session_timeline_not_found"))
-            file_log(get_local_str_util("_session_timeline_not_found"))
+            self.__tracker_app_log(get_local_str_util("_session_timeline_empty"))
+            file_log(error_text)
             self.stop()
             return False
+
+        diff = max(float_timestamp_keys) - min(float_timestamp_keys)
+        self.base_fps = len_keys / max(diff,1)
+
+        self.set_fps(self.base_fps)
 
         if self.session_timeline_index >= len_keys - 1:
             self.session_timeline_index = 0
@@ -395,7 +401,7 @@ class ResultVideoCanvas(Image):
 
         len_timeline = len(self.timestamp_keys)
 
-        optimal_frame_step = self.get_fps()/Clock.get_fps()
+        optimal_frame_step = self.get_fps()/min(Clock.get_fps(),60.0)
 
         if isinstance(dt, int):
             self.session_timeline_index = dt

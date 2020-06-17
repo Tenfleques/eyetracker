@@ -38,7 +38,7 @@ class GisApp(App):
     def on_start(self):
         print("[INFO] starting ")
         app = App.get_running_app()
-        app.root.ids["replay_screen"].start_all()
+        Clock.schedule_once(lambda dt: app.root.ids["replay_screen"].start_all())
         Clock.schedule_once(lambda dt: app.root.ids["generator_screen"].build())
         app.root.ids["screen_manager"].transition = FadeTransition()
         # app.root.screen_manager.current = 'replay_screen'

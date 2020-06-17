@@ -167,8 +167,10 @@ class ReplayScreen(Screen):
         if ctrl is None:
             ctrl = self.ids["select_box_replay_speed"]
             fps = self.speed_times_fps(ctrl.text)
+
         else:
-            fps = float(ctrl.text)
+            str_fps = str(ctrl.text)
+            fps = float(str_fps)
 
         self.video_feed_ctrl.set_fps(fps)
 
@@ -291,10 +293,6 @@ class ReplayScreen(Screen):
 
         if not initialized:
             return False
-
-        fps = self.speed_times_fps(self.ids["txt_box_replay_video_speed"].text)
-
-        self.video_feed_ctrl.set_fps(fps)
 
         return initialized
 
