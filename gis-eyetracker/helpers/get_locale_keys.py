@@ -5,18 +5,23 @@ locale = "_locale.json"
 
 
 def get_all_eys():
-    dire = "./"
-    files = [f for f in os.listdir(dire) if f not in [locale, __file__]
-             and (".kv" in f or ".py" in f) and os.path.isfile(f)]
+    dire = ["./", "./screens", "./ctrls", "./generator_libs"]
+    files = []
 
+    for i in dire:
+        all_fs = os.listdir(i)
+        # print(all_fs)
+        fs = [os.path.join(i,f) for f in all_fs if f not in [locale, __file__]
+             and (".kv" in f or ".py" in f) and os.path.isfile(os.path.join(i,f))]
+        files.extend(fs)
 
     keys = {}
     func_str = "get_local_str("
     func_str_2 = "get_local_str_util("
-    for file in files:
-        file_name = os.path.join(dire, file)
-        # print(file_name)
+    
+    for file_name in files:
         with open(file_name, "r", encoding='raw_unicode_escape') as fp:
+            print(file_name)
             for i in fp.readlines():
                 f_spli = None
                 x = None
@@ -54,7 +59,6 @@ if __name__ == "__main__":
     cur_keys = get_current_keys()
     all_keys = get_all_eys()
 
-    
     for k, v in cur_keys.items():
         all_keys[k] = v
 

@@ -111,6 +111,23 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 3. Memory efficient. No longer preload video frames to memory
 4. Add video FPS controller together with speed multiplier
 
+### v1.0.5 June 9 2020
+[gis-eye-tracker-mipt.v1.0.5-dev](https://drive.google.com/file/d/1Zg2rIcvnX1sHqC5JfmH2gyWFqQt38wzO/view?usp=sharing)
+
+[gis-eye-tracker-mipt.v1.0.5](https://drive.google.com/file/d/1ZwqhhGkqYciKWVFE2W_pPg92oBPLfen7/view?usp=sharing)
+1. Combines the tracker, player and stimuli generator components into a singular app.
+2. Fix the speed issues on the player component
+
+### v1.0.6 June 16 2020
+
+[gis-eyetracker-mipt.v1.0.6-dev](https://drive.google.com/file/d/1_g7BRsoG4Y_1SDy_SZHbpWG4NtZ-ieXy/view?usp=sharing)
+
+[gis-eyetracker-mipt.v1.0.6](https://drive.google.com/file/d/1_e_MJgl9XhWpQtlkZIIQIRnKoeI6V8Gt/view?usp=sharing)
+
+1. New bugfixes 
+2. Graceful handling of errors and missing files 
+2. File logging of events and errors
+
 
 
 

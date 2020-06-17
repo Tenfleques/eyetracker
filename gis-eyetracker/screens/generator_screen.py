@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -20,10 +21,12 @@ from generator_libs.gen_traject import gen_TRAJECT
 from generator_libs.gen_stim_series import gen_SERIES
 
 from generator_libs.SettingBox import *
-
-from pathlib import Path
-PATH = str(Path(__file__).parent.absolute()).replace('\\','/')+'/user'
-print("current dir:", PATH)
+p = os.path.dirname(__file__)
+PATH = os.path.join(os.path.dirname(p), 'user')
+print(p)
+PATH2FONT = '/'.join(p.split('\\')[:-1])+'/assets/main_font.ttf'
+print("GENERATOR LOG: current dir:", PATH)
+PATH2TMP = '/'.join(p.split('\\')[:-1])+'/user/tmp/'
 
 
 GlobVideoSet = SettingBox(orientation = 'vertical')
@@ -32,8 +35,8 @@ GlobVideoSetMenu = Popup(title = 'Настройки', size_hint = [0.3,0.3])
 def InitGlobSet():
     window_sizes=Window.size
     s3 = Parameter(key = 'FPS', label = 'FPS:', startval = 60)
-    s4 = Parameter(key = 'Width', label = 'Ширина:', startval = window_sizes[0])
-    s5 = Parameter(key = 'Heigh', label = 'Высота:', startval = window_sizes[1])
+    s4 = Parameter(key = 'Width', label = "_width", startval = window_sizes[0])
+    s5 = Parameter(key = 'Heigh', label = "_height", startval = window_sizes[1])
         
     GlobVideoSet.add_widget(s3)
     GlobVideoSet.add_widget(s4)
@@ -62,11 +65,13 @@ class gen_MAIN(BoxLayout):
         os.makedirs(os.path.join(PATH,'data/'), exist_ok=True)
         os.makedirs(os.path.join(PATH,'data', 'input'), exist_ok=True)
         os.makedirs(os.path.join(PATH,'data', 'output'), exist_ok=True)
-
+        os.makedirs(os.path.join(PATH,'tmp/'), exist_ok=True)
         self.gen_series = gen_SERIES(os.path.join(PATH,'data/'))
-        self.gen_pdf = gen_PDF(os.path.join(PATH,'data/'), GlobVideoSet, GlobVideoSetMenu)
-        self.gen_matrix = gen_MATRIX(os.path.join(PATH,'data/'), GlobVideoSet, GlobVideoSetMenu, os.path.join(PATH,'fonts/main_font.ttf'))
-        self.gen_traject = gen_TRAJECT(os.path.join(PATH,'data/'), GlobVideoSet, GlobVideoSetMenu)
+        self.gen_pdf = gen_PDF(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu)
+        print('PATH TO FONTS:', PATH2FONT)
+        self.gen_matrix = gen_MATRIX(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu, \
+                                     PATH2FONT)
+        self.gen_traject = gen_TRAJECT(os.path.join(PATH,'data/'), PATH2TMP, GlobVideoSet, GlobVideoSetMenu)
         
         self.control_lay.add_widget(Button(text = 'Созданные стимулы', size_hint = [0.9, 1.0], on_press = self.press_series))
         self.control_lay.add_widget(Button(text = 'Сгенерировать стимул-текст', on_press = self.press_pdf))
@@ -79,11 +84,14 @@ class gen_MAIN(BoxLayout):
     def press_series(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_series)
-        self.gen_series.files._update_files() 
+        self.gen_series.files._update_files()
+        self.gen_series.selection = []
         
     def press_pdf(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_pdf)
+        self.gen_pdf.files._update_files()
+        self.gen_pdf.selection = []
         
         
     def press_matrix(self,instance):
@@ -94,6 +102,8 @@ class gen_MAIN(BoxLayout):
     def press_traject(self, instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_traject)
+        self.gen_traject.files._update_files()
+        self.gen_traject.selection = []
             
 class GeneratorScreen(Screen):
 

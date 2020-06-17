@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -20,7 +21,8 @@ from generator_libs.VideoGenerator import *
 from generator_libs.SettingBox import *
 from generator_libs.MatrixImageGen import *
 
-PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), '/user')
+p = os.path.dirname(__file__)
+PATH = os.path.join(os.path.dirname(p), 'user')
 print("current dir:", PATH)
 
 import scipy.misc
@@ -33,7 +35,6 @@ from kivy.uix.image import Image
 #Window.fullscreen = False
 Window.show_cursor = True
 window_sizes=Window.size
-# -*- coding: utf-8 -*-
 
 Config.set('graphics', 'width', window_sizes[0])
 Config.set('graphics', 'height', window_sizes[1])
@@ -78,9 +79,9 @@ class gen_MATRIX(BoxLayout):
     
     DATA_LOADED = False 
     
-    orientation = 'horizontal'
+    word_orientation = 'horizontal'
     
-    def __init__(self, work_folder, VideoSettings, VideoSetWidget, font, **kwargs):
+    def __init__(self, work_folder, temp_folder, VideoSettings, VideoSetWidget, font, **kwargs):
         
         global GlobVideoSet 
         GlobVideoSet = VideoSettings
@@ -89,16 +90,16 @@ class gen_MATRIX(BoxLayout):
         
         self.font = font
         self.work_folder = work_folder
-        
+        self.tmp = temp_folder
         super(gen_MATRIX, self).__init__(**kwargs)
         #left part
         self.blay1 = SettingBox(orientation = 'vertical', size_hint = [0.3, 1.0])
         
         self.blay1.add_widget(Label(text = 'Размеры матрицы:', size_hint = [1.0, 0.4]))
-        s1 = Parameter(key = 'MWidth', label = 'Ширина:', startval = 10, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
-        s2 = Parameter(key = 'MHeigh', label = 'Высота:', startval = 10, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
-        s3 = Parameter(key = 'MFontSz', label = 'Размер шрифта:', startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
-        s4 = Parameter(key = 'MLetDist', label = 'Расстояние между буквами:', startval = 20, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s1 = Parameter(key = 'MWidth', label = "_width", startval = 10, halign_in = 'left', valign_in = 'bottom', orientation = 'vertical')
+        s2 = Parameter(key = 'MHeigh', label = "_height", startval = 10, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s3 = Parameter(key = 'MFontSz', label = "_font_size", startval = 50, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s4 = Parameter(key = 'MLetDist', label = "_letter_spacing", startval = 20, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
         self.blay1.add_widget(s1)
         self.blay1.add_widget(s2)
         self.blay1.add_widget(s3)
@@ -117,8 +118,8 @@ class gen_MATRIX(BoxLayout):
         
         self.blay1.add_widget(self.files)
         self.blay1.add_widget(Label(text = 'Расположение в матрице\n(0 - случайная координата):'))
-        s5 = Parameter(key = 'MWidthPos', label = 'По ширине:', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
-        s6 = Parameter(key = 'MHeighPos', label = 'По высоте:', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s5 = Parameter(key = 'MWidthPos', label = '_on_width', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
+        s6 = Parameter(key = 'MHeighPos', label = '_on_height', startval = 3, halign_in = 'left', valign_in = 'bottom',  orientation = 'vertical')
         
         self.blay1.add_widget(s5)
         self.blay1.add_widget(s6)
@@ -145,7 +146,7 @@ class gen_MATRIX(BoxLayout):
         
        # blay3.add_widget(blay4)
         blay3.add_widget(Button(text = 'Настройки', on_press = self.press_settings))
-        blay3.add_widget(Button(text = 'Генерация видео', on_press = self.press_generation))
+        blay3.add_widget(Button(text = 'Генерация стимула', on_press = self.press_generation))
         
         blay2.add_widget(self.image_lay)
         blay2.add_widget(blay3)
@@ -157,7 +158,7 @@ class gen_MATRIX(BoxLayout):
         file = self.files.selection[-1]
         images = convert_from_path(file)
         pix = np.array(images[0])
-        im_out = 'data/tmp/'+file.split('\\')[-1]+'.png'
+        im_out = self.tmp+file.split('\\')[-1]+'.png'
         cv2.imwrite(im_out, pix)
         self.image_lay.clear_widgets()
         self.image_lay.add_widget(Image(source = os.path.join(PATH, im_out)))
@@ -168,15 +169,15 @@ class gen_MATRIX(BoxLayout):
         
         
     def press_orientation(self,instance):
-        if self.orientation == 'horizontal':
-            self.orientation = 'vertical'
+        if self.word_orientation == 'horizontal':
+            self.word_orientation = 'vertical'
             instance.text = 'Вертикально'
-        elif self.orientation == 'vertical':
-            self.orientation = 'random'
+        elif self.word_orientation == 'vertical':
+            self.word_orientation = 'random'
             instance.text = 'Случайно'
             
-        elif self.orientation == 'random':
-            self.orientation = 'horizontal'
+        elif self.word_orientation == 'random':
+            self.word_orientation = 'horizontal'
             instance.text = 'Горизонтально'
     
     
@@ -202,6 +203,9 @@ class gen_MATRIX(BoxLayout):
         font_space = int(self.blay1.ValueDict['MLetDist'])
         
         word = self.word.text
+
+        print('here')
+
         if word == '':
             pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
             bb1 = Button(text = 'Пожалуйста, введите ключевое слово', on_press = pp1.dismiss)
@@ -209,17 +213,18 @@ class gen_MATRIX(BoxLayout):
             pp1.open()
             return
             
-        M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.orientation) 
-        
+        M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
+
+        print('MATRIX_GEN, FONT:',self.font)
         image = get_Matrix_image(M, font_size, font_space, width, height, self.font)  
         
-        im_out = self.work_folder+'tmp/matrix'+str(self.curr_pict_id)+'.png'
+        im_out = self.tmp+'matrix'+str(self.curr_pict_id)+'.png'
         
         if os.path.exists(im_out):
             os.remove(im_out)
         self.curr_pict_id = self.curr_pict_id+1
         
-        im_out = self.work_folder+'tmp/matrix'+str(self.curr_pict_id)+'.png'
+        im_out = self.tmp+'matrix'+str(self.curr_pict_id)+'.png'
         
         
       
@@ -236,7 +241,7 @@ class gen_MATRIX(BoxLayout):
         X_start_actual = X_start
         Y_start_actual = Y_start
                
-        if self.orientation == 'random':
+        if orientation == 'random':
             local_orientation = random.choice(['horizontal', 'vertical'])
         else:
             local_orientation = self.orientation
@@ -326,22 +331,22 @@ class gen_MATRIX(BoxLayout):
             image = None
             
             if (i==0)and(word==self.word.text)and(self.matrix_shown):
-                im_out = self.work_folder+'tmp/matrix'+str(self.curr_pict_id)+'.png'
+                im_out = self.tmp+'matrix'+str(self.curr_pict_id)+'.png'
                 image = cv2.imread(im_out)
             else:
-                M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.orientation) 
-                image = get_Matrix_image(M, font_size, font_space, width, height, 'fonts/main_font.ttf')
+                M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
+                image = get_Matrix_image(M, font_size, font_space, width, height, self.font)
             
             word_trans = transliterate(word)
             
-            file_name = self.work_folder+'output/'+'_'.join([word_trans, str(X_size), str(Y_size), str(X_start), str(Y_start), self.orientation])
+            file_name = self.work_folder+'output/'+'_'.join([word_trans, str(X_size), str(Y_size), str(X_start), str(Y_start), self.word_orientation])
             
             
             
             im = PilImage.fromarray(image)
             im.save(file_name+'.png')
             
-            file_name_pref='_'.join([word_trans, str(X_size), str(Y_size), str(X_start), str(Y_start), self.orientation])
+            file_name_pref='_'.join([word_trans, str(X_size), str(Y_size), str(X_start), str(Y_start), self.word_orientation])
             meta_dict = {}
             meta_dict['name']=file_name_pref+'.png'
             meta_dict['type']='image'

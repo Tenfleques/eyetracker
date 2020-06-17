@@ -13,7 +13,7 @@ from threading import Thread
 from kivy.lang.builder import Builder
 import os
 
-from helpers import get_local_str_util, create_log, get_video_fps, get_default_from_prev_session, set_default_from_prev_session, process_fps
+from helpers import get_local_str_util, create_log, get_video_fps, get_default_from_prev_session, set_default_from_prev_session, process_fps, file_log
 from helpers.process_result import gaze_stimuli
 from ctrls.camera_feed_ctrl import CameraFeedCtrl
 from ctrls.tracker_ctrl import TrackerCtrl
@@ -33,7 +33,9 @@ from kivy.config import Config
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-widget = Builder.load_file(os.path.join(os.path.dirname(__file__), "tracker_screen.kv"))
+p = os.path.dirname(__file__)
+p = os.path.dirname(p)
+widget = Builder.load_file(os.path.join(p, "tracker_screen.kv"))
 
 
 def still_image_to_video(img_path, duration):
@@ -59,7 +61,6 @@ def still_image_to_video(img_path, duration):
     return video_path, fps
 
 
-
 class TrackerScreen(Screen):
     tracker_ctrl = None
     camera_feed_ctrl = CameraFeedCtrl()
@@ -80,13 +81,11 @@ class TrackerScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if platform.system() == 'Darwin':
-            print("[INFO] Running on Mac OS")
 
         Clock.schedule_once(lambda dt: self.ids["video_canvas"].on_start())
 
     def stop_all(self):
-        print("[INFO] closing processes and devices")
+        file_log("[INFO] closing processes and devices")
         # emergency close
         self.stop(True)
 
@@ -96,7 +95,7 @@ class TrackerScreen(Screen):
         for p in self.processes:
             # join all other running processes
             p.join()
-        print("[INFO] closed all processes and devices ")
+        file_log("[INFO] closed all processes and devices ")
 
     @staticmethod
     def get_default_from_prev_session(key, default=''):
@@ -194,7 +193,7 @@ class TrackerScreen(Screen):
                 self.play_sequence()
             except Exception as er:
                 self.__tracker_app_log("{}-{}".format(get_local_str_util('_video_src_error'), er))
-                print("[ERROR] error playing sequence", er)
+                file_log("[ERROR] error playing sequence", er)
 
         # start the tracker device
         self.tracker_ctrl.start()
@@ -262,7 +261,7 @@ class TrackerScreen(Screen):
             self.__after_recording()
             if self.cumulative_sim_video is not None:
                 self.cumulative_sim_video.release()
-                print("[Released the vidwriter]")
+                file_log("[INFO] Released the video writer")
 
         self.set_button_play_start()
         rec_title = "{} [{}]".format(get_local_str_util('_appname'), self.session_name)
@@ -328,10 +327,10 @@ class TrackerScreen(Screen):
 
             self.processes.append(p)
         except Exception as ex:
-            print("[ERROR] an error occurred {}{}    ".format(ex, time.strftime("%H:%M:%S")))
+            file_log("[ERROR] an error occurred {}".format(ex))
 
     def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
-        print("[INFO] started to process the timeline {}    ".format(time.strftime("%H:%M:%S")))
+        file_log("[INFO] started to process the timeline ")
 
         lcl_string = self.get_local_str("_preparing_session_timeline")
         self.__tracker_app_log(lcl_string)

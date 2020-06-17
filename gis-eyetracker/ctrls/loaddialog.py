@@ -4,7 +4,9 @@ from kivy.lang.builder import Builder
 from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session
 import os
 
-widget = Builder.load_file(os.path.join(os.path.dirname(__file__),"loaddialog.kv"))
+p = os.path.dirname(__file__)
+p = os.path.dirname(p)
+widget = Builder.load_file(os.path.join(p, "loaddialog.kv"))
 
 
 class LoadDialog(FloatLayout):

@@ -12,7 +12,7 @@ import os
 import json
 import cv2
 from collections import deque
-from helpers import frame_processing, process_fps, get_video_fps, props
+from helpers import frame_processing, process_fps, get_video_fps, props, file_log
 from ctrls.camera_feed_ctrl import Frame
 
 Config.set('graphics', 'kivy_clock', 'free_all')
@@ -170,7 +170,6 @@ class VideoCanvas(Image):
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         # update video canvas
         self.texture = texture
-#        print(props(self))
 
     def save_video(self, out_path, fps=0):
         if len(self.video_frames) < 1:
@@ -182,16 +181,15 @@ class VideoCanvas(Image):
         if fps == 0:
             _, _, fps = process_fps(self.video_frames)
 
-        print("[INFO] start of video writing")
         sh = self.video_frames[0].img_data.shape
 
-        print("[INFO] start of video writing  of shape {}".format(sh))
+        file_log("[INFO] start of video writing  of shape {}".format(sh))
         success = out_video.open(out_path, fourcc, fps, (sh[1], sh[0]), True)
         for frame in self.video_frames:
             out_video.write(frame.img_data)
         out_video.release()
 
-        print("[INFO] end of video writing")
+        file_log("[INFO] end of video writing")
 
     def get_frames(self):
         return self.video_frames

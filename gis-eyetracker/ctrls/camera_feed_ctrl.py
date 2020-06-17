@@ -5,7 +5,7 @@ from threading import Thread
 from collections import deque
 import os
 import sys
-from helpers import get_local_str_util
+from helpers import get_local_str_util, file_log
 
 
 class Frame:
@@ -73,12 +73,12 @@ class CameraFeedCtrl:
             # wait till camera is up
             polling_camera_times = 0
             while not self.get_camera_is_up():
-                print("[INFO] waiting for camera {}     ".format(time.strftime("%H:%M:%S")))
+                file_log("[INFO] waiting for camera")
                 self.__tracker_app_log(get_local_str_util("_waiting_for_camera"), "camera_log")
                 time.sleep(1)
                 polling_camera_times += 1
                 if polling_camera_times > 10:
-                    print("[INFO] got tired of waiting for camera {}    ".format(time.strftime("%H:%M:%S")))
+                    file_log("[ERROR] got tired of waiting for camera {}")
                     self.__tracker_app_log(get_local_str_util("_gave_up_waiting_camera"), "camera_log")
                     self.stop()
                     return False
@@ -88,7 +88,7 @@ class CameraFeedCtrl:
         except KeyboardInterrupt:
             self.stop()
         except Exception as e:
-            print("{} {}    ".format(e, time.strftime("%H:%M:%S")))
+            file_log("{} ".format(e))
             self.__tracker_app_log("[ERROR] {}".format(e), "camera_log")
             self.stop()
 
@@ -122,8 +122,7 @@ class CameraFeedCtrl:
         out = cv2.VideoWriter()
 
         success = out.open(video_filename, fourcc, fps, (frame_width, frame_height), True)
-        print("[INFO] opening the output video for writing success: {} {}    "
-              .format(success, time.strftime("%H:%M:%S")))
+        file_log("[INFO] opening the output video for writing success: {}".format(success))
         return out
 
     def __camera_thread(self, output_path, camera_index=0, save_images=False):
@@ -144,9 +143,9 @@ class CameraFeedCtrl:
 
         out = self.__video_output(output_path, fps, frame_width, frame_height)
 
-        print("[INFO] starting the camera feed {}    ".format(time.strftime("%H:%M:%S")))
+        file_log("[INFO] starting the camera feed")
         self.__tracker_app_log(get_local_str_util("_started_camera"), "camera_log")
-        sys.stdout.flush()
+        
         st = time.time()
         while cap.isOpened() and not self.__halt_recording():
             ret, frame = cap.read()
@@ -162,7 +161,7 @@ class CameraFeedCtrl:
             frame_id += 1
         time_diff = time.time() - st
         self.__tracker_app_log(get_local_str_util("_stopped_camera"), "camera_log")
-        sys.stdout.flush()
+        
         if time_diff:
             actual_fps = (frame_id + 1) / time_diff
         cap.release()
