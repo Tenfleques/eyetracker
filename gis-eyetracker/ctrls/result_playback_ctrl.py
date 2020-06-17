@@ -153,6 +153,7 @@ class ResultVideoCanvas(Image):
         self.session_timeline_index = 0        
         self.current_vid_frame_id = 0
         self.current_cam_frame_id = 0
+        self.update_video_canvas(self.session_timeline_index)
 
     @staticmethod
     def current_frame_cb(current, total, record=None, **kwargs):
