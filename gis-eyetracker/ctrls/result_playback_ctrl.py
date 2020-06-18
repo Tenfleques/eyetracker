@@ -395,7 +395,7 @@ class ResultVideoCanvas(Image):
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
         show_frame = self.bg_frame [:, :, :]
-        show_frame[:, :, :] = 200
+        show_frame[:, :, :] = 250
         # show current screen as background
         if self.bg_is_screen:
             show_frame[:, :, :] = self.bg_image
@@ -497,8 +497,8 @@ class ResultVideoCanvas(Image):
                 # self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
                 self.c_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.camera_frames_cap)
 
-                rel_w = 0.25 * show_frame.shape[1]
-                rel_h = rel_w * show_frame.shape[0]/ show_frame.shape[1]
+                rel_h = 0.3 * show_frame.shape[0]
+                rel_w = rel_h * show_frame.shape[1]/ show_frame.shape[0]
                 sh = (int(rel_w), int(rel_h))
                 self.c_frame = cv2.resize(self.c_frame, sh)
 
