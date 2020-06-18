@@ -40,8 +40,10 @@
                                 size_hint_x: .75
                                 ResultVideoCanvas:
                                     id: replay_video_canvas
-                                    allow_stretch:False
-                                    keep_ratio:True
+                                    size_hint_y: 1
+                                    allow_stretch:True
+                                    keep_ratio:False
+                                    pos_hint:{'x':.0, 'y':.0}
                             BackgroundGridLayout:
                                 cols:1
                                 rows:3

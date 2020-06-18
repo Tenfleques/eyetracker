@@ -21,7 +21,6 @@ def get_all_eys():
     
     for file_name in files:
         with open(file_name, "r", encoding='raw_unicode_escape') as fp:
-            print(file_name)
             for i in fp.readlines():
                 f_spli = None
                 x = None

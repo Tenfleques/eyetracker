@@ -116,12 +116,9 @@ class ReplayScreen(Screen):
 
     def start_all(self):
         self.ids["txt_box_replay_video_speed"].bind(on_text_validate=self.set_playback_fps)
-        # self.ids["txt_box_replay_frame_step"].bind(on_text_validate=self.set_playback_step)
-
         speeds = [("{}x".format(i), self.set_playback_fps) for i in [.1, .25, .5, 1, 1.5, 2, 2.5, 3]]
 
         self.ids["select_box_replay_speed"].set_options(speeds)
-
         self.ids["video_progress"].bind(on_touch_up=self.step_to_frame)
 
         self.ids["chkbx_bg_is_grab"].bind(state=self.toggle_bg_is_screen)

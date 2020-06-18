@@ -366,7 +366,7 @@ class ResultVideoCanvas(Image):
         
         if frame is None:
             return 
-
+        
         buf_raw = cv2.flip(frame, 0)
         if buf_raw is None:
             if dt is None:
@@ -394,10 +394,11 @@ class ResultVideoCanvas(Image):
 
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
-        self.bg_frame[:, :, :] = 255
+        show_frame = self.bg_frame [:, :, :]
+        show_frame[:, :, :] = 200
         # show current screen as background
         if self.bg_is_screen:
-            self.bg_frame[:, :, :] = self.bg_image
+            show_frame[:, :, :] = self.bg_image
 
         len_timeline = len(self.timestamp_keys)
 
@@ -415,6 +416,8 @@ class ResultVideoCanvas(Image):
         key = self.timestamp_keys[self.session_timeline_index]
         record = self.session_timeline[key]
 
+        v_x = None
+        v_y = None
         # add video feed data
         if record["video"] is not None:
             if self.current_vid_frame_id != record["video"]["frame_id"]:
@@ -431,28 +434,11 @@ class ResultVideoCanvas(Image):
                     v_y = int(record["video"]["y"])
 
                     try:
-                        self.bg_frame[v_y:self.v_frame.shape[0] + v_y,
+                        show_frame[v_y:self.v_frame.shape[0] + v_y,
                                         v_x:self.v_frame.shape[1] + v_x, :] = self.v_frame
 
                     except ValueError as err:
                         file_log("[ERROR] a video resize error occurred {}".format(err))
-
-        # add camera feed data
-        if record["camera"] is not None:
-            if self.current_cam_frame_id != record["camera"]["frame_id"]:
-                self.current_cam_frame_id = record["camera"]["frame_id"]
-
-            if self.camera_track:
-                # self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
-                self.c_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.camera_frames_cap)
-
-                rel_w = 0.25 * self.bg_frame.shape[1]
-                rel_h = rel_w * self.bg_frame.shape[0]/ self.bg_frame.shape[1]
-                sh = (int(rel_w), int(rel_h))
-                self.c_frame = cv2.resize(self.c_frame, sh)
-
-                start_x = self.bg_frame.shape[1] - sh[0]
-                self.bg_frame[:sh[1], start_x:, :] = self.c_frame
 
         xo = None
         yo = None
@@ -461,12 +447,12 @@ class ResultVideoCanvas(Image):
             xr = record["gaze"]['x']
             yr = record["gaze"]['y']
 
-            xo = int(self.bg_frame.shape[1] * xr)
-            yo = int(self.bg_frame.shape[0] * yr)
+            xo = int(show_frame.shape[1] * xr)
+            yo = int(show_frame.shape[0] * yr)
 
 
         if xo is not None and yo is not None and self.tracker_track:
-            self.bg_frame = cv2.circle(self.bg_frame, (xo, yo),
+            show_frame = cv2.circle(show_frame, (xo, yo),
                                        self.radius, self.color, self.thickness)
             if self.maintain_track:
                 # write all the positions of the track from 0 - this index
@@ -476,9 +462,9 @@ class ResultVideoCanvas(Image):
                         xr = self.session_timeline[his_key]["gaze"]['x']
                         yr = self.session_timeline[his_key]["gaze"]['y']
 
-                        xr = int(self.bg_frame.shape[1] * xr)
-                        yr = int(self.bg_frame.shape[0] * yr)
-                        self.bg_frame = cv2.circle(self.bg_frame, (xr, yr), 2, (0, 0, 255, 1), self.thickness)
+                        xr = int(show_frame.shape[1] * xr)
+                        yr = int(show_frame.shape[0] * yr)
+                        show_frame = cv2.circle(show_frame, (xr, yr), 2, (0, 0, 255, 1), self.thickness)
 
         self.current_frame_cb(self.session_timeline_index, len_timeline, frame_details=record)
 
@@ -492,7 +478,34 @@ class ResultVideoCanvas(Image):
             
             self.__tracker_app_log("{}: {:.4}".format(get_local_str_util("_optimal_frame_skip"), optimal_frame_step), log_label='stimuli_video_log')
 
-        return self.bg_frame
+        if not self.bg_is_screen:
+            if v_x is not None and v_y is not None:
+                # pan to the video size
+                sh = show_frame[v_y:, v_x:, :].shape
+                if self.v_frame is not None:
+                    h = self.v_frame.shape[0] + v_y
+                    show_frame = show_frame[v_y:h, v_x:, :]
+                else:
+                    show_frame = show_frame[v_y:, v_x:, :]
+
+        # add camera feed data
+        if record["camera"] is not None:
+            if self.current_cam_frame_id != record["camera"]["frame_id"]:
+                self.current_cam_frame_id = record["camera"]["frame_id"]
+
+            if self.camera_track:
+                # self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
+                self.c_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.camera_frames_cap)
+
+                rel_w = 0.25 * show_frame.shape[1]
+                rel_h = rel_w * show_frame.shape[0]/ show_frame.shape[1]
+                sh = (int(rel_w), int(rel_h))
+                self.c_frame = cv2.resize(self.c_frame, sh)
+
+                start_x = show_frame.shape[1] - sh[0]
+                show_frame[:sh[1], start_x:, :] = self.c_frame
+            
+        return show_frame
 
     def get_video_frame_at(self, index):
         if index < len(self.video_frames):
