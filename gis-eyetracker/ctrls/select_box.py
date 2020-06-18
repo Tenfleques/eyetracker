@@ -2,6 +2,7 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 from helpers import get_local_str_util
 
+
 class SelectBox(Button):
     options = []
 
@@ -16,9 +17,11 @@ class SelectBox(Button):
     def set_options(self, options):
         self.options = options
         dropdown = DropDown()
+        bg = [(.7,.7,.7,1), (.65,.65,.65,1)]
+        k = 0
         for text, cb in self.options:
-            btn = Button(text=text, size_hint_y=None, height=30)
-
+            btn = Button(text=text, size_hint_y=None, height=30, background_normal='', background_color = bg[k%2], color =(0,0,0,1))
+            k += 1
             # for each button, attach a callback that will call the select() method
             # on the dropdown. We'll pass the text of the button as the data of the
             # selection.

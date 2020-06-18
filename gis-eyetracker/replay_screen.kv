@@ -244,6 +244,24 @@
                             size_hint: (None, None)
                             width: '250dp'
                             height: '25dp'
+                    GridLayout:
+                        rows: 1
+                        id: neighborhood_sessions
+                        SelectBox:
+                            id: select_box_neighboring_sessions
+                            text: root.get_local_str("_other_sessions")
+                            background_normal: ''
+                            background_color: (.8, .8, .8, 1)
+                            color:(0,0,0,1)
+                            size_hint_y: None
+                            height: 25
+                            multiline:False
+                            font_size: dp(13)
+                        Label:
+                            text: ''
+                            size_hint: (None, None)
+                            width: '250dp'
+                            height: '25dp'
                     # GridLayout:
                     #     halign: 'right'
                     #     cols: 2
@@ -341,7 +359,9 @@
                                 SelectBox:
                                     id: select_box_replay_speed
                                     text: "1x"
-                                    background_color: (.9, .9, .9, 1)
+                                    background_normal: ''
+                                    background_color: (.8, .8, .8, 1)
+                                    color:(0,0,0,1)
                                     size_hint_y: None
                                     height: 25
                                     multiline:False
