@@ -44,11 +44,17 @@ class ReplayScreen(Screen):
     session_name = None
     vid_ctrl_set = False
 
-    @staticmethod
-    def get_default_from_prev_session(key, default=''):
-        # loads a variable saved from the last session, directory, stimuli video for example
-        return get_default_from_prev_session(key, default)
+    _popup = None 
+    session_directory = None 
 
+    @staticmethod
+    def get_default_from_prev_session(key, default='', cut = False):
+        # loads a variable saved from the last session, directory, stimuli video for example
+        val = get_default_from_prev_session(key, default)
+        if cut:
+           return val[:25] + " ... " + val[-40:]
+        return val
+    
     @staticmethod
     def set_default_from_prev_session(key, value):
         # set a variable key in this session. e.g the directory of stimuli video
@@ -91,14 +97,28 @@ class ReplayScreen(Screen):
             p.join()
         file_log("[INFO] closed all processes in replay screen ")
 
+    def load_on_neighbor(self):
+        d = self.ids["select_box_neighboring_sessions"].text
+        par_path = os.path.dirname(self.session_directory)
+        path = os.path.join(par_path, d)
+        self.load(path, "")
+
+    def populate_neighbor_sessions(self):
+        other_sessions = []
+        if self.session_directory is None:
+            return other_sessions
+
+        if os.path.isdir(self.session_directory):
+            parent_path = os.path.dirname(self.session_directory)
+            other_sessions = [(d,self.load_on_neighbor) for d in os.listdir(parent_path) if 'exp' in d and os.path.isdir(os.path.join(parent_path, d))]
+        
+        return other_sessions
+
     def start_all(self):
         self.ids["txt_box_replay_video_speed"].bind(on_text_validate=self.set_playback_fps)
-        # self.ids["txt_box_replay_frame_step"].bind(on_text_validate=self.set_playback_step)
-
         speeds = [("{}x".format(i), self.set_playback_fps) for i in [.1, .25, .5, 1, 1.5, 2, 2.5, 3]]
 
         self.ids["select_box_replay_speed"].set_options(speeds)
-
         self.ids["video_progress"].bind(on_touch_up=self.step_to_frame)
 
         self.ids["chkbx_bg_is_grab"].bind(state=self.toggle_bg_is_screen)
@@ -108,6 +128,7 @@ class ReplayScreen(Screen):
         self.ids["chkbx_video_track"].bind(state=self.toggle_video_track)
         # self.ids["chkbx_use_optimal_step"].bind(state=self.set_use_optimal_step)
         self.init_video_player()
+        self.ids["select_box_neighboring_sessions"].set_options(self.populate_neighbor_sessions())
 
     def toggle_bg_is_screen(self, checkbox, value):
         if self.video_feed_ctrl is None:
@@ -138,7 +159,6 @@ class ReplayScreen(Screen):
         if self.video_feed_ctrl is None:
             return
         self.video_feed_ctrl.set_use_optimal_step(value == 'down')
-        
 
     def set_playback_step(self, ctrl):
         if not ctrl.text:
@@ -175,18 +195,19 @@ class ReplayScreen(Screen):
         self.video_feed_ctrl.set_fps(fps)
 
     def input_dir_ready(self):
-        lbl_input_dir = self.ids['lbl_input_dir']
         # check the directory in the computer's filesystem
-        ready = os.path.isdir(lbl_input_dir.text)
+        ready = os.path.isdir(self.session_directory)
         # directory doesn't exist, scream for attention
         if not ready:
-            lbl_input_dir.color = (1, 0, 0, 1)  # red scream
+            self.ids['lbl_input_dir'].color = (1, 0, 0, 1)  # red scream
             self.__tracker_app_log(self.get_local_str("_directory_not_selected"))
             return ready
 
-        lbl_input_dir.color = (0, 0, 0, 1)
+        self.ids['lbl_input_dir'].color = (0, 0, 0, 1)
         # update window to have name of session
-        session_name = lbl_input_dir.text.split(os.sep)[-1]
+        self.session_directory = self.ids['lbl_input_dir'].text
+        session_name = self.session_directory.split(os.sep)[-1]
+        
         Window.set_title("{} [{}]".format(get_local_str_util('_appname'), session_name))
         return ready
 
@@ -240,16 +261,16 @@ class ReplayScreen(Screen):
             return 
         
         # list the files inside the input dir
-        files = os.listdir(self.ids['lbl_input_dir'].text)
+        files = os.listdir(self.session_directory)
         filename = "tracker-timeline.json"
         if filename not in files:
             file_log("[ERROR] the tracker timeline file could not be found ")
             self.__tracker_app_log(self.get_local_str("_error_loading_session"), "camera_log")
             return
 
-        session_timeline_path = os.path.join(self.ids['lbl_input_dir'].text, filename)
-        cam_video_path = os.path.join(self.ids['lbl_input_dir'].text, "out-video.avi")
-        cumulative_stimuli_src = os.path.join(self.ids['lbl_input_dir'].text, "cumulative_stimuli_src.avi")
+        session_timeline_path = os.path.join(self.session_directory, filename)
+        cam_video_path = os.path.join(self.session_directory, "out-video.avi")
+        cumulative_stimuli_src = os.path.join(self.session_directory, "cumulative_stimuli_src.avi")
 
         maintain_track = self.ids["chkbx_maintain_track"].state == 'down'
         video_track = self.ids["chkbx_video_track"].state == 'down'
@@ -264,7 +285,10 @@ class ReplayScreen(Screen):
 
     def init_video_player(self):
         # check the directory in the computer's filesystem
-        ready = os.path.isdir(self.ids['lbl_input_dir'].text)
+        if self.session_directory is None:
+            self.session_directory = self.ids['lbl_input_dir'].text
+
+        ready = os.path.isdir(self.session_directory)
         if not ready:
             return None, None, None
 
@@ -272,15 +296,15 @@ class ReplayScreen(Screen):
             self.video_feed_ctrl = self.ids["replay_video_canvas"]
 
         # list the files inside the input dir
-        files = os.listdir(self.ids['lbl_input_dir'].text)
+        files = os.listdir(self.session_directory)
         filename = "tracker-timeline.json"
         if filename not in files:
             file_log("[ERROR] the tracker timeline file could not be found ")
             self.__tracker_app_log(self.get_local_str("_error_loading_session"), "camera_log")
 
-        session_timeline_path = os.path.join(self.ids['lbl_input_dir'].text, filename)
-        cam_video_path = os.path.join(self.ids['lbl_input_dir'].text, "out-video.avi")
-        cumulative_stimuli_src = os.path.join(self.ids['lbl_input_dir'].text, "cumulative_stimuli_src.avi")
+        session_timeline_path = os.path.join(self.session_directory, filename)
+        cam_video_path = os.path.join(self.session_directory, "out-video.avi")
+        cumulative_stimuli_src = os.path.join(self.session_directory, "cumulative_stimuli_src.avi")
 
         self.video_feed_ctrl.toggle_maintain_track(self.ids["chkbx_maintain_track"].state == 'down')
         self.video_feed_ctrl.toggle_video_track(self.ids["chkbx_video_track"].state == 'down')
@@ -299,7 +323,9 @@ class ReplayScreen(Screen):
     def btn_play_click(self):
         if not self.input_dir_ready():
             return
-    
+
+        self.populate_neighbor_sessions()
+
         # if playing pause
         if self.video_feed_ctrl is not None:
             if self.video_feed_ctrl.is_playing():
@@ -367,7 +393,8 @@ class ReplayScreen(Screen):
 
     # loading directory dialog
     def dismiss_popup(self):
-        self._popup.dismiss()
+        if self._popup is not None:
+            self._popup.dismiss()
 
     def show_load(self):
         content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
@@ -380,14 +407,17 @@ class ReplayScreen(Screen):
             if not os.path.isdir(path):
                 path = os.path.dirname(path)
 
-        lbl_output_dir = self.ids['lbl_input_dir']
-        lbl_output_dir.text = path
+        self.session_directory = path
+        self.ids['lbl_input_dir'].text = path
+        self.ids["select_box_neighboring_sessions"].set_options(self.populate_neighbor_sessions())
+
         if self.video_feed_ctrl is not None:
             self.video_feed_ctrl.stop()
             self.video_feed_ctrl.reset()
         
         self.set_default_from_prev_session('lbl_input_dir', path)
         self.set_default_from_prev_session('filechooser', path)
+        
         self.dismiss_popup()
 
         self.input_dir_ready()

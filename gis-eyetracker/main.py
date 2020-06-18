@@ -10,7 +10,7 @@ from kivy.clock import Clock
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-Window.size = (1200, 800)
+Window.size = (1600, 800)
 
 from screens.replay_screen import ReplayScreen
 from screens.tracker_screen import TrackerScreen
