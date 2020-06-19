@@ -6,10 +6,10 @@ from kivy.core.window import Window
 from collections import deque
 from kivy.config import Config
 from kivy.lang.builder import Builder
+from kivy.graphics.texture import Texture
 import os
 
-from helpers import get_local_str_util, create_log, get_video_fps, props, \
-    get_default_from_prev_session, set_default_from_prev_session, file_log
+from helpers import get_local_str_util, create_log, get_video_fps, props, get_default_from_prev_session, set_default_from_prev_session, file_log, fig2data
 
 from ctrls.result_playback_ctrl import ResultVideoCanvas
 from ctrls.table import Table
@@ -19,6 +19,8 @@ from ctrls.infobar import InfoBar
 from ctrls.framedetails import FrameDetails
 from ctrls.select_box import SelectBox
 from ctrls.loaddialog import LoadDialog
+import cv2
+import numpy as np
 
 
 from threading import Thread
@@ -129,6 +131,7 @@ class ReplayScreen(Screen):
         # self.ids["chkbx_use_optimal_step"].bind(state=self.set_use_optimal_step)
         self.init_video_player()
         self.ids["select_box_neighboring_sessions"].set_options(self.populate_neighbor_sessions())
+        self.update_camera_stream_handle()
 
     def toggle_bg_is_screen(self, checkbox, value):
         if self.video_feed_ctrl is None:
@@ -285,6 +288,7 @@ class ReplayScreen(Screen):
 
     def init_video_player(self):
         # check the directory in the computer's filesystem
+
         if self.session_directory is None:
             self.session_directory = self.ids['lbl_input_dir'].text
 
@@ -350,8 +354,28 @@ class ReplayScreen(Screen):
             if "txt_box_replay_video_speed" in self.ids:
                 self.ids["txt_box_replay_video_speed"].text = "{:.5}".format(fps)
 
+    def update_camera_stream_handle(self, cam_frame=None):
+        if cam_frame is None:
+            cam_frame = np.full((int(self.ids["chkbx_camera_track"].height), int(self.ids["chkbx_camera_track"].width), 3), 255, dtype=np.uint8)
+
+        if not self.ids["chkbx_camera_track"].state == 'down':
+            cam_frame[:, :, :] = 255
+        
+        buf_raw = cv2.flip(cam_frame, 0)
+        if buf_raw is None:
+            return
+
+        buf = buf_raw.tostring()
+        texture = Texture.create(size=(cam_frame.shape[1], cam_frame.shape[0]), colorfmt='bgr')
+
+        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        # update video canvas
+        self.ids["camera_feed_image"].texture = texture
+
+
     def progress_cb(self, current=0, total=None, **kwargs):
         video_progress = self.ids["video_progress"]
+
         if total is None:
             total = video_progress.max
 
@@ -363,7 +387,10 @@ class ReplayScreen(Screen):
             self.__tracker_app_log(video_log, "app_log")
             video_progress.value = current
 
-        
+        cam_frame = kwargs.get("cam_frame", None)
+        if cam_frame is not None:
+            self.update_camera_stream_handle(cam_frame)
+
         self.ids["frame_details"].update(**kwargs)
 
     def set_button_play_start(self, force_stop=False):

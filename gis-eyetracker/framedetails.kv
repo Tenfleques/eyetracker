@@ -18,6 +18,8 @@
                 text: "[b]" + root.get_local_str('_time') + "[/b]"
             NormalLabel:
                 markup:True
+                size_hint_x: None
+                width: 50
                 text: "[b]" + root.get_local_str('_fps') + "[/b]"
         
         BackgroundGridLayout:
@@ -41,6 +43,8 @@
                 id:lbl_tracker_gaze_fps
                 markup:True
                 text: ""
+                size_hint_x: None
+                width: 50
 
         BackgroundGridLayout:
             cols: 3
@@ -62,6 +66,9 @@
                 id:lbl_tracker_pos_fps
                 markup:True
                 text: ""
+                size_hint_x: None
+                width: 50
+
         BackgroundGridLayout:
             background_color: (.9, .9, .9, .5)
             cols: 3
@@ -83,6 +90,8 @@
                 id:lbl_tracker_origin_fps
                 markup:True
                 text: ""
+                size_hint_x: None
+                width: 50
         
         BackgroundGridLayout:
             cols: 3
@@ -104,6 +113,8 @@
                 id:lbl_video_fps
                 markup:True
                 text: ""
+                size_hint_x: None
+                width: 50
 
         BackgroundGridLayout:
             background_color: (.9, .9, .9, .5)
@@ -126,4 +137,6 @@
                 id:lbl_camera_fps
                 markup:True
                 text: ""
+                size_hint_x: None
+                width: 50
 

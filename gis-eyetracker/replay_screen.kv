@@ -37,17 +37,68 @@
                             cols:2
                             BackgroundGridLayout:
                                 rows:1
-                                size_hint_x: .75
-                                ResultVideoCanvas:
-                                    id: replay_video_canvas
+                                cols: 3
+                                background_color: (0, .196, .313, 1)
+                                BackgroundBoxLayout:
+                                    orientation: 'vertical'
+                                    ResultVideoCanvas:
+                                        id: replay_video_canvas
+                                        size_hint_y: 1
+                                        allow_stretch:True
+                                        keep_ratio:False
+                                        pos_hint:{'x':.0, 'y':.0}
+                                GridLayout:
                                     size_hint_y: 1
-                                    allow_stretch:True
-                                    keep_ratio:False
-                                    pos_hint:{'x':.0, 'y':.0}
+                                    size_hint_x: None
+                                    width: 1
+                                BackgroundGridLayout:
+                                    rows: 3
+                                    size_hint_x: .3
+                                    BackgroundGridLayout:
+                                        rows: 2
+                                        background_color: (.6, .6, .6, 1)
+                                        BoxLayout:
+                                            orientation: 'horizontal'
+                                            size_hint_y: None
+                                            height: 30
+                                            padding: [0, 0, 0, 0]
+                                            NormalLabel:
+                                                markup:True
+                                                text: "[b]" + root.get_local_str("_camera_feed") + "[/b]"
+                                            CheckBox:
+                                                id:chkbx_camera_track
+                                                size_hint: (None, None)
+                                                height: 25
+                                                width: 50
+                                                color: [0,0,0,1]
+                                                state: 'down'
+                                                margin: [0, 0, 0, 0]
+                                           
+                                        Image:
+                                            id: camera_feed_image
+                                            allow_stretch:True
+                                            size_hint_x: 1
+                                            keep_ratio:False
+                                            pos_hint:{'x':.0, 'y':.0}
+                                    Image:
+                                        id: pos_feed_image
+                                        size_hint_x: 1
+                                        allow_stretch:True
+                                        keep_ratio:False
+                                        pos_hint:{'x':.0, 'y':.0}
+                                    Image:
+                                        id: origin_feed_image
+                                        size_hint_x: 1
+                                        allow_stretch:True
+                                        keep_ratio:False
+                                        pos_hint:{'x':.0, 'y':.0}
+                                    
+
                             BackgroundGridLayout:
                                 cols:1
                                 rows:3
-                                size_hint_x: .3
+                                size_hint_x: None
+                                width: 280
                                 background_color: (.6, .6, .6, 1)
                                 padding: [2, 0, 0, 0]
                                 GridLayout:
@@ -141,25 +192,6 @@
                                         size_hint_y: None
                                         height: 30
                                         NormalLabel:
-                                            id:lbl_camera_track
-                                            text: root.get_local_str("_camera_track")
-                                            color: [0,0,0,1]
-                                            size_hint_x: .6
-                                            size_hint_y: None
-                                            height: 20
-                                            halign: 'left'
-                                        CheckBox:
-                                            id:chkbx_camera_track
-                                            size_hint: (None, None)
-                                            color: [0,0,0,1]
-                                            size_hint_y: None
-                                            height: 20
-                                            state: 'down'
-                                    GridLayout:
-                                        cols: 2
-                                        size_hint_y: None
-                                        height: 30
-                                        NormalLabel:
                                             id:lbl_bg_is_grab
                                             text: root.get_local_str("_bg_is_grab")
                                             color: [0,0,0,1]
@@ -191,6 +223,11 @@
                                             color: [0,0,0,1]
                                             size_hint_y: None
                                             height: 20
+                        BackgroundGridLayout:
+                            rows:1
+                            size_hint_y: None
+                            height:1
+                            background_color: (0, .196, .313, 1)
 
                         Slider:
                             id: video_progress
