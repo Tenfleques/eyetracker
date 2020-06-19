@@ -466,8 +466,6 @@ class ResultVideoCanvas(Image):
                         yr = int(show_frame.shape[0] * yr)
                         show_frame = cv2.circle(show_frame, (xr, yr), 2, (0, 0, 255, 1), self.thickness)
 
-        self.current_frame_cb(self.session_timeline_index, len_timeline, frame_details=record)
-
         if dt:
             if self.use_optimal_step:
                 val = self.session_timeline_index + max(math.floor(optimal_frame_step), 1)
@@ -497,14 +495,16 @@ class ResultVideoCanvas(Image):
                 # self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
                 self.c_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.camera_frames_cap)
 
-                rel_h = 0.3 * show_frame.shape[0]
-                rel_w = rel_h * show_frame.shape[1]/ show_frame.shape[0]
-                sh = (int(rel_w), int(rel_h))
-                self.c_frame = cv2.resize(self.c_frame, sh)
+                # rel_h = 0.3 * show_frame.shape[0]
+                # rel_w = rel_h * show_frame.shape[1]/ show_frame.shape[0]
+                # sh = (int(rel_w), int(rel_h))
+                # self.c_frame = cv2.resize(self.c_frame, sh)
 
-                start_x = show_frame.shape[1] - sh[0]
-                show_frame[:sh[1], start_x:, :] = self.c_frame
-            
+                # start_x = show_frame.shape[1] - sh[0]
+                # show_frame[:sh[1], start_x:, :] = self.c_frame
+        
+        self.current_frame_cb(self.session_timeline_index, len_timeline, frame_details=record, cam_frame=self.c_frame)
+
         return show_frame
 
     def get_video_frame_at(self, index):
