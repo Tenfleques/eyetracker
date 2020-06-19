@@ -1,6 +1,7 @@
 import subprocess
 import json
 import pandas as pd
+import os
 
 def get_xy(p0, pv):
     #print(pv[2])
@@ -42,14 +43,14 @@ class OpenFaceController:
         print(self.w, self.h)
         
     def proceed(self, file, file_out):
-        args = [self.PATH+"FeatureExtraction.exe", '-f', file]
+        args = [os.path.join(self.PATH, "FeatureExtraction.exe"), '-f', file]
         #status_output = subprocess.call(args) 
         #print(status_output)
 
         fname = file.split('/')[-1].split('.')[0]
 
         
-        CSV_IN = self.PATH+'processed/'+fname+'.csv'
+        CSV_IN = os.path.join(self.PATH, 'processed', '{}.csv'.format(fname))
 
         df = pd.read_csv(CSV_IN)
         df.columns = [a[1:] for a in df.columns]
@@ -80,7 +81,6 @@ class OpenFaceController:
 
         with open(file_out, 'w') as json_file:
             json.dump(output_data, json_file)
-
 
 
 #APP = "G:/Main/WorkFolder/NeuroLab/OpenFace_2.2.0_win_x64/"

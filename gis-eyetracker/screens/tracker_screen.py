@@ -19,6 +19,7 @@ from ctrls.camera_feed_ctrl import CameraFeedCtrl
 from ctrls.tracker_ctrl import TrackerCtrl
 from ctrls.loaddialog import LoadDialog
 from ctrls.video_feed_ctrl import VideoCanvas
+from ctrls.open_face_ctrl import OpenFaceController
 
 from kivy.core.window import Window
 from kivy.clock import Clock
@@ -33,9 +34,9 @@ from kivy.config import Config
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-p = os.path.dirname(__file__)
-p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "tracker_screen.kv"))
+PATH = os.path.dirname(__file__)
+PATH = os.path.dirname(PATH)
+widget = Builder.load_file(os.path.join(PATH, "tracker_screen.kv"))
 
 
 def still_image_to_video(img_path, duration):
@@ -92,9 +93,9 @@ class TrackerScreen(Screen):
         if self.tracker_ctrl is not None:
             # the tracker connection
             self.tracker_ctrl.kill()
-        for p in self.processes:
+        for proc in self.processes:
             # join all other running processes
-            p.join()
+            proc.join()
         file_log("[INFO] closed all processes and devices ")
 
     @staticmethod
@@ -321,13 +322,32 @@ class TrackerScreen(Screen):
             # save the video-camera recording file
             self.save_json(video_json_path)
 
-            p = Thread(target=self.load_session_timeline, args=(tracker_json_path,
-                                                                video_json_path, False, False))
-            p.start()
+            proc = Thread(target=self.load_session_timeline, args=(tracker_json_path,video_json_path, False, False))
+            proc.start()
+            self.processes.append(proc)
 
-            self.processes.append(p)
+            proc_2 = Thread(target=self.process_open_face_video,args=(output_dir))
+            proc_2.start()
+            self.processes.append(proc_2)
+
         except Exception as ex:
             file_log("[ERROR] an error occurred {}".format(ex))
+
+    def process_open_face_video(self, output_dir):
+        if platform.system() == 'Windows':
+            screen_grab = ImageGrab.grab()
+            w, h = screen_grab.size
+            cam_video = os.path.join(output_dir, "out-video.avi")
+            output_json = os.path.join(output_dir, "open_face.json")
+            # start the open_face thread 
+            APP = os.path.join(PATH, "OpenFace_2.2.0_win_x64")
+            openface = OpenFaceController(APP, w, h)
+            openface.proceed(cam_video, output_json)
+            lcl_string = self.get_local_str("_open_face_process_finished")
+            self.__tracker_app_log(lcl_string)
+        else:
+            lcl_string = self.get_local_str("_open_face_process_currently_on_windows_only")
+            self.__tracker_app_log(lcl_string)
 
     def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
         file_log("[INFO] started to process the timeline ")
