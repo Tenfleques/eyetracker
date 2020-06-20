@@ -34,7 +34,7 @@ from kivy.config import Config
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-PATH = os.path.dirname(__file__)
+PATH = os.path.dirname(os.path.abspath(__file__))
 PATH = os.path.dirname(PATH)
 widget = Builder.load_file(os.path.join(PATH, "tracker_screen.kv"))
 
@@ -318,36 +318,47 @@ class TrackerScreen(Screen):
 
             # save the tracker recording file
             self.tracker_ctrl.save_json(tracker_json_path)
+            file_log("[INFO] saved tracker json ")
 
             # save the video-camera recording file
             self.save_json(video_json_path)
+            file_log("[INFO] saved vide cam json")
 
-            proc = Thread(target=self.load_session_timeline, args=(tracker_json_path,video_json_path, False, False))
+            proc = Thread(target=self.load_session_timeline, args=(tracker_json_path,video_json_path, False, False), )
             proc.start()
             self.processes.append(proc)
 
-            proc_2 = Thread(target=self.process_open_face_video,args=(output_dir))
+            file_log("[INFO] starting open face process ")
+            proc_2 = Thread(target=self.process_open_face_video, )
             proc_2.start()
             self.processes.append(proc_2)
 
         except Exception as ex:
             file_log("[ERROR] an error occurred {}".format(ex))
+            print("[ERROR] an error occured {}".format(ex))
 
-    def process_open_face_video(self, output_dir):
+    def process_open_face_video(self):
+        output_dir = self.__get_session_directory()
+        lcl_string = self.get_local_str("_open_face_process_started")
+        self.__tracker_app_log(lcl_string, 'camera_log')
+        
+        print("[INFO] started open face process ")
+
         if platform.system() == 'Windows':
             screen_grab = ImageGrab.grab()
             w, h = screen_grab.size
+            
             cam_video = os.path.join(output_dir, "out-video.avi")
-            output_json = os.path.join(output_dir, "open_face.json")
             # start the open_face thread 
-            APP = os.path.join(PATH, "OpenFace_2.2.0_win_x64")
+            APP = os.path.join(PATH, "bin", "OpenFace_2.2.0_win_x64")
             openface = OpenFaceController(APP, w, h)
-            openface.proceed(cam_video, output_json)
+            openface.proceed(cam_video)
+
             lcl_string = self.get_local_str("_open_face_process_finished")
-            self.__tracker_app_log(lcl_string)
+            self.__tracker_app_log(lcl_string, 'camera_log')
         else:
             lcl_string = self.get_local_str("_open_face_process_currently_on_windows_only")
-            self.__tracker_app_log(lcl_string)
+            self.__tracker_app_log(lcl_string, 'camera_log')
 
     def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
         file_log("[INFO] started to process the timeline ")

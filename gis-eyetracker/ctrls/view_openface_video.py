@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-import time
 import subprocess
 import json
 import pandas as pd
 import os
 from PIL import ImageGrab
-
 
 def get_xy(p0, pv):
     #print(pv[2])
@@ -48,13 +45,12 @@ class OpenFaceController:
     def proceed(self, file_in):
         exe_file = os.path.join(self.PATH,"FeatureExtraction.exe")
         out_dir = os.sep.join(file_in.split(os.sep)[:-1])
-        out_dir = os.path.join(out_dir, "openface")
-        os.makedirs(out_dir, exist_ok=True)
+        out_dir = os.path.join(out_dir, "openface_processed")
+        
 
         args = [exe_file, '-f', file_in, '-out_dir', out_dir]
         
         file_tmp = os.path.join(out_dir, "proc.log")
-        
         with open(file_tmp, 'w') as fp:
             fp.write("[INFO] started processing {} {}".format(time.strftime("%H:%M:%S"), os.linesep))
             fp.close()

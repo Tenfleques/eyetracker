@@ -80,12 +80,31 @@
                                             size_hint_x: 1
                                             keep_ratio:False
                                             pos_hint:{'x':.0, 'y':.0}
-                                    Image:
-                                        id: pos_feed_image
-                                        size_hint_x: 1
-                                        allow_stretch:True
-                                        keep_ratio:False
-                                        pos_hint:{'x':.0, 'y':.0}
+                                    BackgroundGridLayout:
+                                        rows: 2
+                                        background_color: (.6, .6, .6, 1)
+                                        BoxLayout:
+                                            orientation: 'horizontal'
+                                            size_hint_y: None
+                                            height: 30
+                                            padding: [0, 0, 0, 0]
+                                            NormalLabel:
+                                                markup:True
+                                                text: "[b]" + root.get_local_str("_open_face_processed_feed") + "[/b]"
+                                            CheckBox:
+                                                id:chkbx_open_face_track
+                                                size_hint: (None, None)
+                                                height: 25
+                                                width: 50
+                                                color: [0,0,0,1]
+                                                state: 'down'
+                                                margin: [0, 0, 0, 0]
+                                        Image:
+                                            id: open_face_frame_feed_image
+                                            size_hint_x: 1
+                                            allow_stretch:True
+                                            keep_ratio:False
+                                            pos_hint:{'x':.0, 'y':.0}
                                     Image:
                                         id: origin_feed_image
                                         size_hint_x: 1

@@ -59,6 +59,9 @@ json
 
 ctypes
 
+pandas
+
+
 ### Setup 
    Setting up kivy for the GUI app
    

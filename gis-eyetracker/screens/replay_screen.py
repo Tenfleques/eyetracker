@@ -356,7 +356,7 @@ class ReplayScreen(Screen):
 
     def update_camera_stream_handle(self, cam_frame=None):
         if cam_frame is None:
-            cam_frame = np.full((int(self.ids["chkbx_camera_track"].height), int(self.ids["chkbx_camera_track"].width), 3), 255, dtype=np.uint8)
+            cam_frame = np.full((int(self.ids["camera_feed_image"].height), int(self.ids["camera_feed_image"].width), 3), 255, dtype=np.uint8)
 
         if not self.ids["chkbx_camera_track"].state == 'down':
             cam_frame[:, :, :] = 255
@@ -371,6 +371,24 @@ class ReplayScreen(Screen):
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         # update video canvas
         self.ids["camera_feed_image"].texture = texture
+    
+    def update_open_face_handle(self, open_face_frame=None):
+        if open_face_frame is None:
+            open_face_frame = np.full((int(self.ids["open_face_frame_feed_image"].height), int(self.ids["open_face_frame_feed_image"].width), 3), 255, dtype=np.uint8)
+
+        if not self.ids["chkbx_open_face_track"].state == 'down':
+            open_face_frame[:, :, :] = 255
+        
+        buf_raw = cv2.flip(open_face_frame, 0)
+        if buf_raw is None:
+            return
+
+        buf = buf_raw.tostring()
+        texture = Texture.create(size=(open_face_frame.shape[1], open_face_frame.shape[0]), colorfmt='bgr')
+
+        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        # update video canvas
+        self.ids["open_face_frame_feed_image"].texture = texture
 
 
     def progress_cb(self, current=0, total=None, **kwargs):
@@ -390,6 +408,10 @@ class ReplayScreen(Screen):
         cam_frame = kwargs.get("cam_frame", None)
         if cam_frame is not None:
             self.update_camera_stream_handle(cam_frame)
+
+        open_face_frame = kwargs.get("open_face_frame", None)
+        if open_face_frame is not None:
+            self.update_open_face_handle(open_face_frame)
 
         self.ids["frame_details"].update(**kwargs)
 
