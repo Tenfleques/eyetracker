@@ -43,7 +43,7 @@ def get_point(frame,i, wnorm, hnorm):
 
 def subprocess_call(*args, **kwargs):
     #also works for Popen. It creates a new *hidden* window, so it will work in frozen apps (.exe).
-    if platform.system() == 'Windows'::
+    if platform.system() == 'Windows':
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags = subprocess.CREATE_NEW_CONSOLE | subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
