@@ -84,9 +84,12 @@ class OpenFaceController:
             fp.write("[INFO] started processing {} {}".format(time.strftime("%H:%M:%S"), os.linesep))
             fp.close()
 
-        status_output_full = subprocess_call(args, stdout=True, stderr=True)
+        status_output = -1
 
-        status_output = status_output_full.returncode
+        try:
+            status_output = subprocess_call(args, stdout=True, stderr=True)
+        except Exception as err:
+            file_log("[ERROR] {}".format(err))
 
         file_log(str_stdout.getvalue())
         sys.stdout = old_stdout
