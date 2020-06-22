@@ -87,7 +87,7 @@ class ResultVideoCanvas(Image):
     camera_track = False
     tracker_track = False
     video_track = False
-    open_face_stream = True
+    open_face_track = True
 
     processes = []
     is_exporting_busy = False
@@ -136,6 +136,12 @@ class ResultVideoCanvas(Image):
             self.camera_track = not self.camera_track
             return
         self.camera_track = bool(state)
+
+    def toggle_open_face_track(self, state=None):
+        if state is None:
+            self.open_face_track = not self.open_face_track
+            return
+        self.open_face_track = bool(state)
 
     def is_playing(self):
         return self.session_is_playing
@@ -319,27 +325,37 @@ class ResultVideoCanvas(Image):
         return True
 
     def init_open_face_frames(self, cam_video_path):
-        open_face_root = os.sep.join(cam_video_path.split(os.sep)[:-1])
-        open_face_video_path = os.path.join(open_face_root, "openface", cam_video_path.split(os.sep)[-1])
-        
-        open_face_root_status_file = os.path.join(open_face_root, "openface", "proc.log")
-        if os.path.isfile(open_face_root_status_file):            
-            with open(open_face_root_status_file, "r") as fp:
-                text = fp.read()
-                fp.close()
-                if "finished" not in text:
-                    # open face still processing 
-                    Clock.schedule_once(lambda dt: self.init_open_face_frames(cam_video_path),10)
-                    return None 
+        if self.open_face_video_frames_cap is not None:
+            self.open_face_video_frames_cap.release()
 
+        self.open_face_video_frames_cap = None
+        cam_video_arr = cam_video_path.split(os.sep)
+        out_dir = os.sep.join(cam_video_arr[:-1])
+        open_face_root = os.path.join(out_dir, "openface")
+        open_face_video_path = os.path.join(open_face_root, cam_video_arr[-1])
+
+        app = App.get_running_app()
+        open_face_status = app.process_open_face_video_finished(open_face_root) 
+
+        if open_face_status == -1:
+            app.process_open_face_video(out_dir) 
+            Clock.schedule_once(lambda dt: self.init_open_face_frames(cam_video_path),60)
+            return None
+        if open_face_status == 0:
+            # processing in progress 
+            Clock.schedule_once(lambda dt: self.init_open_face_frames(cam_video_path),30)
+            return None
+
+        # processed already 
         self.open_face_video_frames_cap = self.init_video_frame_capture(open_face_video_path, self.open_face_video_frames_cap)
 
     def init_video_frame_capture(self, path, cap):
-        if not os.path.isfile(path):
-            return None
-
         if cap is not None:
             cap.release()
+        cap = None
+
+        if not os.path.isfile(path):
+            return cap
 
         cap = cv2.VideoCapture(path)
         return cap 
@@ -492,6 +508,7 @@ class ResultVideoCanvas(Image):
                     show_frame = show_frame[v_y:, v_x:, :]
 
         # add camera feed data
+        open_face_frame = None
         if record["camera"] is not None:
             if self.current_cam_frame_id != record["camera"]["frame_id"]:
                 self.current_cam_frame_id = record["camera"]["frame_id"]
@@ -499,7 +516,7 @@ class ResultVideoCanvas(Image):
             if self.camera_track:
                 self.c_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.camera_frames_cap)
 
-            if self.open_face_stream:
+            if self.open_face_track:
                 open_face_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.open_face_video_frames_cap)
         
         self.current_frame_cb(self.session_timeline_index, len_timeline, frame_details=record, cam_frame=self.c_frame, open_face_frame=open_face_frame)

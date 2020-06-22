@@ -7,6 +7,8 @@ import os
 from PIL import ImageGrab
 from helpers import file_log
 import platform
+import sys
+from io import StringIO
 
 def get_xy(p0, pv):
     #print(pv[2])
@@ -64,7 +66,9 @@ class OpenFaceController:
         os.makedirs(out_dir, exist_ok=True)
 
         args = [exe_file, '-f', file_in, '-out_dir', out_dir]
-        
+        old_stdout = sys.stdout
+        sys.stdout = str_stdout = StringIO()
+
         file_tmp = os.path.join(out_dir, "proc.log")
         with open(file_tmp, 'w') as fp:
             fp.write("[INFO] started processing {} {}".format(time.strftime("%H:%M:%S"), os.linesep))
@@ -72,6 +76,9 @@ class OpenFaceController:
     
         status_output_full = subprocess.run(args,stdout=True, stderr=True)
         status_output = status_output_full.returncode
+
+        file_log(str_stdout.getvalue())
+        sys.stdout = old_stdout
 
         if status_output != 0:
             error = "[ERROR] failed to process with openface {} ".format(status_output)

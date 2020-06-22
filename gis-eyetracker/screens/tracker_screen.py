@@ -323,7 +323,7 @@ class TrackerScreen(Screen):
 
             # save the video-camera recording file
             self.save_json(video_json_path)
-            file_log("[INFO] saved vide cam json")
+            file_log("[INFO] saved video cam json")
 
             proc = Thread(target=self.load_session_timeline, args=(tracker_json_path,video_json_path, False, False), )
             proc.start()
@@ -340,8 +340,6 @@ class TrackerScreen(Screen):
 
     def process_open_face_video(self):
         output_dir = self.__get_session_directory()
-        lcl_string = self.get_local_str("_open_face_process_started")
-        self.__tracker_app_log(lcl_string, 'camera_log')
         app = App.get_running_app()
         app.process_open_face_video(output_dir)
 

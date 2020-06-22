@@ -1,4 +1,4 @@
-pyinstaller gis-eyetracker-mipt.spec
+pyinstaller gis-eyetracker-mipt-dev.spec
 cp *.kv dist/gis-eyetracker-mipt/
 cp *.dll dist/gis-eyetracker-mipt/
 cp *.json dist/gis-eyetracker-mipt/

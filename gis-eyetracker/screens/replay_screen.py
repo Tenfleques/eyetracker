@@ -132,6 +132,7 @@ class ReplayScreen(Screen):
         self.ids["chkbx_tracker_track"].bind(state=self.toggle_tracker_track)
         self.ids["chkbx_camera_track"].bind(state=self.toggle_camera_track)
         self.ids["chkbx_video_track"].bind(state=self.toggle_video_track)
+        self.ids["chkbx_open_face_track"].bind(state=self.toggle_open_face_track)
         # self.ids["chkbx_use_optimal_step"].bind(state=self.set_use_optimal_step)
         self.init_video_player()
         
@@ -164,6 +165,11 @@ class ReplayScreen(Screen):
         if self.video_feed_ctrl is None:
             return
         self.video_feed_ctrl.toggle_camera_track(value == 'down')
+    
+    def toggle_open_face_track(self, checkbox, value):
+        if self.video_feed_ctrl is None:
+            return
+        self.video_feed_ctrl.toggle_open_face_track(value == 'down')
     
     def set_use_optimal_step(self, checkbox, value):
         if self.video_feed_ctrl is None:
@@ -375,7 +381,6 @@ class ReplayScreen(Screen):
         if ctrl is None:
             return 
         
-        
         if cam_frame is None:
             cam_frame = np.full((int(toggle_ctrl.height), int(toggle_ctrl.width), 3), 255, dtype=np.uint8)
 
@@ -412,12 +417,10 @@ class ReplayScreen(Screen):
             video_progress.value = current
 
         cam_frame = kwargs.get("cam_frame", None)
-        if cam_frame is not None:
-            self.update_side_vid_stream_handle(cam_frame, ctrl=self.ids["camera_feed_image"], toggle_ctrl=self.ids["chkbx_camera_track"])
+        self.update_side_vid_stream_handle(cam_frame, ctrl=self.ids["camera_feed_image"], toggle_ctrl=self.ids["chkbx_camera_track"])
 
         open_face_frame = kwargs.get("open_face_frame", None)
-        if open_face_frame is not None:
-            self.update_side_vid_stream_handle(open_face_frame, ctrl=self.ids["open_face_frame_feed_image"], toggle_ctrl=self.ids["chkbx_open_face_track"])
+        self.update_side_vid_stream_handle(open_face_frame, ctrl=self.ids["open_face_frame_feed_image"], toggle_ctrl=self.ids["chkbx_open_face_track"])
 
         self.ids["frame_details"].update(**kwargs)
 
