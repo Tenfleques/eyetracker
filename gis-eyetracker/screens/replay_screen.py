@@ -30,7 +30,7 @@ Config.set('graphics', 'maxfps', 0)
 
 p = os.path.dirname(__file__)
 p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "replay_screen.kv"))
+widget = Builder.load_file(os.path.join(p, "settings", "screens",  "replay_screen.kv"))
 
 
 class ReplayScreen(Screen):
@@ -48,6 +48,7 @@ class ReplayScreen(Screen):
 
     _popup = None 
     session_directory = None 
+    processing_open_face = []
 
     @staticmethod
     def get_default_from_prev_session(key, default='', cut = False):
@@ -116,6 +117,9 @@ class ReplayScreen(Screen):
         
         return other_sessions
 
+    def update_neighbors(self):
+        self.ids["select_box_neighboring_sessions"].set_options(self.populate_neighbor_sessions())
+        
     def start_all(self):
         self.ids["txt_box_replay_video_speed"].bind(on_text_validate=self.set_playback_fps)
         speeds = [("{}x".format(i), self.set_playback_fps) for i in [.1, .25, .5, 1, 1.5, 2, 2.5, 3]]
@@ -130,8 +134,11 @@ class ReplayScreen(Screen):
         self.ids["chkbx_video_track"].bind(state=self.toggle_video_track)
         # self.ids["chkbx_use_optimal_step"].bind(state=self.set_use_optimal_step)
         self.init_video_player()
-        self.ids["select_box_neighboring_sessions"].set_options(self.populate_neighbor_sessions())
-        self.update_camera_stream_handle()
+        
+        self.update_side_vid_stream_handle(cam_frame=None, ctrl=self.ids["camera_feed_image"], toggle_ctrl=self.ids["chkbx_camera_track"])
+        self.update_side_vid_stream_handle(cam_frame=None, ctrl=self.ids["open_face_frame_feed_image"], toggle_ctrl=self.ids["chkbx_open_face_track"])
+
+        return True
 
     def toggle_bg_is_screen(self, checkbox, value):
         if self.video_feed_ctrl is None:
@@ -197,6 +204,17 @@ class ReplayScreen(Screen):
 
         self.video_feed_ctrl.set_fps(fps)
 
+    def process_open_face_video(self, output_dir):
+        app = App.get_running_app()
+        open_face_root = os.path.join(output_dir, "openface")
+        status = app.process_open_face_video_finished(open_face_root)
+        
+        if status == -1:
+            # we haven't yet tried to process 
+            app.process_open_face_video(output_dir)
+
+        return status == 1
+
     def input_dir_ready(self):
         # check the directory in the computer's filesystem
         ready = os.path.isdir(self.session_directory)
@@ -205,14 +223,15 @@ class ReplayScreen(Screen):
             self.ids['lbl_input_dir'].color = (1, 0, 0, 1)  # red scream
             self.__tracker_app_log(self.get_local_str("_directory_not_selected"))
             return ready
-
-        self.ids['lbl_input_dir'].color = (0, 0, 0, 1)
+        
         # update window to have name of session
         self.session_directory = self.ids['lbl_input_dir'].text
         session_name = self.session_directory.split(os.sep)[-1]
-        
         Window.set_title("{} [{}]".format(get_local_str_util('_appname'), session_name))
-        return ready
+        
+        self.ids['lbl_input_dir'].color = (0, 0, 0, 1)
+        self.process_open_face_video(self.session_directory)
+        return True
 
     def stimuli_video_ready(self):
         ready = False
@@ -328,8 +347,6 @@ class ReplayScreen(Screen):
         if not self.input_dir_ready():
             return
 
-        self.populate_neighbor_sessions()
-
         # if playing pause
         if self.video_feed_ctrl is not None:
             if self.video_feed_ctrl.is_playing():
@@ -354,12 +371,19 @@ class ReplayScreen(Screen):
             if "txt_box_replay_video_speed" in self.ids:
                 self.ids["txt_box_replay_video_speed"].text = "{:.5}".format(fps)
 
-    def update_camera_stream_handle(self, cam_frame=None):
+    def update_side_vid_stream_handle(self, cam_frame=None, ctrl=None, toggle_ctrl=None):
+        if ctrl is None:
+            return 
+        
+        
         if cam_frame is None:
-            cam_frame = np.full((int(self.ids["camera_feed_image"].height), int(self.ids["camera_feed_image"].width), 3), 255, dtype=np.uint8)
+            cam_frame = np.full((int(toggle_ctrl.height), int(toggle_ctrl.width), 3), 255, dtype=np.uint8)
 
-        if not self.ids["chkbx_camera_track"].state == 'down':
+        if toggle_ctrl is None:
             cam_frame[:, :, :] = 255
+        else:
+            if not toggle_ctrl.state == 'down':
+                cam_frame[:, :, :] = 255
         
         buf_raw = cv2.flip(cam_frame, 0)
         if buf_raw is None:
@@ -370,25 +394,7 @@ class ReplayScreen(Screen):
 
         texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         # update video canvas
-        self.ids["camera_feed_image"].texture = texture
-    
-    def update_open_face_handle(self, open_face_frame=None):
-        if open_face_frame is None:
-            open_face_frame = np.full((int(self.ids["open_face_frame_feed_image"].height), int(self.ids["open_face_frame_feed_image"].width), 3), 255, dtype=np.uint8)
-
-        if not self.ids["chkbx_open_face_track"].state == 'down':
-            open_face_frame[:, :, :] = 255
-        
-        buf_raw = cv2.flip(open_face_frame, 0)
-        if buf_raw is None:
-            return
-
-        buf = buf_raw.tostring()
-        texture = Texture.create(size=(open_face_frame.shape[1], open_face_frame.shape[0]), colorfmt='bgr')
-
-        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-        # update video canvas
-        self.ids["open_face_frame_feed_image"].texture = texture
+        ctrl.texture = texture
 
 
     def progress_cb(self, current=0, total=None, **kwargs):
@@ -407,11 +413,11 @@ class ReplayScreen(Screen):
 
         cam_frame = kwargs.get("cam_frame", None)
         if cam_frame is not None:
-            self.update_camera_stream_handle(cam_frame)
+            self.update_side_vid_stream_handle(cam_frame, ctrl=self.ids["camera_feed_image"], toggle_ctrl=self.ids["chkbx_camera_track"])
 
         open_face_frame = kwargs.get("open_face_frame", None)
         if open_face_frame is not None:
-            self.update_open_face_handle(open_face_frame)
+            self.update_side_vid_stream_handle(open_face_frame, ctrl=self.ids["open_face_frame_feed_image"], toggle_ctrl=self.ids["chkbx_open_face_track"])
 
         self.ids["frame_details"].update(**kwargs)
 

@@ -25,16 +25,18 @@
     background_color: 0, 0, 0, 1
 
 <NormalButton@Button+BackgroundColor>
-    size_hint: (None, None)
+    size_hint_y: None
     height: '25dp'
     padding: (5, 5)
     margin: (5,5)
     halign: 'center'
+    valign: 'middle'
     text_size: self.size
     font_size: dp(13)
     background_normal: ''
     background_color: (.8,.8,.8,1)
     color:(0,0,0,1)
+    
 
 <ToggleButton>
     size_hint: (None, None)
@@ -76,54 +78,77 @@ GridLayout:
     BackgroundGridLayout:
         rows: 1
         size_hint_y: None
-        height: 35
+        height: 0
         background_color: (.9, .9, .9, 1)
-        cols: 4
+        id: screen_nav
+        GridLayout:
+            cols: 5
+            NormalButton:
+                id : btn_generator_screen
+                text: app.get_local_str("_btn_generator_screen")
+                on_release: root.screen_manager.current = 'generator_screen'
+                size_hint_y: None
+                height: '35dp'
+                background_color: (.9, .9, .9, 1)
 
-        NormalButton:
-            id : btn_tracker_screen
-            text: app.get_local_str("_btn_generator_screen")
-            on_release: root.screen_manager.current = 'generator_screen'
-            size_hint: (None, None)
-            width: '180dp'
-            height: '25dp'
-            background_color: (.9, .9, .9, 1)
-            halign: 'left'
-
-        NormalButton:
-            id : btn_tracker_screen
-            text: app.get_local_str("_btn_tracker_screen")
-            on_release: root.screen_manager.current = 'tracker_screen'
-            size_hint: (None, None)
-            width: '180dp'
-            height: '25dp'
-            background_color: (.9, .9, .9, 1)
-            halign: 'left'
-        NormalButton:
-            id : btn_tracker_screen
-            text: app.get_local_str('_btn_replay_screen')
-            on_release: root.screen_manager.current = 'replay_screen'
-            size_hint: (None, None)
-            width: '180dp'
-            height: '25dp'
-            background_color: (.9, .9, .9, 1)
-            halign: 'left'
+            NormalButton:
+                id : btn_tracker_screen
+                text: app.get_local_str("_btn_tracker_screen")
+                on_release: root.screen_manager.current = 'tracker_screen'
+                size_hint_y: None
+                height: '35dp'
+                background_color: (.9, .9, .9, 1)
+            
+            NormalButton:
+                id : btn_replay_screen
+                text: app.get_local_str('_btn_replay_screen')
+                on_release: root.screen_manager.current = 'replay_screen'
+                size_hint_y: None
+                height: '35dp'
+                background_color: (.9, .9, .9, 1)
+            
+            NormalButton:
+                id : btn_settings_screen
+                text: app.get_local_str('_btn_settings_screen')
+                on_release: root.screen_manager.current = 'settings_screen'
+                size_hint_y: None
+                height: '35dp'
+                background_color: (.9, .9, .9, 1)
+        GridLayout:
+            id: nav_filler
         
 
     ScreenManager:
         id: screen_manager
+        SplashScreen:
+            id: splash_screen
+            name: 'splash_screen'
+            on_leave: app.update_active_screen()
+            on_enter: app.update_active_screen()
         GeneratorScreen:
             id: generator_screen
             margin: [50,50,50,50]
             name: 'generator_screen'
+            on_leave: app.update_active_screen()
+            on_enter: app.update_active_screen()
         TrackerScreen:
             id: tracker_screen
             name: 'tracker_screen'
+            on_leave: app.update_active_screen()
+            on_enter: app.update_active_screen()
         ReplayScreen:
             id: replay_screen
             name: 'replay_screen'
+            on_pre_enter: self.update_neighbors()
+            on_leave: app.update_active_screen()
+            on_enter: app.update_active_screen()
+        SettingsScreen:
+            id: settings_screen
+            name: 'settings_screen'
+            on_leave: app.update_active_screen
+            on_enter: app.update_active_screen()
 
     InfoBar:
         id: info_bar
         size_hint_y: None
-        height:20
+        height: 20

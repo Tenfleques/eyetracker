@@ -1,0 +1,37 @@
+#:kivy 1.1.0
+<MultilineLabel@Label>
+    text_size: self.size
+    font_size: dp(13)
+
+<SplashScreen>:
+    BackgroundBoxLayout:
+        orientation: 'vertical'
+        background_color: (0, .196, .313, 1)
+        NormalLabel:
+            size_hint_y: .6
+            text: "[b]" + root.get_appname() + "[/b]"
+            color: (1,1,1,1)
+            halign: 'center'
+            valign: 'center'
+            markup:True
+            font_size: dp(28)
+        BackgroundGridLayout:
+            background_color: (.9, .9, .9, .5)
+            cols: 1
+            rows: 2
+            padding: [5, 5, 5, 5]
+            NormalLabel:
+                text: "[b]" + root.get_local_str('_authors') + "[/b]"
+                color: (1,1,1,1)
+                halign: 'right'
+                valign: 'center'
+                markup:True
+            MultilineLabel:
+                text: root.get_authors()
+                background_color: (.9, .9, .9, .5)
+                color: (1,1,1,1)
+                halign: 'right'
+                valign: 'bottom'
+                size_hint_x: 1
+                markup:True
+        

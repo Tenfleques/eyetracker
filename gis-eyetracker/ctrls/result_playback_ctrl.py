@@ -533,6 +533,8 @@ class ResultVideoCanvas(Image):
             self.camera_frames_cap.release()
         if self.video_frames_cap is not None:
             self.video_frames_cap.release()
+        if self.open_face_video_frames_cap is not None:
+            self.open_face_video_frames_cap.release()
         
         self.stop_threads = True
         

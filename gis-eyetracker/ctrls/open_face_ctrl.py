@@ -5,7 +5,8 @@ import json
 import pandas as pd
 import os
 from PIL import ImageGrab
-
+from helpers import file_log
+import platform
 
 def get_xy(p0, pv):
     #print(pv[2])
@@ -44,9 +45,20 @@ class OpenFaceController:
         self.PATH = PATH2APP
         self.w = width*1.0/2
         self.h = heigh
-
+    
     def proceed(self, file_in):
-        exe_file = os.path.join(self.PATH,"FeatureExtraction.exe")
+
+        exe_file = ""
+        if platform.system() == 'Windows':
+            exe_file = os.path.join(self.PATH, "OpenFace_2.2.0_win_x64", "FeatureExtraction.exe")
+        
+        if platform.system() == 'Darwin':
+            exe_file = os.path.join(self.PATH, "OpenFace_2.2.0", "FeatureExtraction")
+
+        if not os.path.isfile(exe_file):
+            file_log("[ERROR] Openface FeatureExtraction executable not found")
+            return -1
+
         out_dir = os.sep.join(file_in.split(os.sep)[:-1])
         out_dir = os.path.join(out_dir, "openface")
         os.makedirs(out_dir, exist_ok=True)
@@ -54,12 +66,20 @@ class OpenFaceController:
         args = [exe_file, '-f', file_in, '-out_dir', out_dir]
         
         file_tmp = os.path.join(out_dir, "proc.log")
-        
         with open(file_tmp, 'w') as fp:
             fp.write("[INFO] started processing {} {}".format(time.strftime("%H:%M:%S"), os.linesep))
             fp.close()
+    
+        status_output_full = subprocess.run(args,stdout=True, stderr=True)
+        status_output = status_output_full.returncode
 
-        status_output = subprocess.run(args,stdout=True, stderr=True)
+        if status_output != 0:
+            error = "[ERROR] failed to process with openface {} ".format(status_output)
+            print(error)
+            file_log(error)
+            return status_output
+
+        
 
         fname = file_in.split(os.sep)[-1].split('.')[0]
         CSV_IN = os.path.join(out_dir, fname+'.csv')
@@ -98,9 +118,11 @@ class OpenFaceController:
             json.dump(output_data, json_file)
             json_file.close()
 
-        with open(file_tmp, 'w') as fp:
+        with open(file_tmp, 'a') as fp:
             fp.write("[INFO] finished processing {} {}".format(time.strftime("%H:%M:%S"), os.linesep))
             fp.close()
+
+        return status_output
 
 
 if __name__ == "__main__":

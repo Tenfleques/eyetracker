@@ -9,7 +9,7 @@ from datetime import datetime
 
 p = os.path.dirname(__file__)
 p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "framedetails.kv"))
+widget = Builder.load_file(os.path.join(p, "settings", "screens",  "framedetails.kv"))
 
 
 class FrameDetails(GridLayout):

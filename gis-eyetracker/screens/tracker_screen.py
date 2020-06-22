@@ -19,7 +19,6 @@ from ctrls.camera_feed_ctrl import CameraFeedCtrl
 from ctrls.tracker_ctrl import TrackerCtrl
 from ctrls.loaddialog import LoadDialog
 from ctrls.video_feed_ctrl import VideoCanvas
-from ctrls.open_face_ctrl import OpenFaceController
 
 from kivy.core.window import Window
 from kivy.clock import Clock
@@ -36,7 +35,7 @@ Config.set('graphics', 'maxfps', 0)
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 PATH = os.path.dirname(PATH)
-widget = Builder.load_file(os.path.join(PATH, "tracker_screen.kv"))
+widget = Builder.load_file(os.path.join(PATH, "settings", "screens",  "tracker_screen.kv"))
 
 
 def still_image_to_video(img_path, duration):
@@ -80,9 +79,11 @@ class TrackerScreen(Screen):
     session_name = None
     _popup = None
 
+    def start_all(self):
+        return True
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         Clock.schedule_once(lambda dt: self.ids["video_canvas"].on_start())
 
     def stop_all(self):
@@ -341,24 +342,8 @@ class TrackerScreen(Screen):
         output_dir = self.__get_session_directory()
         lcl_string = self.get_local_str("_open_face_process_started")
         self.__tracker_app_log(lcl_string, 'camera_log')
-        
-        print("[INFO] started open face process ")
-
-        if platform.system() == 'Windows':
-            screen_grab = ImageGrab.grab()
-            w, h = screen_grab.size
-            
-            cam_video = os.path.join(output_dir, "out-video.avi")
-            # start the open_face thread 
-            APP = os.path.join(PATH, "bin", "OpenFace_2.2.0_win_x64")
-            openface = OpenFaceController(APP, w, h)
-            openface.proceed(cam_video)
-
-            lcl_string = self.get_local_str("_open_face_process_finished")
-            self.__tracker_app_log(lcl_string, 'camera_log')
-        else:
-            lcl_string = self.get_local_str("_open_face_process_currently_on_windows_only")
-            self.__tracker_app_log(lcl_string, 'camera_log')
+        app = App.get_running_app()
+        app.process_open_face_video(output_dir)
 
     def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
         file_log("[INFO] started to process the timeline ")

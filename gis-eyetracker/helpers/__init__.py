@@ -127,14 +127,18 @@ def frame_processing(frame):
     """
     return frame
 
-
-def get_local_str_util(key):
+def flex_get_locale():
     lang = "ru"
     local_def = locale.getdefaultlocale()
     if len(local_def) and local_def[0]:
         sys_locale = local_def[0].split("_")[0]
         if sys_locale in ["en", "ru"]:
             lang = sys_locale
+    
+    return lang
+
+def get_local_str_util(key):
+    lang = flex_get_locale()
 
     if key in LOCALE.keys():
         if lang in LOCALE.get(key).keys():
@@ -162,7 +166,7 @@ def save_session_variables():
         session_f.close()
 
 
-def create_log(text, log_type=INFO):
+def create_log(text, log_type=INFO, log_t=True):
     str_log_type = {
         INFO: "INFO",
         ERROR: "ERROR",
@@ -171,7 +175,10 @@ def create_log(text, log_type=INFO):
     # timestr = time.strftime("%Y/%m/%d %H:%M:%S")
     log = ""
     if text:
-        log = "{}: {}".format(str_log_type.get(log_type, INFO), text)
+        if log_t:
+            log = "{}: {}".format(str_log_type.get(log_type, INFO), text)
+        else:
+            log = "{}".format(text)
     return log
 
 
