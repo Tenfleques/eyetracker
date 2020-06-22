@@ -41,6 +41,16 @@ def get_point(frame,i, wnorm, hnorm):
     
     return[gaze_point0, gaze_point1, gaze_point0_norm, gaze_point1_norm]
 
+def subprocess_call(*args, **kwargs):
+    #also works for Popen. It creates a new *hidden* window, so it will work in frozen apps (.exe).
+    if platform.system() == 'Windows'::
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags = subprocess.CREATE_NEW_CONSOLE | subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+        kwargs['startupinfo'] = startupinfo
+
+    status_output_full = subprocess.call(*args, **kwargs)
+    return status_output_full
 
 class OpenFaceController:
     def __init__(self, PATH2APP, width, heigh):
@@ -73,8 +83,9 @@ class OpenFaceController:
         with open(file_tmp, 'w') as fp:
             fp.write("[INFO] started processing {} {}".format(time.strftime("%H:%M:%S"), os.linesep))
             fp.close()
-    
-        status_output_full = subprocess.run(args,stdout=True, stderr=True)
+
+        status_output_full = subprocess_call(args, stdout=True, stderr=True)
+
         status_output = status_output_full.returncode
 
         file_log(str_stdout.getvalue())
@@ -85,8 +96,6 @@ class OpenFaceController:
             print(error)
             file_log(error)
             return status_output
-
-        
 
         fname = file_in.split(os.sep)[-1].split('.')[0]
         CSV_IN = os.path.join(out_dir, fname+'.csv')
