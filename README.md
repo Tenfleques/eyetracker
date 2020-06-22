@@ -131,6 +131,13 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 2. Graceful handling of errors and missing files 
 2. File logging of events and errors
 
+### v1.0.7 June 22 2020
 
+[gis-eyetracker-mipt.v1.0.7-dev](https://drive.google.com/file/d/1_g7BRsoG4Y_1SDy_SZHbpWG4NtZ-ieXy/view?usp=sharing)
 
+[gis-eyetracker-mipt.v1.0.7](https://drive.google.com/file/d/1_e_MJgl9XhWpQtlkZIIQIRnKoeI6V8Gt/view?usp=sharing)
 
+1. New bugfixes 
+2. Splash screen 
+3. Settings page
+4. OpenFace integration on Windows and Mac

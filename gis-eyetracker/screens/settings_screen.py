@@ -21,7 +21,8 @@ class SettingsScreen(Screen):
 
     def start_all(self):
         lang = flex_get_locale()
-        self.ids["settings_panel"].add_json_panel(self.get_local_str('_replay_settings'), config, os.path.join(p, "settings", "replay_settings-{}.json".format(lang)))
+        self.ids["settings_panel"].add_json_panel(self.get_local_str('_about'), config, os.path.join(p, "settings", "about-{}.json".format(lang)))
+        # self.ids["settings_panel"].add_json_panel(self.get_local_str('_replay_settings'), config, os.path.join(p, "settings", "replay_settings-{}.json".format(lang)))
 
         return True
 

@@ -91,22 +91,25 @@ class GisApp(App):
         APP = "bin"
         openface = OpenFaceController(APP, w, h)
         open_face_update = openface.proceed(cam_video)
-    
+        
+        dir_literal = cam_video.split(os.sep)[-2]
+
         if open_face_update == 0:
             lcl_string = self.get_local_str("_open_face_process_finished")
-            self.tracker_app_log(lcl_string, "tracker_log")
+            self.tracker_app_log("{} [{}]".format(lcl_string, dir_literal), "tracker_log")
         else:
             lcl_string = self.get_local_str("_open_face_process_error")
-            self.tracker_app_log(lcl_string, "tracker_log")
+            self.tracker_app_log("{} [{}]".format(lcl_string, dir_literal), "tracker_log")
             file_log("[ERROR] an error from open face application occured {}".format(open_face_update))
 
     def process_open_face_video(self, output_dir):
         screen_grab = ImageGrab.grab()
         w, h = screen_grab.size
-        cam_video = os.path.join(output_dir, "out-video.avi") 
+        cam_video = os.path.join(output_dir, "out-video.avi")
+        dir_literal = output_dir.split(os.sep)[-1]
         
         lcl_string = self.get_local_str("_open_face_process_started")
-        self.tracker_app_log(lcl_string, "tracker_log")
+        self.tracker_app_log("{} [{}]".format(lcl_string, dir_literal), "tracker_log")
         
         thr = Thread(target=self.bg_open_face_process, args=(cam_video, w, h))
         thr.start()
