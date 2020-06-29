@@ -12,11 +12,14 @@ widget = Builder.load_file(os.path.join(p, "settings", "screens",  "loaddialog.k
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
-
-    @staticmethod
-    def get_default_from_prev_session(key, default=''):
+    start_dir = ObjectProperty(None)
+    
+    def get_default_from_prev_session(self, key, default=''):
         # loads a variable saved from the last session, directory, stimuli video for example
-        return get_default_from_prev_session(key, default)
+        if self.start_dir is None:
+            return get_default_from_prev_session(key, default)
+        
+        return self.start_dir
 
     @staticmethod
     def set_default_from_prev_session(key, value):

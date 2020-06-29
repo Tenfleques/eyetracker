@@ -35,54 +35,6 @@
         "en": "directory not selected",
         "ru": "каталог не выбран"
     },
-    "_load_stimuli_video": {
-        "en": "please load the stimuli video",
-        "ru": "пожалуйста загрузите видео стимулов"
-    },
-    "_export_module_busy": {
-        "en": "export module busy",
-        "ru": "модуль экспорта занят"
-    },
-    "_error_loading_session": {
-        "en": "error loading session data",
-        "ru": "ошибка при загрузки данных сеанса"
-    },
-    "_playback_started": {
-        "en": "playback started",
-        "ru": "воспроизведение началось"
-    },
-    "_start": {
-        "en": "start",
-        "ru": "старт"
-    },
-    "_playback_stopped": {
-        "en": "playback stopped",
-        "ru": "воспроизведение остановлено"
-    },
-    "_pause": {
-        "en": "pause",
-        "ru": "пауза"
-    },
-    "_playing": {
-        "en": "playing",
-        "ru": "воспроизведение"
-    },
-    "_paused": {
-        "en": "paused",
-        "ru": "приостановленное"
-    },
-    "_select_directory": {
-        "en": "select output directory",
-        "ru": "выберите выходной каталог"
-    },
-    "_about": {
-        "en": "about",
-        "ru": "о приложение"
-    },
-    "_replay_settings": {
-        "en": "replay settings",
-        "ru": "настройки видео-плеера"
-    },
     "_problem_waiting_camera": {
         "en": "problem waiting camera",
         "ru": "проблема при ожиданий камеры"
@@ -94,6 +46,10 @@
     "_video_src_error": {
         "en": "video source error",
         "ru": "ошибка источника видео"
+    },
+    "_start": {
+        "en": "start",
+        "ru": "старт"
     },
     "_finished_recording": {
         "en": "finished recording session",
@@ -119,49 +75,45 @@
         "en": "select video",
         "ru": "выберите видео"
     },
-    "_device": {
-        "en": "device",
-        "ru": "дивайс"
+    "_load_stimuli_video": {
+        "en": "please load the stimuli video",
+        "ru": "пожалуйста загрузите видео стимулов"
     },
-    "_time": {
-        "en": "time",
-        "ru": "время"
+    "_export_module_busy": {
+        "en": "export module busy",
+        "ru": "модуль экспорта занят"
     },
-    "_fps": {
-        "en": "FPS",
-        "ru": "кадр/с"
+    "_error_loading_session": {
+        "en": "error loading session data",
+        "ru": "ошибка при загрузки данных сеанса"
     },
-    "_gaze": {
-        "en": "gaze",
-        "ru": "gaze"
+    "_playback_started": {
+        "en": "playback started",
+        "ru": "воспроизведение началось"
     },
-    "_pos": {
-        "en": "pos",
-        "ru": "pos"
+    "_playback_stopped": {
+        "en": "playback stopped",
+        "ru": "воспроизведение остановлено"
     },
-    "_origin": {
-        "en": "origin",
-        "ru": "origin"
+    "_pause": {
+        "en": "pause",
+        "ru": "пауза"
     },
-    "_stimuli_video": {
-        "en": "stimuli source",
-        "ru": "источник стимулов"
+    "_playing": {
+        "en": "playing",
+        "ru": "воспроизведение"
     },
-    "_camera": {
-        "en": "camera",
-        "ru": "камера"
+    "_paused": {
+        "en": "paused",
+        "ru": "приостановленное"
     },
-    "_cancel": {
-        "en": "cancel",
-        "ru": "отмена"
+    "_select_src_sessions_directory": {
+        "en": "select the recording sessions directory",
+        "ru": "выберите каталог сеансов записи"
     },
-    "_select": {
-        "en": "select",
-        "ru": "выберите"
-    },
-    "_timeline_stage": {
-        "en": "video",
-        "ru": "видео"
+    "_select_src_stimuli_directory": {
+        "en": "select the stimuli sources directory",
+        "ru": "выберите каталог источников стимулов"
     },
     "_camera_feed": {
         "en": "camera feed",
@@ -195,25 +147,13 @@
         "en": "maintain gaze track",
         "ru": "рисовать трекер gaze"
     },
-    "_tl_table": {
-        "en": "",
-        "ru": ""
+    "_select_session": {
+        "en": "select the recorded session",
+        "ru": "выберите записанный сеанс"
     },
-    "_tl_charts": {
-        "en": "",
-        "ru": ""
-    },
-    "_other_sessions": {
-        "en": "neighbor sessions",
-        "ru": "соседние сессии"
-    },
-    "_use_optimal_step": {
-        "en": "play in realtime",
-        "ru": "воспроизведение в реальном времени"
-    },
-    "_frame_step": {
-        "en": "skip frames",
-        "ru": "пропустить кадры"
+    "_video_fps": {
+        "en": "video fps",
+        "ru": "fps видео"
     },
     "_step_back": {
         "en": "step back",
@@ -223,17 +163,65 @@
         "en": "step forward",
         "ru": "шаг вперед"
     },
-    "_video_fps": {
-        "en": "video fps",
-        "ru": "fps видео"
-    },
     "_step_size": {
         "en": "step size (f)",
         "ru": "размер шага (к)"
     },
+    "_select_start_in_series": {
+        "en": "select start in series",
+        "ru": "выбирайте начало в серии"
+    },
     "_authors": {
         "en": "developers",
         "ru": "разработчики"
+    },
+    "_device": {
+        "en": "device",
+        "ru": "дивайс"
+    },
+    "_time": {
+        "en": "time",
+        "ru": "время"
+    },
+    "_fps": {
+        "en": "FPS",
+        "ru": "кадр/с"
+    },
+    "_gaze": {
+        "en": "gaze",
+        "ru": "gaze"
+    },
+    "_pos": {
+        "en": "pos",
+        "ru": "pos"
+    },
+    "_origin": {
+        "en": "origin",
+        "ru": "origin"
+    },
+    "_stimuli_video": {
+        "en": "stimuli source",
+        "ru": "источник стимулов"
+    },
+    "_camera": {
+        "en": "camera",
+        "ru": "камера"
+    },
+    "_select_user_language": {
+        "en": "select interface language",
+        "ru": "выберите язык интерфейса "
+    },
+    "_user_language": {
+        "en": "UI language [application restart required so that the new settings take effect]",
+        "ru": "язык интерфейса [требуется перезагрузка приложения, чтобы новые настройки вступили в силу]"
+    },
+    "_cancel": {
+        "en": "cancel",
+        "ru": "отмена"
+    },
+    "_select": {
+        "en": "select",
+        "ru": "выберите"
     },
     "_timestamp": {
         "en": "timestamp",
@@ -242,10 +230,6 @@
     "_video": {
         "en": "video",
         "ru": "видео"
-    },
-    "_select_start_in_series": {
-        "en": "select start in series",
-        "ru": "выбирайте начало в серии"
     },
     "_waiting_for_camera": {
         "en": "waiting for the camera connection",
@@ -326,6 +310,42 @@
     "_error_saving_tracker_session": {
         "en": "error saving tracker data",
         "ru": "ошибка сохранения данных трекера"
+    },
+    "_select_directory": {
+        "en": "select output directory",
+        "ru": "выберите выходной каталог"
+    },
+    "_about": {
+        "en": "about",
+        "ru": "о приложение"
+    },
+    "_replay_settings": {
+        "en": "replay settings",
+        "ru": "настройки видео-плеера"
+    },
+    "_timeline_stage": {
+        "en": "video",
+        "ru": "видео"
+    },
+    "_tl_table": {
+        "en": "",
+        "ru": ""
+    },
+    "_tl_charts": {
+        "en": "",
+        "ru": ""
+    },
+    "_other_sessions": {
+        "en": "neighbor sessions",
+        "ru": "соседние сессии"
+    },
+    "_use_optimal_step": {
+        "en": "play in realtime",
+        "ru": "воспроизведение в реальном времени"
+    },
+    "_frame_step": {
+        "en": "skip frames",
+        "ru": "пропустить кадры"
     },
     "_camera_track": {
         "en": "show camera stream",

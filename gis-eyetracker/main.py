@@ -12,13 +12,6 @@ from PIL import ImageGrab
 import os
 from threading import Thread
 
-Config.set('graphics', 'kivy_clock', 'free_all')
-Config.set('graphics', 'maxfps', 0)
-# Config.set('graphics', 'resizable', 'False')
-Config.set('graphics', 'borderless', 'True')
-
-Window.size = (600, 400)
-
 
 from screens.replay_screen import ReplayScreen
 from screens.tracker_screen import TrackerScreen
@@ -28,7 +21,17 @@ from screens.splash_screen import SplashScreen
 from ctrls.open_face_ctrl import OpenFaceController
 
 Window.set_icon('./assets/icon.png')
+Window.size = (600, 400)
 
+Config.set('graphics', 'kivy_clock', 'free_all')
+Config.set('graphics', 'maxfps', 0)
+Config.set('graphics', 'borderless', 'True')
+
+Config.set('kivy', 'desktop', 1)
+Config.set('kivy', 'log_enable', 1)
+Config.set('kivy', 'log_dir', 'user/logs')
+# Config.set('kivy', 'log_level', 'trace')
+Config.set('kivy', 'window_icon', 'assets/icon.ico')
 
 class GisApp(App):
     screen_buttons = [
@@ -70,6 +73,7 @@ class GisApp(App):
         Window.top = 100
         app.root.ids["screen_nav"].height = 35
         Window.borderless = False
+        Config.set('graphics', 'borderless', 'False')
         self.tracker_app_log("", log_t=False)
         Window.show()
         app.root.ids["screen_manager"].transition = FadeTransition()
@@ -87,6 +91,11 @@ class GisApp(App):
         
         self.start_main()
 
+    def on_start(self):
+        app = App.get_running_app()
+        self.tracker_app_log("[b]{} 2020 - {} [/b]".format(chr(0x00A9), time.strftime("%Y")), log_t=False)
+        Clock.schedule_once(lambda dt: self.init_all_screens(), 5)
+        
     def bg_open_face_process(self, cam_video, w, h):
         APP = "bin"
         openface = OpenFaceController(APP, w, h)
@@ -132,11 +141,6 @@ class GisApp(App):
             status = 1
         
         return status
-
-    def on_start(self):
-        app = App.get_running_app()
-        self.tracker_app_log("[b]{} 2020 - {} [/b]".format(chr(0x00A9), time.strftime("%Y")), log_t=False)
-        Clock.schedule_once(lambda dt: self.init_all_screens(), 5)
         
         
     def on_stop(self):

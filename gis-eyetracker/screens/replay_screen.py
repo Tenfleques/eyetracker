@@ -28,9 +28,9 @@ from threading import Thread
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-p = os.path.dirname(__file__)
-p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "settings", "screens",  "replay_screen.kv"))
+APP_DIR = os.path.dirname(__file__)
+APP_DIR = os.path.dirname(APP_DIR)
+widget = Builder.load_file(os.path.join(APP_DIR, "settings", "screens",  "replay_screen.kv"))
 
 
 class ReplayScreen(Screen):
@@ -51,11 +51,15 @@ class ReplayScreen(Screen):
     processing_open_face = []
 
     @staticmethod
-    def get_default_from_prev_session(key, default='', cut = False):
+    def get_user_dir(inner_dir= "data/sessions"):
+        path_required = os.path.join(APP_DIR, "user", inner_dir)
+        os.makedirs(path_required, exist_ok=True)
+        return path_required
+
+    @staticmethod
+    def get_default_from_prev_session(key, default=''):
         # loads a variable saved from the last session, directory, stimuli video for example
         val = get_default_from_prev_session(key, default)
-        if cut:
-           return val[:25] + " ... " + val[-40:]
         return val
     
     @staticmethod
@@ -95,26 +99,27 @@ class ReplayScreen(Screen):
         if self.video_feed_ctrl is not None:
             self.video_feed_ctrl.kill()
 
-        for p in self.processes:
+        for proc_instance in self.processes:
             # join all other running processes
-            p.join()
+            proc_instance.join()
         file_log("[INFO] closed all processes in replay screen ")
 
     def load_on_neighbor(self):
         d = self.ids["select_box_neighboring_sessions"].text
         par_path = os.path.dirname(self.session_directory)
         path = os.path.join(par_path, d)
+
         self.load(path, "")
 
     def populate_neighbor_sessions(self):
         other_sessions = []
-        if self.session_directory is None:
-            return other_sessions
 
-        if os.path.isdir(self.session_directory):
+        if not os.path.isdir(self.session_directory):
+            parent_path = self.get_default_from_prev_session('lbl_src_sessions_directory', self.get_user_dir())
+        else:
             parent_path = os.path.dirname(self.session_directory)
-            other_sessions = [(d,self.load_on_neighbor) for d in os.listdir(parent_path) if 'exp' in d and os.path.isdir(os.path.join(parent_path, d))]
         
+        other_sessions = [(d,self.load_on_neighbor) for d in os.listdir(parent_path) if 'exp' in d and os.path.isdir(os.path.join(parent_path, d))]
         return other_sessions
 
     def update_neighbors(self):
@@ -171,6 +176,22 @@ class ReplayScreen(Screen):
             return
         self.video_feed_ctrl.toggle_open_face_track(value == 'down')
     
+    def on_ref_press_collapse(self, **kwargs):
+        self.ids["frame_details_parent"].width = 0
+        self.ids["frame_details"].width = 0
+        self.ids["frame_details_container"].width = 30
+        self.ids["expand_frame_details_parent"].width = 40
+        self.ids["expand_frame_details_parent"].height = 40
+        self.ids["toggle_expand_frame_details"].width = 40
+    
+    def on_ref_press_expand(self, **kwargs):
+        self.ids["frame_details_parent"].width = 280
+        self.ids["frame_details"].width = 280
+        self.ids["frame_details_container"].width = 280
+        self.ids["expand_frame_details_parent"].width = 0
+        self.ids["expand_frame_details_parent"].height = 0
+        self.ids["toggle_expand_frame_details"].width = 0
+
     def set_use_optimal_step(self, checkbox, value):
         if self.video_feed_ctrl is None:
             return
@@ -226,16 +247,13 @@ class ReplayScreen(Screen):
         ready = os.path.isdir(self.session_directory)
         # directory doesn't exist, scream for attention
         if not ready:
-            self.ids['lbl_input_dir'].color = (1, 0, 0, 1)  # red scream
             self.__tracker_app_log(self.get_local_str("_directory_not_selected"))
             return ready
         
         # update window to have name of session
-        self.session_directory = self.ids['lbl_input_dir'].text
         session_name = self.session_directory.split(os.sep)[-1]
         Window.set_title("{} [{}]".format(get_local_str_util('_appname'), session_name))
-        
-        self.ids['lbl_input_dir'].color = (0, 0, 0, 1)
+
         self.process_open_face_video(self.session_directory)
         return True
 
@@ -306,16 +324,16 @@ class ReplayScreen(Screen):
         camera_track = self.ids["chkbx_camera_track"].state == 'down'
         bg_is_screen = self.ids["chkbx_bg_is_grab"].state == 'down'
 
-        p = Thread(target=self.ids["replay_video_canvas"].export_as_video, args=(cumulative_stimuli_src, session_timeline_path, cam_video_path,
+        proc_instance = Thread(target=self.ids["replay_video_canvas"].export_as_video, args=(cumulative_stimuli_src, session_timeline_path, cam_video_path,
                                              bg_is_screen, video_track, camera_track, tracker_track, maintain_track))
-        p.start()
-        self.processes.append(p)
+        proc_instance.start()
+        self.processes.append(proc_instance)
 
     def init_video_player(self):
         # check the directory in the computer's filesystem
 
         if self.session_directory is None:
-            self.session_directory = self.ids['lbl_input_dir'].text
+            self.session_directory = os.path.join(self.get_default_from_prev_session('lbl_src_sessions_directory', self.get_user_dir()), self.ids["select_box_neighboring_sessions"].text)
 
         ready = os.path.isdir(self.session_directory)
         if not ready:
@@ -422,7 +440,8 @@ class ReplayScreen(Screen):
         open_face_frame = kwargs.get("open_face_frame", None)
         self.update_side_vid_stream_handle(open_face_frame, ctrl=self.ids["open_face_frame_feed_image"], toggle_ctrl=self.ids["chkbx_open_face_track"])
 
-        self.ids["frame_details"].update(**kwargs)
+        if self.ids["frame_details"].width != 0:
+            self.ids["frame_details"].update(**kwargs)
 
     def set_button_play_start(self, force_stop=False):
         if force_stop:
@@ -449,33 +468,16 @@ class ReplayScreen(Screen):
         self.progress_cb(0)
         self.set_button_play_start(True)
 
-    # loading directory dialog
-    def dismiss_popup(self):
-        if self._popup is not None:
-            self._popup.dismiss()
-
-    def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-
-        self._popup = Popup(title=self.get_local_str("_select_directory"), content=content, size_hint=(0.9, 0.9))
-        self._popup.open()
-
     def load(self, path, filename):
         if os.path.exists(path):
             if not os.path.isdir(path):
                 path = os.path.dirname(path)
 
         self.session_directory = path
-        self.ids['lbl_input_dir'].text = path
         self.ids["select_box_neighboring_sessions"].set_options(self.populate_neighbor_sessions())
 
         if self.video_feed_ctrl is not None:
             self.video_feed_ctrl.stop()
             self.video_feed_ctrl.reset()
-        
-        self.set_default_from_prev_session('lbl_input_dir', path)
-        self.set_default_from_prev_session('filechooser', path)
-        
-        self.dismiss_popup()
 
         self.input_dir_ready()

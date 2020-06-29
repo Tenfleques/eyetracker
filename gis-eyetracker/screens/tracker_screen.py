@@ -33,9 +33,9 @@ from kivy.config import Config
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-PATH = os.path.dirname(os.path.abspath(__file__))
-PATH = os.path.dirname(PATH)
-widget = Builder.load_file(os.path.join(PATH, "settings", "screens",  "tracker_screen.kv"))
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+APP_DIR = os.path.dirname(APP_DIR)
+widget = Builder.load_file(os.path.join(APP_DIR, "settings", "screens",  "tracker_screen.kv"))
 
 
 def still_image_to_video(img_path, duration):
@@ -115,16 +115,11 @@ class TrackerScreen(Screen):
         return get_local_str_util(key)
 
     def save_dir_ready(self):
-        lbl_output_dir = self.ids['lbl_output_dir']
-
         # check the directory in the computer's filesystem
-        ready = os.path.isdir(lbl_output_dir.text)
+        ready = os.path.isdir(self.get_default_from_prev_session('lbl_src_sessions_directory'))
         # directory doesn't exist, scream for attention
         if not ready:
-            lbl_output_dir.color = (1, 0, 0, 1) # red scream
             self.__tracker_app_log(self.get_local_str("_directory_not_selected"))
-        else:
-            lbl_output_dir.color = (0, 0, 0, 1)
 
         return ready
 
@@ -133,7 +128,7 @@ class TrackerScreen(Screen):
         if not self.save_dir_ready():
             return None
         # creates path from session name and chosen catalog
-        return os.path.join(self.ids['lbl_output_dir'].text, self.session_name)
+        return os.path.join(self.get_default_from_prev_session('lbl_src_sessions_directory'), self.session_name)
 
     @staticmethod
     def __tracker_app_log(text, log_label='app_log'):
@@ -348,6 +343,7 @@ class TrackerScreen(Screen):
 
         lcl_string = self.get_local_str("_preparing_session_timeline")
         self.__tracker_app_log(lcl_string)
+
         selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
                                          "out-video.avi")
         lcl_session_prep_finished_str = self.get_local_str("_session_timeline_ready")
@@ -376,18 +372,13 @@ class TrackerScreen(Screen):
     def dismiss_popup(self):
         self._popup.dismiss()
 
-    def show_load(self):
-        try:
-            content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-            self._popup = Popup(title=self.get_local_str("_select_directory"), content=content, size_hint=(0.9, 0.9))
-            self._popup.open()
-        except Exception as err:
-            print(err)
-
     # loading video file dialog
     def show_load_video(self):
         try:
-            content = LoadDialog(load=self.load_video, cancel=self.dismiss_popup)
+            start_dir = os.path.join(APP_DIR, "user", "data", "output")
+            os.makedirs(start_dir, exist_ok=True)
+            
+            content = LoadDialog(load=self.load_video, cancel=self.dismiss_popup, start_dir=start_dir)
             self._popup = Popup(title=self.get_local_str("_select_src_video"), content=content, size_hint=(0.9, 0.9))
             self._popup.open()
         except Exception as err:
@@ -408,18 +399,4 @@ class TrackerScreen(Screen):
             self.set_default_from_prev_session("lbl_src_video", src_path)
 
         self.dismiss_popup()
-
-    def load(self, path, filename):
-        if os.path.exists(path):
-            if not os.path.isdir(path):
-                path = os.path.dirname(path)
-
-        lbl_output_dir = self.ids['lbl_output_dir']
-        lbl_output_dir.text = path
-
-        self.set_default_from_prev_session('lbl_output_dir', path)
-        self.set_default_from_prev_session('filechooser', path)
-        self.dismiss_popup()
-
-        self.save_dir_ready()
 

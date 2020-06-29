@@ -5,7 +5,7 @@ import json
 import pandas as pd
 import os
 from PIL import ImageGrab
-from helpers import file_log
+from helpers import file_log, recurse_directory_files
 import platform
 import sys
 from io import StringIO
@@ -51,6 +51,7 @@ def subprocess_call(*args, **kwargs):
 
     status_output_full = subprocess.call(*args, **kwargs)
     return status_output_full
+    
 
 class OpenFaceController:
     def __init__(self, PATH2APP, width, heigh):
@@ -58,14 +59,18 @@ class OpenFaceController:
         self.w = width*1.0/2
         self.h = heigh
     
-    def proceed(self, file_in):
-
+    def get_exe_file(self):
+        all_files = recurse_directory_files(self.PATH, 0, 2)
         exe_file = ""
-        if platform.system() == 'Windows':
-            exe_file = os.path.join(self.PATH, "OpenFace_2.2.0_win_x64", "FeatureExtraction.exe")
-        
-        if platform.system() == 'Darwin':
-            exe_file = os.path.join(self.PATH, "OpenFace_2.2.0", "FeatureExtraction")
+        for f in all_files:
+            if "FeatureExtraction" in f:
+                exe_file = f
+                break
+
+        return exe_file
+
+    def proceed(self, file_in):
+        exe_file = self.get_exe_file()
 
         if not os.path.isfile(exe_file):
             file_log("[ERROR] Openface FeatureExtraction executable not found")

@@ -1,12 +1,14 @@
 #:kivy 1.1.0
 <BackgroundColor@Widget>
     background_color: 1, 1, 1, 1
+    background_source: ''
     canvas.before:
         Color:
             rgba: root.background_color
         Rectangle:
             size: self.size
             pos: self.pos
+            source: root.background_source
 
 
 <BackgroundBoxLayout@BoxLayout+BackgroundColor>
@@ -36,8 +38,6 @@
     background_normal: ''
     background_color: (.8,.8,.8,1)
     color:(0,0,0,1)
-    
-
 <ToggleButton>
     size_hint: (None, None)
     height: '25dp'
