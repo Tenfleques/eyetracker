@@ -141,3 +141,18 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 2. Splash screen 
 3. Settings page
 4. OpenFace integration on Windows and Mac
+
+### v1.0.8 June 30 2020
+
+[gis-eyetracker-mipt.v1.0.8-dev](https://drive.google.com/file/d/15GDyQKzjYqpLZhjyVWXxvZY7YRdMRWcU/view?usp=sharing)
+
+[gis-eyetracker-mipt.v1.0.8](https://drive.google.com/file/d/157u64uETnUiId3NMmi6P4EVz3wVt2ZBZ/view?usp=sharing)
+
+1. New bugfixes
+2. Working Settings screen 
+3. Camera configuration screen
+4. User can choose the openface directory in settings
+5. User can change UI language
+6. More space in the main views on the tracker and the playback screens
+7. User can hide the frame details pane to gain more space
+8. User can define log directory and also the log level for the kivy operations. Tracker and Playback logs are in seperate file.

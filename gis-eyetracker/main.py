@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from kivy.config import Config
 from kivy.core.window import Window
-from helpers import get_local_str_util, create_log, get_video_fps, props, save_session_variables, file_log, get_default_from_prev_session
+from helpers import get_local_str_util, create_log, get_video_fps, props, save_session_variables, file_log, get_default_from_prev_session, get_app_dir
 from kivy.app import App
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
@@ -24,15 +24,19 @@ from ctrls.open_face_ctrl import OpenFaceController
 Window.set_icon('./assets/icon.png')
 Window.size = (600, 400)
 
+APP_PATH = get_app_dir()
+
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 Config.set('graphics', 'borderless', 1)
 
 Config.set('kivy', 'desktop', 1)
 Config.set('kivy', 'log_enable', 1)
-Config.set('kivy', 'log_dir', get_default_from_prev_session('lbl_logs_directory', os.path.join('user', 'logs')))
-Config.set('kivy', 'log_level', get_default_from_prev_session('select_log_level_ctrl', 'info'))
+Config.set('kivy', 'log_dir', get_default_from_prev_session('lbl_logs_directory', os.path.join(APP_PATH, 'user', 'logs')))
+Config.set('kivy', 'log_level', get_default_from_prev_session('select_log_level_ctrl', 'debug'))
 Config.set('kivy', 'window_icon', 'assets/icon.ico')
+
+
 
 class GisApp(App):
     screen_buttons = [
@@ -99,7 +103,7 @@ class GisApp(App):
         Clock.schedule_once(lambda dt: self.init_all_screens(), 5)
         
     def bg_open_face_process(self, cam_video, w, h):
-        APP = get_default_from_prev_session('lbl_bin_directory', "bin")
+        APP = get_default_from_prev_session('lbl_bin_directory', os.path.join(APP_PATH, "bin"))
         openface = OpenFaceController(APP, w, h)
         open_face_update = openface.proceed(cam_video)
         

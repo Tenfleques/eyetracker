@@ -63,12 +63,21 @@ class SettingsScreen(Screen):
         app.root.screen_manager.current = 'replay_screen'
 
     @staticmethod
-    def get_user_dir(inner_dir= ""):
-        return os.path.join(APP_DIR, "user", inner_dir)
+    def get_user_dir(in_dirs=[]):
+        st = os.path.join(APP_DIR, "user")
+
+        for d in in_dirs:
+            st = os.path.join(st, d)
+    
+        return st
 
     @staticmethod
-    def get_app_dir(inner_dir= ""):
-        return os.path.join(APP_DIR, inner_dir)
+    def get_app_dir(in_dirs=[]):
+        st = APP_DIR
+        for d in in_dirs:
+            st = os.path.join(st, d)
+    
+        return st
 
     @staticmethod
     def get_default_from_prev_session(key, default='', cut = False):
@@ -116,13 +125,20 @@ class SettingsScreen(Screen):
         self._popup.open()
 
     def show_load_select_bin_directory(self):
-        content = LoadDialog(load=self.load_select_bin_directory, cancel=self.dismiss_popup, start_dir=self.get_app_dir("bin"))
+        start_dir = self.get_app_dir(["bin"])
+        if not os.path.isdir(start_dir):
+            start_dir = None
+
+        content = LoadDialog(load=self.load_select_bin_directory, cancel=self.dismiss_popup, start_dir=start_dir)
 
         self._popup = Popup(title=self.get_local_str("_select_bin_directory"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
     def show_load_select_logs_directory(self):
-        content = LoadDialog(load=self.load_select_logs_directory, cancel=self.dismiss_popup, start_dir=self.get_user_dir("logs"))
+        start_dir = self.get_user_dir(["logs"])
+        if not os.path.isdir(start_dir):
+            start_dir = None
+        content = LoadDialog(load=self.load_select_logs_directory, cancel=self.dismiss_popup, start_dir=start_dir)
 
         self._popup = Popup(title=self.get_local_str("_select_logs_directory"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()

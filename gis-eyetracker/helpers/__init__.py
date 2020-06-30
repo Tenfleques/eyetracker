@@ -22,14 +22,18 @@ with open("_locale.json", "r", encoding="utf8") as f:
 
 # timestamp = lambda x: time.mktime(time.strptime(x[0], "%H:%M:%S")) + float("0." + x[1])
 
-p = os.path.dirname(__file__)
-p = os.path.dirname(p)
+def get_app_dir():
+    APP_PATH = os.path.dirname(__file__)
+    APP_PATH = os.path.dirname(APP_PATH)
+    return APP_PATH
 
-user_dir = os.path.join(p, "user")
+APP_PATH = get_app_dir()
+user_dir = os.path.join(APP_PATH, "user")
 
 prev_session_file_path = os.path.join(user_dir, "last_session.json")
 log_dir = os.path.join(user_dir, "logs")
 os.makedirs(log_dir, exist_ok=True)
+
 
 # load user previous session settings
 try:

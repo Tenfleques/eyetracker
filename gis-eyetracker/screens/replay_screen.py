@@ -51,8 +51,13 @@ class ReplayScreen(Screen):
     processing_open_face = []
 
     @staticmethod
-    def get_user_dir(inner_dir= "data/sessions"):
-        path_required = os.path.join(APP_DIR, "user", inner_dir)
+    def get_user_dir(in_dirs= ["data", "sessions"]):
+        st = os.path.join(APP_DIR, "user")
+        for d in in_dirs:
+            st = os.path.join(st, d)
+    
+        return st
+
         os.makedirs(path_required, exist_ok=True)
         return path_required
 
@@ -119,6 +124,7 @@ class ReplayScreen(Screen):
         else:
             parent_path = os.path.dirname(self.session_directory)
         
+        os.makedirs(parent_path, exist_ok=True)
         other_sessions = [(d,self.load_on_neighbor) for d in os.listdir(parent_path) if 'exp' in d and os.path.isdir(os.path.join(parent_path, d))]
         return other_sessions
 

@@ -28,7 +28,7 @@ class LoadDialog(FloatLayout):
     
     @staticmethod
     def get_user_dir():
-        return os.path.join(p,"user/data")
+        return os.path.join(p,"user", "data")
 
     @staticmethod
     def get_local_str(key):

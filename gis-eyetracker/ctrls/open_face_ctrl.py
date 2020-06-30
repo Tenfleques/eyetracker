@@ -10,6 +10,9 @@ import platform
 import sys
 from io import StringIO
 
+APP_DIR = os.path.dirname(__file__)
+APP_DIR = os.path.dirname(APP_DIR)
+
 def get_xy(p0, pv):
     #print(pv[2])
     if pv[2]!=0:
@@ -54,20 +57,28 @@ def subprocess_call(*args, **kwargs):
     
 
 class OpenFaceController:
-    def __init__(self, PATH2APP, width, heigh):
+    def __init__(self, PATH2APP, width, height):
         self.PATH = PATH2APP
+        self.w = width
+        self.h = height
 
         self.data = {}
-        with open(cam_config) as json_file:
-            self.data = json.load(json_file)
+        config_path = os.path.join(APP_DIR, "user", "configs", "camera", "cam_config.json")
+        if os.path.isfile(config_path):
+            with open(config_path) as json_file:
+                self.data = json.load(json_file)
+                json_file.close()
+        else:
+            file_log("[ERROR] camera configuration not found")
     
     def get_exe_file(self):
-        all_files = recurse_directory_files(self.PATH, 0, 2)
         exe_file = ""
-        for f in all_files:
-            if "FeatureExtraction" in f:
-                exe_file = f
-                break
+        if os.path.isdir(self.PATH):
+            all_files = recurse_directory_files(self.PATH, 0, 2)
+            for f in all_files:
+                if "FeatureExtraction" in f:
+                    exe_file = f
+                    break
 
         return exe_file
 
@@ -118,7 +129,8 @@ class OpenFaceController:
 
         tracks_tmp = []
         for i in range(len(df2)):
-            tracks_tmp.append(get_point(df,i, self.w, self.h))
+            tracks_tmp.append(get_point(df,i))
+            # tracks_tmp.append(get_point(df,i, self.w, self.h))
 
         tracks = []
         for t in tracks_tmp:
