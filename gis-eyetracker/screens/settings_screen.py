@@ -24,14 +24,18 @@ os.makedirs(stimuli_path, exist_ok=True)
 
 widget = Builder.load_file(os.path.join(APP_DIR, "settings", "screens",  "settings_screen.kv"))
 
+LOG_LEVELS = ['trace', 'debug', 'info', 'warning', 'error', 'critical']
+
 class SettingsScreen(Screen):
     def build(self):
         return widget
 
     def start_all(self):
-        language_options = [(i, self.select_box_on_select) for i in flex_get_user_locales()]
+        language_options = [(i, self.select_box_on_select_lang) for i in flex_get_user_locales()]
         self.ids["select_language_ctrl"].set_options(language_options)
-        
+
+        log_levels_options = [(i, self.select_box_on_select_logs) for i in LOG_LEVELS]
+        self.ids["select_log_level_ctrl"].set_options(log_levels_options)
         # frame = cv2.imread(os.path.join(APP_DIR, "assets", "icon-bg.png"))
         # buf = frame.tostring()
         # texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
@@ -42,9 +46,16 @@ class SettingsScreen(Screen):
 
         return True
 
-    def select_box_on_select(self):
-        self.ids["select_language_ctrl"].text
-        self.set_default_from_prev_session("select_language_ctrl", self.ids["select_language_ctrl"].text)
+    def select_box_on_select_lang(self):
+        lang_chosen = self.ids["select_language_ctrl"].text
+        if lang_chosen in flex_get_user_locales():
+            self.set_default_from_prev_session("select_language_ctrl", lang_chosen)
+
+    def select_box_on_select_logs(self):
+        level_chosen = self.ids["select_log_level_ctrl"].text
+
+        if level_chosen in LOG_LEVELS:
+            self.set_default_from_prev_session("select_log_level_ctrl", level_chosen)
 
     def close_settings_screen(self):
         print("[INFO] closing settings screen")
@@ -54,6 +65,10 @@ class SettingsScreen(Screen):
     @staticmethod
     def get_user_dir(inner_dir= ""):
         return os.path.join(APP_DIR, "user", inner_dir)
+
+    @staticmethod
+    def get_app_dir(inner_dir= ""):
+        return os.path.join(APP_DIR, inner_dir)
 
     @staticmethod
     def get_default_from_prev_session(key, default='', cut = False):
@@ -100,12 +115,47 @@ class SettingsScreen(Screen):
         self._popup = Popup(title=self.get_local_str("_select_src_stimuli_directory"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
+    def show_load_select_bin_directory(self):
+        content = LoadDialog(load=self.load_select_bin_directory, cancel=self.dismiss_popup, start_dir=self.get_app_dir("bin"))
+
+        self._popup = Popup(title=self.get_local_str("_select_bin_directory"), content=content, size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def show_load_select_logs_directory(self):
+        content = LoadDialog(load=self.load_select_logs_directory, cancel=self.dismiss_popup, start_dir=self.get_user_dir("logs"))
+
+        self._popup = Popup(title=self.get_local_str("_select_logs_directory"), content=content, size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def load_select_logs_directory(self, path, filename):
+        if os.path.exists(path):
+            if not os.path.isdir(path):
+                path = os.path.dirname(path)
+
+        self.ids['lbl_logs_directory'].text = path
+        
+        self.set_default_from_prev_session('lbl_logs_directory', path)
+        self.set_default_from_prev_session('filechooser', path)
+        
+        self.dismiss_popup()
+
+    def load_select_bin_directory(self, path, filename):
+        if os.path.exists(path):
+            if not os.path.isdir(path):
+                path = os.path.dirname(path)
+
+        self.ids['lbl_bin_directory'].text = path
+        
+        self.set_default_from_prev_session('lbl_bin_directory', path)
+        self.set_default_from_prev_session('filechooser', path)
+        
+        self.dismiss_popup()
+
     def load_select_src_stimuli_directory(self, path, filename):
         if os.path.exists(path):
             if not os.path.isdir(path):
                 path = os.path.dirname(path)
 
-        self.session_directory = path
         self.ids['lbl_src_stimuli_directory'].text = path
         
         self.set_default_from_prev_session('lbl_src_stimuli_directory', path)
@@ -118,7 +168,6 @@ class SettingsScreen(Screen):
             if not os.path.isdir(path):
                 path = os.path.dirname(path)
 
-        self.session_directory = path
         self.ids['lbl_src_sessions_directory'].text = path
         
         self.set_default_from_prev_session('lbl_src_sessions_directory', path)

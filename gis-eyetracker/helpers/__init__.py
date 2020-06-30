@@ -171,10 +171,17 @@ def get_local_str_util(key):
     return key
 
 
-def get_default_from_prev_session(key, default=''):
-    # loads a variable saved from the last session, directory, stimuli video for example
-    if key in SESSION_PREFS.keys():
-        return str(SESSION_PREFS.get(key))
+def get_default_from_prev_session(key, default='', config_path=None):
+    # loads a variable saved from the last session
+    data_obj = SESSION_PREFS
+    if config_path is not None:
+        if os.path.isfile(config_path):
+            with open(config_path, "r") as session_f:
+                data_obj = json.load(session_f)
+                session_f.close()
+
+    if key in data_obj.keys():
+        return str(data_obj.get(key))
     else:
         return str(default)
 

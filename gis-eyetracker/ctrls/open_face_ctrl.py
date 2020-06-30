@@ -20,26 +20,26 @@ def get_xy(p0, pv):
     else:
         return p0[:2]
 
-def get_point(frame,i, wnorm, hnorm):
+def get_point(frame,i):
     eye00 = (frame['eye_lmk_X_27'][i],frame['eye_lmk_Y_27'][i], frame['eye_lmk_Z_27'][i])
-    eye01 = (frame['eye_lmk_X_23'][i],frame['eye_lmk_X_23'][i], frame['eye_lmk_X_23'][i])
+    eye01 = (frame['eye_lmk_X_23'][i],frame['eye_lmk_Y_23'][i], frame['eye_lmk_Z_23'][i])
     eye0 = [(eye00[a]+eye01[a])*0.5 for a in range(3)]
     
     pv0 = (frame['gaze_0_x'][i], frame['gaze_0_y'][i], frame['gaze_0_z'][i])
     
-    eye10 = (frame['eye_lmk_X_55'][i],frame['eye_lmk_X_55'][i], frame['eye_lmk_X_55'][i])
-    eye11 = (frame['eye_lmk_X_51'][i],frame['eye_lmk_Y_51'][i], frame['eye_lmk_Y_51'][i])
+    eye10 = (frame['eye_lmk_X_55'][i],frame['eye_lmk_Y_55'][i], frame['eye_lmk_Z_55'][i])
+    eye11 = (frame['eye_lmk_X_51'][i],frame['eye_lmk_Y_51'][i], frame['eye_lmk_Z_51'][i])
     eye1 = [(eye10[a]+eye11[a])*0.5 for a in range(3)]
 
     pv1 = (frame['gaze_1_x'][i], frame['gaze_1_y'][i], frame['gaze_1_z'][i])
     
+    #gaze_point0 = get_xy(eye00, pv0)
+    #gaze_point1 = get_xy(eye10, pv1)
+    
     gaze_point0 = get_xy(eye0, pv0)
     gaze_point1 = get_xy(eye1, pv1)
-
-    gaze_point0_norm = (gaze_point0[0]*1.0/wnorm, gaze_point0[1]*1.0/wnorm)
-    gaze_point1_norm = (gaze_point1[0]*1.0/wnorm, gaze_point1[1]*1.0/wnorm)
     
-    return[gaze_point0, gaze_point1, gaze_point0_norm, gaze_point1_norm]
+    return(gaze_point0, gaze_point1)
 
 def subprocess_call(*args, **kwargs):
     #also works for Popen. It creates a new *hidden* window, so it will work in frozen apps (.exe).
@@ -56,8 +56,10 @@ def subprocess_call(*args, **kwargs):
 class OpenFaceController:
     def __init__(self, PATH2APP, width, heigh):
         self.PATH = PATH2APP
-        self.w = width*1.0/2
-        self.h = heigh
+
+        self.data = {}
+        with open(cam_config) as json_file:
+            self.data = json.load(json_file)
     
     def get_exe_file(self):
         all_files = recurse_directory_files(self.PATH, 0, 2)
@@ -81,8 +83,6 @@ class OpenFaceController:
         os.makedirs(out_dir, exist_ok=True)
 
         args = [exe_file, '-f', file_in, '-out_dir', out_dir]
-        old_stdout = sys.stdout
-        sys.stdout = str_stdout = StringIO()
 
         file_tmp = os.path.join(out_dir, "proc.log")
         with open(file_tmp, 'w') as fp:
@@ -95,9 +95,6 @@ class OpenFaceController:
             status_output = subprocess_call(args, stdout=True, stderr=True)
         except Exception as err:
             file_log("[ERROR] {}".format(err))
-
-        file_log(str_stdout.getvalue())
-        sys.stdout = old_stdout
 
         if status_output != 0:
             error = "[ERROR] failed to process with openface {} ".format(status_output)
@@ -119,21 +116,29 @@ class OpenFaceController:
                   'eye_lmk_X_55', 'eye_lmk_Y_55', 'eye_lmk_Z_55', \
                   'eye_lmk_X_51', 'eye_lmk_Y_51', 'eye_lmk_Z_51']]
 
-        tracks = []
+        tracks_tmp = []
         for i in range(len(df2)):
-            tracks.append(get_point(df,i, self.w, self.h))
+            tracks_tmp.append(get_point(df,i, self.w, self.h))
 
+        tracks = []
+        for t in tracks_tmp:
+            p0 = t[0]
+            p1 = t[1]
 
+            p0 = ((p0[0]+self.data['x_offset'])/self.data['width'], \
+                  (p0[1]+self.data['y_offset'])/self.data['height'])
+            p1 = ((p1[0]+self.data['x_offset'])/self.data['width'], \
+                  (p1[1]+self.data['y_offset'])/self.data['height'])
+    
+            tracks.append((p0,p1)) 
+
+        
         output_data = []
         for i, k in enumerate(tracks):
             tmp = {'eye_0_x': tracks[i][0][0],
                    'eye_0_y': tracks[i][0][1],
-                   'eye_0_xn': tracks[i][2][0],
-                   'eye_0_yn': tracks[i][2][1],
                    'eye_1_x': tracks[i][1][0],
-                   'eye_1_y': tracks[i][1][1],
-                   'eye_1_xn': tracks[i][3][0],
-                   'eye_1_yn': tracks[i][3][1]}
+                   'eye_1_y': tracks[i][1][1]}
             output_data.append(tmp)
 
         file_out = os.path.join(out_dir, "openface_out.json")

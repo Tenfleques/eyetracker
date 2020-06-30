@@ -68,6 +68,9 @@
         Rectangle:
             size: self.size
             pos: self.pos
+<MultilineLabel@Label>
+    text_size: self.size
+    font_size: dp(13)
 
 GridLayout:
     screen_manager: screen_manager
@@ -82,7 +85,7 @@ GridLayout:
         background_color: (.9, .9, .9, 1)
         id: screen_nav
         GridLayout:
-            cols: 5
+            cols: 6
             NormalButton:
                 id : btn_generator_screen
                 text: app.get_local_str("_btn_generator_screen")
@@ -108,6 +111,14 @@ GridLayout:
                 background_color: (.9, .9, .9, 1)
             
             NormalButton:
+                id : btn_cam_config_screen
+                text: app.get_local_str('_btn_cam_config_screen')
+                on_release: root.screen_manager.current = 'cam_config_screen'
+                size_hint_y: None
+                height: '35dp'
+                background_color: (.9, .9, .9, 1)
+
+            NormalButton:
                 id : btn_settings_screen
                 text: app.get_local_str('_btn_settings_screen')
                 on_release: root.screen_manager.current = 'settings_screen'
@@ -116,6 +127,7 @@ GridLayout:
                 background_color: (.9, .9, .9, 1)
         GridLayout:
             id: nav_filler
+            size_hint_x: .3
         
 
     ScreenManager:
@@ -141,6 +153,11 @@ GridLayout:
             name: 'replay_screen'
             on_pre_enter: self.update_neighbors()
             on_leave: app.update_active_screen()
+            on_enter: app.update_active_screen()
+        CamConfigScreen:
+            id: cam_config_screen
+            name: 'cam_config_screen'
+            on_leave: app.update_active_screen
             on_enter: app.update_active_screen()
         SettingsScreen:
             id: settings_screen

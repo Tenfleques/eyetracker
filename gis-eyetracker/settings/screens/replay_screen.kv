@@ -249,7 +249,7 @@
                             NormalLabel:
                                 markup:True
                                 id: toggle_collapse_frame_details
-                                text: "[b]" + root.get_local_str("_frame_details") + " [ref=toggle_collapse] - [/ref][/b]"
+                                text: "[b]" + root.get_local_str("_frame_details") + " [ref=toggle_collapse] [size=20]-[/size] [/ref][/b]"
                                 on_ref_press: root.on_ref_press_collapse()
                             FrameDetails:
                                 id: frame_details
@@ -273,7 +273,7 @@
                     rows:1
                     padding: [5, 5, 5, 5]
                     GridLayout:
-                        rows:1
+                        rows:2
                         padding: [5, 0, 5, 0]
                         SelectBox:
                             id: select_box_neighboring_sessions
@@ -285,8 +285,10 @@
                             height: 25
                             multiline:False
                             font_size: dp(13)
+                        NormalLabel:
+                            text: root.get_local_str("_playing_session")
                     GridLayout:
-                        rows:1
+                        rows:2
                         padding: [5, 0, 5, 0]
                         SelectBox:
                             id: select_box_replay_speed
@@ -298,6 +300,8 @@
                             height: 25
                             multiline:False
                             font_size: dp(13)
+                        NormalLabel:
+                            text: root.get_local_str("_video_speed_factor")
                     GridLayout:
                         rows:2
                         padding: [5, 0, 5, 0]
