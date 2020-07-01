@@ -240,12 +240,20 @@ class TrackerScreen(Screen):
 
         if filetype.is_image(abs_path):
             # get the desired FPS
-            vid_path, fps = still_image_to_video(abs_path, json_source["duration"])
-            started = self.video_feed_ctrl.start(vid_path, fps, end_cb=end_cb)
+            vid_path, fps = still_image_to_video(abs_path, json_source.get("duration", 5))
+            
+            try:
+                started = self.video_feed_ctrl.start(vid_path, fps, end_cb=end_cb)
+            except Exception as err:
+                file_log("[ERROR] error occured starting playback {}".format(err))
 
         if filetype.is_video(abs_path):
             fps = get_video_fps(abs_path)
-            started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+            
+            try:
+                started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+            except Exception as err:
+                file_log("[ERROR] error occured starting playback {}".format(err))
 
     def set_button_play_start(self):
         self.ids["btn_play"].text = self.get_local_str("_start")

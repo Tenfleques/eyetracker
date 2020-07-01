@@ -113,19 +113,27 @@ class SettingsScreen(Screen):
             self._popup.dismiss()
 
     def show_load_select_src_sessions_directory(self):
-        content = LoadDialog(load=self.load_select_src_sessions_directory, cancel=self.dismiss_popup)
+        start_dir = get_default_from_prev_session('lbl_src_sessions_directory',self.get_user_dir(["data","sessions"]))
+        if not os.path.isdir(start_dir):
+            start_dir = None
+
+        content = LoadDialog(load=self.load_select_src_sessions_directory, cancel=self.dismiss_popup, start_dir=start_dir)
 
         self._popup = Popup(title=self.get_local_str("_select_src_sessions_directory"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
     def show_load_select_src_stimuli_directory(self):
-        content = LoadDialog(load=self.load_select_src_stimuli_directory, cancel=self.dismiss_popup)
+        start_dir = get_default_from_prev_session('lbl_src_stimuli_directory',self.get_user_dir(["data","output"]))
+        if not os.path.isdir(start_dir):
+            start_dir = None
+
+        content = LoadDialog(load=self.load_select_src_stimuli_directory, cancel=self.dismiss_popup, start_dir=start_dir)
 
         self._popup = Popup(title=self.get_local_str("_select_src_stimuli_directory"), content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
     def show_load_select_bin_directory(self):
-        start_dir = self.get_app_dir(["bin"])
+        start_dir = get_default_from_prev_session('lbl_bin_directory',self.get_app_dir(["bin"]))
         if not os.path.isdir(start_dir):
             start_dir = None
 
@@ -135,7 +143,8 @@ class SettingsScreen(Screen):
         self._popup.open()
 
     def show_load_select_logs_directory(self):
-        start_dir = self.get_user_dir(["logs"])
+        start_dir = get_default_from_prev_session('lbl_logs_directory',self.get_user_dir(["logs"]))
+        
         if not os.path.isdir(start_dir):
             start_dir = None
         content = LoadDialog(load=self.load_select_logs_directory, cancel=self.dismiss_popup, start_dir=start_dir)
