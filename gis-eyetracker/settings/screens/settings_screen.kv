@@ -1,0 +1,188 @@
+#:kivy 1.1.0
+
+<SettingsScreen>:
+    select_log_level_ctrl: select_log_level_ctrl
+    BackgroundBoxLayout:
+        orientation: 'horizontal'
+        padding: [5, 5, 5, 5]
+        BackgroundGridLayout:
+            rows: 4
+            GridLayout:
+                rows: 3
+                BackgroundGridLayout:
+                    rows: 1
+                    size_hint_y: None
+                    height: 40
+                    background_color: (.9, .9, .9, .5)
+                    NormalLabel:
+                        markup:True
+                        text: "[b]" + root.get_local_str('_app_extensions') + "[/b]"
+                BackgroundGridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: None
+                    height: 40
+                    NormalButton:
+                        text: root.get_local_str("_select_bin_directory")
+                        on_release: root.show_load_select_bin_directory()
+                        size_hint: (None, None)
+                        width: '300dp'
+                        height: '25dp'
+                    NormalLabel:
+                        id:lbl_bin_directory
+                        markup: True
+                        text: "{} [b][color=ff0000]**[/color][/b]".format(root.get_default_from_prev_session('lbl_bin_directory',root.get_app_dir(["bin"])))
+
+            GridLayout:
+                rows: 3
+                BackgroundGridLayout:
+                    rows: 1
+                    size_hint_y: None
+                    height: 40
+                    background_color: (.9, .9, .9, .5)
+                    NormalLabel:
+                        markup:True
+                        text: "[b]" + root.get_local_str('_user_data') + "[/b]"
+                BackgroundGridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: None
+                    height: 40
+                    NormalButton:
+                        text: root.get_local_str("_select_src_stimuli_directory")
+                        on_release: root.show_load_select_src_stimuli_directory()
+                        size_hint: (None, None)
+                        width: '300dp'
+                        height: '25dp'
+                    NormalLabel:
+                        id:lbl_src_stimuli_directory
+                        text: root.get_default_from_prev_session('lbl_src_stimuli_directory',root.get_user_dir(["data","output"]))
+                BackgroundGridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: None
+                    height: 40
+                    NormalButton:
+                        text: root.get_local_str("_select_src_sessions_directory")
+                        on_release: root.show_load_select_src_sessions_directory()
+                        size_hint: (None, None)
+                        width: '300dp'
+                        height: '25dp'
+                    NormalLabel:
+                        id:lbl_src_sessions_directory
+                        text: root.get_default_from_prev_session('lbl_src_sessions_directory',root.get_user_dir(["data","sessions"]))
+            GridLayout:
+                rows: 2
+                BackgroundGridLayout:
+                    rows: 1
+                    size_hint_y: None
+                    height: 40
+                    background_color: (.9, .9, .9, .5)
+                    NormalLabel:
+                        markup:True
+                        text: "[b]" + root.get_local_str('_user_interface') + "[/b]"
+                BackgroundGridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: None
+                    height: 40
+                    SelectBox:
+                        id: select_language_ctrl
+                        text: root.get_default_from_prev_session('select_language_ctrl', root.get_local_str("_select_user_language"))
+                        background_normal: ''
+                        background_color: (.8, .8, .8, 1)
+                        color:(0,0,0,1)
+                        multiline:False
+                        font_size: dp(13)
+                        size_hint: (None, None)
+                        width: '300dp'
+                        height: '25dp'
+                    NormalLabel:
+                        id:lbl_user_language
+                        text: "{} [color=ff0000]*[/color]".format(root.get_local_str("_user_language"))
+                        markup:True
+
+            GridLayout:
+                rows: 3
+                BackgroundGridLayout:
+                    rows: 1
+                    size_hint_y: None
+                    height: 40
+                    background_color: (.9, .9, .9, .5)
+                    NormalLabel:
+                        markup:True
+                        text: "[b]" + root.get_local_str('_logs') + "[/b]"
+                BackgroundGridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: None
+                    height: 40
+                    NormalButton:
+                        text: root.get_local_str("_select_logs_directory")
+                        on_release: root.show_load_select_logs_directory()
+                        size_hint: (None, None)
+                        width: '300dp'
+                        height: '25dp'
+                    NormalLabel:
+                        id:lbl_logs_directory
+                        text: root.get_default_from_prev_session('lbl_logs_directory',root.get_user_dir(["logs"]))
+                BackgroundGridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: None
+                    height: 40
+                    SelectBox:
+                        id: select_log_level_ctrl
+                        text: root.get_default_from_prev_session('select_log_level_ctrl', 'debug')
+                        background_normal: ''
+                        background_color: (.8, .8, .8, 1)
+                        color:(0,0,0,1)
+                        multiline:False
+                        font_size: dp(13)
+                        size_hint: (None, None)
+                        width: '300dp'
+                        height: '25dp'
+                    NormalLabel:
+                        id:lbl_log_level
+                        markup:True
+                        text: "{} [b]&bl;{}&br; [color=ff0000]*[/color] [/b]".format(root.get_local_str("_log_level"), root.select_log_level_ctrl.text)
+        BackgroundGridLayout:
+            orientation: 'vertical'
+            size_hint_x: .3
+            rows: 3
+            padding: [5, 0, 0, 0]
+            BackgroundGridLayout:
+                rows: 1
+                size_hint_y: None
+                height: 40
+                background_color: (.9, .9, .9, .5)
+                NormalLabel:
+                    markup:True
+                    valign: 'middle'
+                    text: "[b][size=15]i.[/size]   " + root.get_local_str('_help') + "[/b]"
+            BackgroundGridLayout:
+                rows: 3
+                MultilineLabel:
+                    size_hint_y: None
+                    height: 80
+                    text: "[b]1. [color=ff0000]*[/color][/b] [i]{}[/i]".format(root.get_local_str('_user_settings_asteriks'))
+                    halign: 'left'
+                    valign: 'top'
+                    size_hint_x: 1
+                    color: [0,0,0,1]
+                    markup:True
+                MultilineLabel:
+                    size_hint_y: None
+                    height: 80
+                    text: "[b]2. [color=ff0000]**[/color][/b] [i]{}[/i]".format(root.get_local_str("_select_bin_asteriks"))
+                    halign: 'left'
+                    valign: 'top'
+                    size_hint_x: 1
+                    color: [0,0,0,1]
+                    markup:True
+            
+
+
+
+
+

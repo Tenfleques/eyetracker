@@ -17,7 +17,7 @@ from helpers import get_local_str_util
 
 p = os.path.dirname(__file__)
 p = os.path.dirname(p)
-Builder.load_file(os.path.join(p,'SettingBox.kv'))
+Builder.load_file(os.path.join(p, "settings", "screens", 'SettingBox.kv'))
 
 Window.show_cursor = True
 # Create both screens. Please note the root.manager.current: this is how

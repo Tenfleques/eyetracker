@@ -50,6 +50,7 @@ class ResultVideoCanvas(Image):
     use_optimal_step = True
     stop_threads = False
     is_paused = False
+    
 
     video_interval = None
 
@@ -75,6 +76,7 @@ class ResultVideoCanvas(Image):
 
     camera_frames_cap = None
     video_frames_cap = None
+    open_face_video_frames_cap = None
 
     c_width = None
     c_height = None
@@ -85,6 +87,7 @@ class ResultVideoCanvas(Image):
     camera_track = False
     tracker_track = False
     video_track = False
+    open_face_track = True
 
     processes = []
     is_exporting_busy = False
@@ -133,6 +136,12 @@ class ResultVideoCanvas(Image):
             self.camera_track = not self.camera_track
             return
         self.camera_track = bool(state)
+
+    def toggle_open_face_track(self, state=None):
+        if state is None:
+            self.open_face_track = not self.open_face_track
+            return
+        self.open_face_track = bool(state)
 
     def is_playing(self):
         return self.session_is_playing
@@ -234,18 +243,6 @@ class ResultVideoCanvas(Image):
 
     def __get_stop_threads(self):
         return self.stop_threads
-        
-    def _populate_frames(self, vid, the_container):
-        while vid.isOpened():
-            if self.__get_stop_threads():
-                break
-
-            ret, frame = vid.read()
-            if not ret:
-                break
-            the_container.append(frame)
-        vid.release()
-        return
 
     def initialized(self, video_path,
               session_timeline_path, cam_video_path, current_frame_cb):
@@ -311,20 +308,11 @@ class ResultVideoCanvas(Image):
             self.stop()
             return False
 
-        if self.video_frames_cap is not None:
-            self.video_frames_cap.release()
+        self.video_frames_cap = self.init_video_frame_capture(video_path, self.video_frames_cap)
 
-        self.video_frames_cap = cv2.VideoCapture(video_path)
+        self.camera_frames_cap = self.init_video_frame_capture(cam_video_path, self.camera_frames_cap)
 
-        if os.path.isfile(cam_video_path):
-            if self.camera_frames_cap is not None:
-                self.camera_frames_cap.release()
-
-            self.camera_frames_cap = cv2.VideoCapture(cam_video_path)
-
-            if self.camera_frames_cap is not None:
-                w, h = (self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_WIDTH),
-                        self.camera_frames_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.init_open_face_frames(cam_video_path)
 
         self.current_frame_cb(cam_fps=self.camera_frames_cap.get(cv2.CAP_PROP_FPS), 
             vid_fps=self.video_frames_cap.get(cv2.CAP_PROP_FPS),
@@ -335,6 +323,42 @@ class ResultVideoCanvas(Image):
         self.current_cam_video_path = cam_video_path
 
         return True
+
+    def init_open_face_frames(self, cam_video_path):
+        if self.open_face_video_frames_cap is not None:
+            self.open_face_video_frames_cap.release()
+
+        self.open_face_video_frames_cap = None
+        cam_video_arr = cam_video_path.split(os.sep)
+        out_dir = os.sep.join(cam_video_arr[:-1])
+        open_face_root = os.path.join(out_dir, "openface")
+        open_face_video_path = os.path.join(open_face_root, cam_video_arr[-1])
+
+        app = App.get_running_app()
+        open_face_status = app.process_open_face_video_finished(open_face_root) 
+
+        if open_face_status == -1:
+            app.process_open_face_video(out_dir) 
+            Clock.schedule_once(lambda dt: self.init_open_face_frames(cam_video_path),60)
+            return None
+        if open_face_status == 0:
+            # processing in progress 
+            Clock.schedule_once(lambda dt: self.init_open_face_frames(cam_video_path),30)
+            return None
+
+        # processed already 
+        self.open_face_video_frames_cap = self.init_video_frame_capture(open_face_video_path, self.open_face_video_frames_cap)
+
+    def init_video_frame_capture(self, path, cap):
+        if cap is not None:
+            cap.release()
+        cap = None
+
+        if not os.path.isfile(path):
+            return cap
+
+        cap = cv2.VideoCapture(path)
+        return cap 
 
     def start(self, current_frame_cb, end_cb):
 
@@ -388,9 +412,6 @@ class ResultVideoCanvas(Image):
     
     def __get_session_timeline_index(self):
         return self.session_timeline_index
-    
-    def __get_video_interval(self):
-        return self.video_interval
 
     def frames_cb(self, dt=True):
         # dt is None when called from stop to stop recursions
@@ -487,23 +508,18 @@ class ResultVideoCanvas(Image):
                     show_frame = show_frame[v_y:, v_x:, :]
 
         # add camera feed data
+        open_face_frame = None
         if record["camera"] is not None:
             if self.current_cam_frame_id != record["camera"]["frame_id"]:
                 self.current_cam_frame_id = record["camera"]["frame_id"]
 
             if self.camera_track:
-                # self.c_frame = self.get_camera_frame_at(self.current_cam_frame_id)
                 self.c_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.camera_frames_cap)
 
-                # rel_h = 0.3 * show_frame.shape[0]
-                # rel_w = rel_h * show_frame.shape[1]/ show_frame.shape[0]
-                # sh = (int(rel_w), int(rel_h))
-                # self.c_frame = cv2.resize(self.c_frame, sh)
-
-                # start_x = show_frame.shape[1] - sh[0]
-                # show_frame[:sh[1], start_x:, :] = self.c_frame
+            if self.open_face_track:
+                open_face_frame = self.get_capture_frame_at(self.current_cam_frame_id, self.open_face_video_frames_cap)
         
-        self.current_frame_cb(self.session_timeline_index, len_timeline, frame_details=record, cam_frame=self.c_frame)
+        self.current_frame_cb(self.session_timeline_index, len_timeline, frame_details=record, cam_frame=self.c_frame, open_face_frame=open_face_frame)
 
         return show_frame
 
@@ -534,6 +550,8 @@ class ResultVideoCanvas(Image):
             self.camera_frames_cap.release()
         if self.video_frames_cap is not None:
             self.video_frames_cap.release()
+        if self.open_face_video_frames_cap is not None:
+            self.open_face_video_frames_cap.release()
         
         self.stop_threads = True
         

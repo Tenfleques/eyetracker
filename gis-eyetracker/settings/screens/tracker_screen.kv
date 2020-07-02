@@ -1,7 +1,6 @@
 #:kivy 1.1.0
 <TrackerScreen>:
     main_view_parent:main_view_parent
-    lbl_output_dir:lbl_output_dir
     btn_play: btn_play
     lbl_src_video: lbl_src_video
     # txt_box_video_rate: txt_box_video_rate
@@ -33,28 +32,13 @@
                 rows:1
                 cols:2
                 size_hint_y: None
-                height: 130
+                height: 70
                 background_color: (.9, .9, .9, 1)
                 GridLayout:
                     rows:3
                     id: main
                     size_hint_x: .65
                     padding: [5, 5, 5, 5]
-                    GridLayout:
-                        rows: 1
-                        cols: 2
-                        size_hint_y: None
-                        height:40
-                        id: file_ops
-                        NormalLabel:
-                            id:lbl_output_dir
-                            text: root.get_default_from_prev_session('lbl_output_dir', root.get_local_str("_directory_not_selected"))
-                        NormalButton:
-                            text: root.get_local_str("_select_directory")
-                            on_release: root.show_load()
-                            size_hint: (None, None)
-                            width: '220dp'
-                            height: '25dp'
                     GridLayout:
                         rows: 1
                         cols: 2

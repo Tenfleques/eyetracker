@@ -15,22 +15,25 @@ LOCALE = {}
 with open("_locale.json", "r", encoding="utf8") as f:
     LOCALE = json.load(f)
 
-LOCALE["__empty"] = {
-    "ru": "",
-    "en": ""
-}
+# LOCALE["__empty"] = {
+#     "ru": "",
+#     "en": ""
+# }
 
-timestamp = lambda x: time.mktime(time.strptime(x[0], "%H:%M:%S")) + float("0." + x[1])
+# timestamp = lambda x: time.mktime(time.strptime(x[0], "%H:%M:%S")) + float("0." + x[1])
 
+def get_app_dir():
+    APP_PATH = os.path.dirname(__file__)
+    APP_PATH = os.path.dirname(APP_PATH)
+    return APP_PATH
 
-p = os.path.dirname(__file__)
-p = os.path.dirname(p)
-
-user_dir = os.path.join(p, "user")
+APP_PATH = get_app_dir()
+user_dir = os.path.join(APP_PATH, "user")
 
 prev_session_file_path = os.path.join(user_dir, "last_session.json")
 log_dir = os.path.join(user_dir, "logs")
 os.makedirs(log_dir, exist_ok=True)
+
 
 # load user previous session settings
 try:
@@ -49,6 +52,21 @@ except IOError:
     print("[ERROR] i/o error")
 except Exception as e:
     print(e)
+
+def recurse_directory_files(src, depth=0, max_depth=2):
+    all_files = os.listdir(src)
+    files = []
+    folders = []
+    for i in all_files:
+        full_path = os.path.join(os.path.abspath(src), i)
+
+        if os.path.isfile(full_path):
+            files.append(full_path)
+        else:
+            if depth < max_depth:
+                files += recurse_directory_files(full_path, depth+1, max_depth)
+
+    return files 
 
 
 def file_log(log_string):
@@ -127,14 +145,28 @@ def frame_processing(frame):
     """
     return frame
 
+def flex_get_user_locales():
+    local_key = list(LOCALE.keys())[0]
+    return LOCALE[local_key].keys()
 
-def get_local_str_util(key):
+def flex_get_locale():
     lang = "ru"
+    available_langs = flex_get_user_locales()
+    user_preffered_lang = get_default_from_prev_session('select_language_ctrl', default='ru')
+
+    if user_preffered_lang in available_langs:
+        return user_preffered_lang
+
     local_def = locale.getdefaultlocale()
     if len(local_def) and local_def[0]:
         sys_locale = local_def[0].split("_")[0]
-        if sys_locale in ["en", "ru"]:
+        if sys_locale in available_langs:
             lang = sys_locale
+    
+    return lang
+
+def get_local_str_util(key):
+    lang = flex_get_locale()
 
     if key in LOCALE.keys():
         if lang in LOCALE.get(key).keys():
@@ -143,10 +175,17 @@ def get_local_str_util(key):
     return key
 
 
-def get_default_from_prev_session(key, default=''):
-    # loads a variable saved from the last session, directory, stimuli video for example
-    if key in SESSION_PREFS.keys():
-        return str(SESSION_PREFS.get(key))
+def get_default_from_prev_session(key, default='', config_path=None):
+    # loads a variable saved from the last session
+    data_obj = SESSION_PREFS
+    if config_path is not None:
+        if os.path.isfile(config_path):
+            with open(config_path, "r") as session_f:
+                data_obj = json.load(session_f)
+                session_f.close()
+
+    if key in data_obj.keys():
+        return str(data_obj.get(key))
     else:
         return str(default)
 
@@ -154,6 +193,7 @@ def get_default_from_prev_session(key, default=''):
 def set_default_from_prev_session(key, value):
     # set a variable key in this session. e.g the directory of stimuli video
     SESSION_PREFS[key] = value
+    save_session_variables()
 
 
 def save_session_variables():
@@ -162,7 +202,7 @@ def save_session_variables():
         session_f.close()
 
 
-def create_log(text, log_type=INFO):
+def create_log(text, log_type=INFO, log_t=True):
     str_log_type = {
         INFO: "INFO",
         ERROR: "ERROR",
@@ -171,7 +211,10 @@ def create_log(text, log_type=INFO):
     # timestr = time.strftime("%Y/%m/%d %H:%M:%S")
     log = ""
     if text:
-        log = "{}: {}".format(str_log_type.get(log_type, INFO), text)
+        if log_t:
+            log = "{}: {}".format(str_log_type.get(log_type, INFO), text)
+        else:
+            log = "{}".format(text)
     return log
 
 

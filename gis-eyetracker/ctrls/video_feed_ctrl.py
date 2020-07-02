@@ -73,16 +73,16 @@ class VideoCanvas(Image):
 
         self.video_src = video_src.split(os.sep)[-1]
 
-        # can't run if video not ready can we?
-        if not get_video_fps(video_src):
-            return -1
-
         # ensures we are full screen
         self.initial_window_state = Window.fullscreen
         # Window.fullscreen = 'auto'
 
         # play video
-        return self.play(video_src, fps, is_recording)
+        try:
+            return self.play(video_src, fps, is_recording)
+        except Exception as err:
+            file_log("[ERROR] error occured during playback {}".format(err))
+            return -1
 
     def frames_cb(self, frame):
         frame = frame_processing(frame)

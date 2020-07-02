@@ -8,7 +8,7 @@ from helpers import get_local_str_util
 
 p = os.path.dirname(__file__)
 p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "table.kv"))
+widget = Builder.load_file(os.path.join(p, "settings", "screens",  "table.kv"))
 
 
 class Table(GridLayout):

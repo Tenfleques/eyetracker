@@ -10,6 +10,7 @@ class SelectBox(Button):
     def btn_release_cb(dropdown, btn, cb):
         dropdown.select(btn.text)
         cb()
+        return 
     
     def this_btn_on_release(self, ctrl, dropdown):
         dropdown.open(ctrl)

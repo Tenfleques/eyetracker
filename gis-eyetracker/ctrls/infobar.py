@@ -6,7 +6,7 @@ from kivy.core.window import Window
 
 p = os.path.dirname(__file__)
 p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "infobar.kv"))
+widget = Builder.load_file(os.path.join(p, "settings", "screens",  "infobar.kv"))
 
 
 class InfoBar(AnchorLayout):

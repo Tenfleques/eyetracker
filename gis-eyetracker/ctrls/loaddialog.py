@@ -6,17 +6,20 @@ import os
 
 p = os.path.dirname(__file__)
 p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "loaddialog.kv"))
+widget = Builder.load_file(os.path.join(p, "settings", "screens",  "loaddialog.kv"))
 
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
-
-    @staticmethod
-    def get_default_from_prev_session(key, default=''):
+    start_dir = ObjectProperty(None)
+    
+    def get_default_from_prev_session(self, key, default=''):
         # loads a variable saved from the last session, directory, stimuli video for example
-        return get_default_from_prev_session(key, default)
+        if self.start_dir is None:
+            return get_default_from_prev_session(key, default)
+        
+        return self.start_dir
 
     @staticmethod
     def set_default_from_prev_session(key, value):
@@ -25,7 +28,7 @@ class LoadDialog(FloatLayout):
     
     @staticmethod
     def get_user_dir():
-        return os.path.join(p,"user/data")
+        return os.path.join(p,"user", "data")
 
     @staticmethod
     def get_local_str(key):

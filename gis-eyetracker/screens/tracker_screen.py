@@ -33,9 +33,9 @@ from kivy.config import Config
 Config.set('graphics', 'kivy_clock', 'free_all')
 Config.set('graphics', 'maxfps', 0)
 
-p = os.path.dirname(__file__)
-p = os.path.dirname(p)
-widget = Builder.load_file(os.path.join(p, "tracker_screen.kv"))
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+APP_DIR = os.path.dirname(APP_DIR)
+widget = Builder.load_file(os.path.join(APP_DIR, "settings", "screens",  "tracker_screen.kv"))
 
 
 def still_image_to_video(img_path, duration):
@@ -79,9 +79,11 @@ class TrackerScreen(Screen):
     session_name = None
     _popup = None
 
+    def start_all(self):
+        return True
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         Clock.schedule_once(lambda dt: self.ids["video_canvas"].on_start())
 
     def stop_all(self):
@@ -92,9 +94,9 @@ class TrackerScreen(Screen):
         if self.tracker_ctrl is not None:
             # the tracker connection
             self.tracker_ctrl.kill()
-        for p in self.processes:
+        for proc in self.processes:
             # join all other running processes
-            p.join()
+            proc.join()
         file_log("[INFO] closed all processes and devices ")
 
     @staticmethod
@@ -112,17 +114,23 @@ class TrackerScreen(Screen):
         # gets the localized string for literal text on the UI
         return get_local_str_util(key)
 
-    def save_dir_ready(self):
-        lbl_output_dir = self.ids['lbl_output_dir']
+    @staticmethod
+    def get_user_dir(in_dirs=[]):
+        st = os.path.join(APP_DIR, "user")
 
+        for d in in_dirs:
+            st = os.path.join(st, d)
+    
+        return st
+        
+    def save_dir_ready(self):
         # check the directory in the computer's filesystem
-        ready = os.path.isdir(lbl_output_dir.text)
+        user_sessions_dir = self.get_default_from_prev_session('lbl_src_sessions_directory', self.get_user_dir(["data","sessions"]))
+        os.makedirs(user_sessions_dir, exist_ok=True)
+        ready = os.path.isdir(user_sessions_dir)
         # directory doesn't exist, scream for attention
         if not ready:
-            lbl_output_dir.color = (1, 0, 0, 1) # red scream
             self.__tracker_app_log(self.get_local_str("_directory_not_selected"))
-        else:
-            lbl_output_dir.color = (0, 0, 0, 1)
 
         return ready
 
@@ -131,7 +139,7 @@ class TrackerScreen(Screen):
         if not self.save_dir_ready():
             return None
         # creates path from session name and chosen catalog
-        return os.path.join(self.ids['lbl_output_dir'].text, self.session_name)
+        return os.path.join(self.get_default_from_prev_session('lbl_src_sessions_directory', self.get_user_dir(["data","sessions"])), self.session_name)
 
     @staticmethod
     def __tracker_app_log(text, log_label='app_log'):
@@ -232,12 +240,20 @@ class TrackerScreen(Screen):
 
         if filetype.is_image(abs_path):
             # get the desired FPS
-            vid_path, fps = still_image_to_video(abs_path, json_source["duration"])
-            started = self.video_feed_ctrl.start(vid_path, fps, end_cb=end_cb)
+            vid_path, fps = still_image_to_video(abs_path, json_source.get("duration", 5))
+            
+            try:
+                started = self.video_feed_ctrl.start(vid_path, fps, end_cb=end_cb)
+            except Exception as err:
+                file_log("[ERROR] error occured starting playback {}".format(err))
 
         if filetype.is_video(abs_path):
             fps = get_video_fps(abs_path)
-            started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+            
+            try:
+                started = self.video_feed_ctrl.start(abs_path, fps, end_cb=end_cb)
+            except Exception as err:
+                file_log("[ERROR] error occured starting playback {}".format(err))
 
     def set_button_play_start(self):
         self.ids["btn_play"].text = self.get_local_str("_start")
@@ -317,25 +333,38 @@ class TrackerScreen(Screen):
 
             # save the tracker recording file
             self.tracker_ctrl.save_json(tracker_json_path)
+            file_log("[INFO] saved tracker json ")
 
             # save the video-camera recording file
             self.save_json(video_json_path)
+            file_log("[INFO] saved video cam json")
 
-            p = Thread(target=self.load_session_timeline, args=(tracker_json_path,
-                                                                video_json_path, False, False))
-            p.start()
+            proc = Thread(target=self.load_session_timeline, args=(tracker_json_path,video_json_path, False, False), )
+            proc.start()
+            self.processes.append(proc)
 
-            self.processes.append(p)
+            file_log("[INFO] starting open face process ")
+            proc_2 = Thread(target=self.process_open_face_video, )
+            proc_2.start()
+            self.processes.append(proc_2)
+
         except Exception as ex:
             file_log("[ERROR] an error occurred {}".format(ex))
+            print("[ERROR] an error occured {}".format(ex))
+
+    def process_open_face_video(self):
+        output_dir = self.__get_session_directory()
+        app = App.get_running_app()
+        app.process_open_face_video(output_dir)
 
     def load_session_timeline(self, tracker_json_path, video_json_path, timeline_exist=False, process_video=False):
         file_log("[INFO] started to process the timeline ")
 
         lcl_string = self.get_local_str("_preparing_session_timeline")
         self.__tracker_app_log(lcl_string)
-        selfie_video_path = os.path.join(self.ids['lbl_output_dir'].text,
-                                         "out-video.avi")
+
+        output_dir = self.__get_session_directory()
+        selfie_video_path = os.path.join(output_dir,"out-video.avi")
         lcl_session_prep_finished_str = self.get_local_str("_session_timeline_ready")
 
         self.session_timeline = gaze_stimuli(tracker_json_path,
@@ -362,18 +391,23 @@ class TrackerScreen(Screen):
     def dismiss_popup(self):
         self._popup.dismiss()
 
-    def show_load(self):
-        try:
-            content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-            self._popup = Popup(title=self.get_local_str("_select_directory"), content=content, size_hint=(0.9, 0.9))
-            self._popup.open()
-        except Exception as err:
-            print(err)
-
     # loading video file dialog
     def show_load_video(self):
         try:
-            content = LoadDialog(load=self.load_video, cancel=self.dismiss_popup)
+            start_dir = os.path.join(APP_DIR, "user", "data", "output")
+            
+            user_old_dir = self.get_default_from_prev_session("lbl_src_video", None)
+            if user_old_dir is None:
+                user_old_dir = self.get_default_from_prev_session('lbl_src_stimuli_directory', None)
+
+            if user_old_dir is not None:
+                if os.path.isfile(user_old_dir):
+                    start_dir = os.path.dirname(user_old_dir)
+
+            os.makedirs(start_dir, exist_ok=True)
+            
+            content = LoadDialog(load=self.load_video, cancel=self.dismiss_popup, start_dir=start_dir)
+
             self._popup = Popup(title=self.get_local_str("_select_src_video"), content=content, size_hint=(0.9, 0.9))
             self._popup.open()
         except Exception as err:
@@ -394,18 +428,4 @@ class TrackerScreen(Screen):
             self.set_default_from_prev_session("lbl_src_video", src_path)
 
         self.dismiss_popup()
-
-    def load(self, path, filename):
-        if os.path.exists(path):
-            if not os.path.isdir(path):
-                path = os.path.dirname(path)
-
-        lbl_output_dir = self.ids['lbl_output_dir']
-        lbl_output_dir.text = path
-
-        self.set_default_from_prev_session('lbl_output_dir', path)
-        self.set_default_from_prev_session('filechooser', path)
-        self.dismiss_popup()
-
-        self.save_dir_ready()
 

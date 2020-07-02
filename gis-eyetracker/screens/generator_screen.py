@@ -107,11 +107,12 @@ class gen_MAIN(BoxLayout):
             
 class GeneratorScreen(Screen):
 
-    def build(self):
+    def start_all(self):
         InitGlobSet()
         gen_main = gen_MAIN()
         gen_main.build()
         self.add_widget(gen_main)
+        return True
 
 
 class main(App):
