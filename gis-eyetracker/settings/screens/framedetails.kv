@@ -1,0 +1,152 @@
+#:kivy 1.1.0
+
+<FrameDetails>:
+    rows:2
+    BackgroundGridLayout:
+        rows:7
+        BackgroundGridLayout:
+            cols: 3
+            rows: 1
+            size_hint_y: None
+            height: 25
+            NormalLabel:
+                markup:True
+                text: "[b]" + root.get_local_str('_device') + "[/b]"
+                size_hint_x: None
+                width: 70
+            NormalLabel:
+                markup:True
+                text: "[b]" + root.get_local_str('_time') + "[/b]"
+            NormalLabel:
+                markup:True
+                size_hint_x: None
+                width: 70
+                text: "[b]" + root.get_local_str('_fps') + "[/b]"
+        
+        BackgroundGridLayout:
+            background_color: (.9, .9, .9, .5)
+            cols: 3
+            rows: 1
+            size_hint_y: None
+            height: 25
+                
+            NormalLabel:
+                id:lbl_tracker_gaze_name
+                markup:True
+                text: root.get_local_str('_gaze')
+                size_hint_x: None
+                width: 70
+            NormalLabel:
+                id:lbl_tracker_gaze_time
+                markup:True
+                text: ""
+
+            NormalLabel:
+                id:lbl_tracker_gaze_fps
+                markup:True
+                text: ""
+                size_hint_x: None
+                width: 70
+
+        BackgroundGridLayout:
+            cols: 3
+            rows: 1
+            size_hint_y: None
+            height: 25
+                
+            NormalLabel:
+                id:lbl_tracker_pos_name
+                markup:True
+                text: root.get_local_str('_pos')
+                size_hint_x: None
+                width: 70
+
+            NormalLabel:
+                id:lbl_tracker_pos_time
+                markup:True
+                text: ""
+
+            NormalLabel:
+                id:lbl_tracker_pos_fps
+                markup:True
+                text: ""
+                size_hint_x: None
+                width: 70
+
+        BackgroundGridLayout:
+            background_color: (.9, .9, .9, .5)
+            cols: 3
+            rows: 1
+            size_hint_y: None
+            height: 25
+                
+            NormalLabel:
+                id:lbl_tracker_origin_name
+                markup:True
+                text: root.get_local_str('_origin')
+                size_hint_x: None
+                width: 70
+
+            NormalLabel:
+                id:lbl_tracker_origin_time
+                markup:True
+                text: ""
+
+            NormalLabel:
+                id:lbl_tracker_origin_fps
+                markup:True
+                text: ""
+                size_hint_x: None
+                width: 70
+        
+        BackgroundGridLayout:
+            cols: 3
+            rows: 1
+            size_hint_y: None
+            height: 25
+                
+            NormalLabel:
+                id:lbl_video_name
+                markup:True
+                text: root.get_local_str('_stimuli_video')
+                size_hint_x: None
+                width: 70
+
+            NormalLabel:
+                id:lbl_video_time
+                markup:True
+                text: ""
+                
+            NormalLabel:
+                id:lbl_video_fps
+                markup:True
+                text: ""
+                size_hint_x: None
+                width: 70
+
+        BackgroundGridLayout:
+            background_color: (.9, .9, .9, .5)
+            cols: 3
+            rows: 1
+            size_hint_y: None
+            height: 25
+                
+            NormalLabel:
+                id:lbl_camera_name
+                markup:True
+                text: root.get_local_str('_camera')
+                size_hint_x: None
+                width: 70
+
+            NormalLabel:
+                id:lbl_camera_time
+                markup:True
+                text: ""
+                
+            NormalLabel:
+                id:lbl_camera_fps
+                markup:True
+                text: ""
+                size_hint_x: None
+                width: 70
+

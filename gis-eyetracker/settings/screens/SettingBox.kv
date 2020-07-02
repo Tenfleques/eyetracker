@@ -1,0 +1,69 @@
+<Parameter>:
+    name: ""
+    value: ""
+    
+    spacing: 5
+    
+    Label:
+        size_hint_x: 0.5
+        id: l_val
+        text_size: self.size
+        halign: 'right'
+        valign: 'middle'
+    
+    AnchorLayout:
+        TextInput:
+            multiline: False
+            size_hint_y: 0.7
+            id: t_val
+            height: 10
+            on_text: 
+                root.value = self.text
+                root.on_change_text()
+                
+                
+                
+<Changer>:
+    
+    spacing: 5
+    param: ' '
+    Label:
+        size_hint_x: 0.5
+        id: l_val
+        text_size: self.size
+        halign: 'right'
+        valign: 'middle'
+    
+    AnchorLayout:
+        Button:
+            size_hint_y: 0.7
+            id: b_val
+            height: 10
+            on_press: 
+                
+                
+                
+<TextEditor>:
+    orientation: 'vertical'
+    BoxLayout:
+        id: bt_id
+        TextInput:
+            id: t_id
+        Label:
+            id: l_id
+            text: t_id.text
+            text_size: self.size
+            halign: t_id.halign
+            valign: 'top'
+            markup: True
+            color: 0,0,0,1
+            size: t_id.size
+            canvas.before: 
+                Color: 
+                    rgba: 1, 1, 1, 1
+                Rectangle: 
+                    pos: self.pos 
+                    size: self.size 
+    BoxLayout:
+        id: bpan_id
+        size_hint_y: 0.2

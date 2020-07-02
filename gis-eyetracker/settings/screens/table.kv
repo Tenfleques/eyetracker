@@ -1,0 +1,47 @@
+<Table>:
+    lbl_timestamp:lbl_timestamp
+    lbl_gaze:lbl_gaze
+    lbl_camera:lbl_camera
+    lbl_video:lbl_video
+    view_stage:view_stage
+    pagination_zone:pagination_zone
+    margin_y: 10
+    background_color: (.8,.8,.8,1)
+    rows:3
+    cols:1
+    BackgroundGridLayout:
+        cols: 4
+        rows: 1
+        size_hint_y: None
+        height: 35
+        padding_x: [15, 15]
+        id:table_id
+        background_color: (.6,.6,.6,1)
+        NormalLabel:
+            id:lbl_timestamp
+            markup:True
+            text: "[b]" + root.get_local_str('_timestamp') + "[/b]"
+        NormalLabel:
+            id:lbl_gaze
+            markup:True
+            text: "[b]" + root.get_local_str('_gaze') + "[/b]"
+        NormalLabel:
+            id:lbl_camera
+            markup:True
+            text: "[b]" + root.get_local_str('_camera') + "[/b]"
+        NormalLabel:
+            id:lbl_video
+            markup:True
+            text: "[b]" + root.get_local_str('_video') + "[/b]"
+    ScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+        BackgroundGridLayout:
+            id: view_stage
+            size_hint_y: 1
+            cols: 1
+    BackgroundGridLayout:
+        id: pagination_zone
+        rows: 1
+        size_hint_y: None
+        height: 80

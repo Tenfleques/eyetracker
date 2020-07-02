@@ -1,0 +1,45 @@
+#:kivy 1.10.0
+<LoadDialog>:
+    filechooser: filechooser
+    user_path_insert:user_path_insert
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_y: None
+            height: 70
+            NormalLabel:
+                markup:True
+                text: "[b]" + root.filechooser.path + "[/b]"
+                color: (1,1,1,1)
+                font_size: dp(14)
+            TextInput:
+                id: user_path_insert
+                on_text_validate: root.on_path_validate(self)
+                size_hint_y: None
+                height: 30
+                multiline:False
+                font_size: dp(13)
+                text: root.filechooser.path
+        FileChooserListView:
+            id: filechooser
+            dirselect: True
+            path: root.get_default_from_prev_session('filechooser', default=root.get_user_dir())
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 30
+            NormalButton:
+                text: root.get_local_str("_cancel")
+                on_release: root.cancel()
+                size_hint_x:.9
+            NormalLabel:
+                text: ''
+                size_hint: (.01,1)
+            NormalButton:
+                text: root.get_local_str("_select")
+                on_release: root.load(filechooser.path, filechooser.selection)
+                size_hint_x:.9

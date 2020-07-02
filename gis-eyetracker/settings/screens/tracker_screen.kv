@@ -1,0 +1,94 @@
+#:kivy 1.1.0
+<TrackerScreen>:
+    main_view_parent:main_view_parent
+    btn_play: btn_play
+    lbl_src_video: lbl_src_video
+    # txt_box_video_rate: txt_box_video_rate
+    # lbl_video_fps_in_use: lbl_video_fps_in_use
+    video_canvas:video_canvas
+    # select_in_series: select_in_series
+
+    BoxLayout:
+        orientation: 'vertical'
+        id: main_view_parent
+        BackgroundGridLayout:
+            rows: 3
+            cols: 1
+            BackgroundFloatLayout:
+                background_color: (0, 0, 0, 1)
+                VideoCanvas:
+                    id: video_canvas
+                    size_hint_y: 1
+                    allow_stretch:True
+                    keep_ratio:False
+                    pos_hint:{'x':.0, 'y':.0}
+            BackgroundGridLayout:
+                rows:1
+                size_hint_y: None
+                height:2
+                background_color: (0, .196, .313, 1)
+
+            BackgroundGridLayout:
+                rows:1
+                cols:2
+                size_hint_y: None
+                height: 70
+                background_color: (.9, .9, .9, 1)
+                GridLayout:
+                    rows:3
+                    id: main
+                    size_hint_x: .65
+                    padding: [5, 5, 5, 5]
+                    GridLayout:
+                        rows: 1
+                        cols: 2
+                        size_hint_y: None
+                        height: 40
+                        id: file_ops
+                        NormalLabel:
+                            id:lbl_src_video
+                            text: root.get_default_from_prev_session('lbl_src_video',root.get_local_str("_load_stimuli_video"))
+                        NormalButton:
+                            text: root.get_local_str("_select_src_video")
+                            on_release: root.show_load_video()
+                            size_hint: (None, None)
+                            width: '220dp'
+                            height: '25dp'
+                GridLayout:
+                    id: tools_pane
+                    size_hint_x: .35
+                    cols: 1
+                    padding: [5, 5, 5, 5]
+                    GridLayout:
+                        cols: 2
+                        padding: [5, 5, 5, 5]
+                        rows: 1
+                        size_hint_y: None
+                        height: 45
+                        halign: 'right'
+                        NormalLabel:
+                            text: ""
+                            size_hint_y: None
+                        # NormalLabel:
+                        #     text: root.txt_box_video_rate.text
+                        #     id: lbl_video_fps_in_use
+                        #     halign: 'left'
+                        NormalButton:
+                            id: btn_play
+                            text: root.get_local_str("_start")
+                            on_release: root.btn_play_click()
+                    # GridLayout:
+                    #     cols: 2
+                    #     # SelectBox:
+                    #     #     id: select_in_series
+                    #     #     options: root.get_default_from_prev_session('select_in_series_options',[])
+                    #     #     text: root.get_local_str("_select_start_in_series")
+                    #     #     size_hint_y: None
+                    #     #     height: 25
+                    #     FloatInput:
+                    #         id: txt_box_video_rate
+                    #         text: root.get_default_from_prev_session('txt_box_video_rate',"")
+                    #         size_hint_y: None
+                    #         height: 25
+                    #         multiline:False
+                    #         font_size: dp(13)
