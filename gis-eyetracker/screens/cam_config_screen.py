@@ -7,7 +7,7 @@ import os
 from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session
 
 from ctrls.cam_config import CamConfig
-from ctrls.camera_calibrator import MultipleCameras
+from ctrls.multiple_cameras import MultipleCameras
 
 APP_DIR = os.path.dirname(__file__)
 APP_DIR = os.path.dirname(APP_DIR)

@@ -1,0 +1,24 @@
+#:kivy 1.1.0
+<MultipleCameras>:
+    orientation: 'horizontal'
+    BackgroundGridLayout:
+        rows: 3
+        padding: [5, 10, 5, 5]
+        GridLayout:
+            rows: 1
+            id: buttons_zone
+            size_hint_y: None
+            height: 45
+            NormalButton:
+                text: root.get_local_str("_start_caliberation")
+                on_release: root.start_all()
+                size_hint_x: None
+                width: 480
+        GridLayout:
+            id: cameras_zone
+            size_hint_y: .7
+            rows: 1
+        GridLayout:
+            id: space_filler
+            rows: 1
+        
