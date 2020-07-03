@@ -1,0 +1,75 @@
+#:kivy 1.1.0
+
+<CamConfig>:
+    BackgroundBoxLayout:
+        orientation: 'horizontal'
+        GridLayout:
+            rows: 6
+            size_hint_x:.3
+            padding: [5, 20, 5, 5]
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                NormalLabel:
+                    text: "{} [mm]:".format(root.get_local_str('_width'))
+                IntegerInput:
+                    text: root.get_default_from_prev_session('width', '1')
+                    id: width
+                    size_hint: (.8, None)
+                    height: 25
+                    multiline:False
+                    font_size: dp(13)
+                    
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                NormalLabel:
+                    text: "{} [mm]:".format(root.get_local_str('_height'))
+                IntegerInput:
+                    text: root.get_default_from_prev_session('height', '2')
+                    id: height
+                    size_hint: (.8, None)
+                    height: 25
+                    multiline:False
+                    font_size: dp(13)
+            
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                NormalLabel:
+                    text: "{} [mm]:".format(root.get_local_str('_x_offset'))
+                IntegerInput:
+                    text: root.get_default_from_prev_session('x_offset', '2')
+                    id: x_offset
+                    size_hint: (.8, None)
+                    height: 25
+                    multiline:False
+                    font_size: dp(13)
+            
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                NormalLabel:
+                    text: "{} [mm]:".format(root.get_local_str('_y_offset'))
+                IntegerInput:
+                    text: root.get_default_from_prev_session('y_offset', '2')
+                    id: y_offset
+                    size_hint: (.8, None)
+                    height: 25
+                    multiline:False
+                    font_size: dp(13)
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                NormalLabel:
+                    text: ''
+                NormalButton:
+                    text: root.get_local_str('_generate_config_file')
+                    on_press: root.gen()
+                    size_hint_x: .8
+
+        AnchorLayout:
+            size_hint_x: .70
+            padding: [5, 20, 5, 5]
+            Image:
+                source: root.get_scheme_image()
