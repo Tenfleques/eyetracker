@@ -5,7 +5,7 @@ locale = "_locale.json"
 
 
 def get_all_eys():
-    dire = ["./", "./screens", "./settings/screens", "./ctrls", "./generator_libs"]
+    dire = ["./", "./screens", "./settings/screens", "./settings/subscreens", "./ctrls", "./generator_libs"]
     files = []
 
     for i in dire:

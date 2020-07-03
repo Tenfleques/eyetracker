@@ -3,15 +3,14 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 import json
 import os
-from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session
+from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session, get_app_dir
 
-APP_DIR = os.path.dirname(__file__)
-APP_DIR = os.path.dirname(APP_DIR)
+APP_DIR = get_app_dir()
 
 out_put_path = os.path.join(APP_DIR, "user", "configs", "camera")
 os.makedirs(out_put_path, exist_ok=True)
 
-widget = Builder.load_file(os.path.join(APP_DIR, "settings", "screens", "subscreens", "cam_config.kv"))
+widget = Builder.load_file(os.path.join(APP_DIR, "settings", "subscreens", "cam_config.kv"))
 
 class CamConfig(Screen):
     def build(self):
