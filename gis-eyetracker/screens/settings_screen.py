@@ -8,10 +8,14 @@ from kivy.config import ConfigParser
 from kivy.graphics.texture import Texture
 import os
 import cv2
+import json
+
 from helpers import get_local_str_util, create_log, get_video_fps, props, get_default_from_prev_session, set_default_from_prev_session, file_log, flex_get_locale, flex_get_user_locales
 from kivy.uix.popup import Popup
 from ctrls.loaddialog import LoadDialog
 from ctrls.select_box import SelectBox
+from ctrls.update_ctrl import UpdateCtrl
+from threading import Thread
 
 APP_DIR = os.path.dirname(__file__)
 APP_DIR = os.path.dirname(APP_DIR)
@@ -27,6 +31,9 @@ widget = Builder.load_file(os.path.join(APP_DIR, "settings", "screens",  "settin
 LOG_LEVELS = ['trace', 'debug', 'info', 'warning', 'error', 'critical']
 
 class SettingsScreen(Screen):
+    update_ctrl = UpdateCtrl()
+    processes = []
+
     def build(self):
         return widget
 
@@ -44,7 +51,59 @@ class SettingsScreen(Screen):
 
         # self.ids["bg_canvas"].texture = texture
 
+        # check for updates
+        self.check_updates()
         return True
+
+    def end_update_cb(self):
+        self.__tracker_app_log(self.get_local_str("_update_finished"))
+        self.ids["btn_update_ctrl"].disabled = False
+        self.check_updates()
+
+    def check_updates(self, component="main"):
+        try:
+            target=self.check_update_process
+            if self.ids["btn_update_ctrl"].text == self.get_local_str("_update_now"):
+                target=self.update_app
+                component=self.end_update_cb
+
+                self.ids["btn_update_ctrl"].disabled = True
+                self.ids["btn_update_ctrl"].text = self.get_local_str("_updating")
+                self.__tracker_app_log(self.get_local_str("_updating"))
+            
+            proc = Thread(target=target, args=(component,))
+            proc.start()
+            self.processes.append(proc)
+
+        except Exception as err:
+            print("[ERROR] error looking up updates")
+            file_log("[ERROR] {}".format(err))
+
+    def check_update_process(self, target="main"):
+        res = self.update_ctrl.check_updates(target)
+        if res == 0:
+            # success we have an update
+            details = self.update_ctrl.get_update_details()
+            self.ids["btn_update_ctrl"].text = self.get_local_str("_update_now")
+            self.ids["lbl_update_available"].text = "{} {}.{}".format(self.get_local_str("_update_available"), details.get("name", ""), details.get("version", ""))
+            self.__tracker_app_log(self.ids["lbl_update_available"].text)
+            return 0
+        if res == 1:
+            # already latest update
+            self.__tracker_app_log(self.get_local_str("_latest_version"))
+            self.ids["lbl_update_available"].text = ""
+            self.ids["btn_update_ctrl"].text = self.get_local_str("_check_updates")
+            return 0
+        if res == -1:
+            self.__tracker_app_log(self.get_local_str("_error_checking_update"))
+            return -1
+
+    def update_app(self, cb):
+        try:
+            self.update_ctrl.update_app(cb)
+        except Exception as d_err:
+            print("[ERROR] failed to download new update")
+            file_log("[ERROR] {}".format(d_err))
 
     def select_box_on_select_lang(self):
         lang_chosen = self.ids["select_language_ctrl"].text

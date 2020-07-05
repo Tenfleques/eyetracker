@@ -1,11 +1,42 @@
-v=8
-pyinstaller gis-eyetracker-mipt.spec
-cp *.kv dist/gis-eyetracker-mipt/
-cp *.dll dist/gis-eyetracker-mipt/
-cp *.json dist/gis-eyetracker-mipt/
-cp -r settings dist/gis-eyetracker-mipt/settings
-cp -r assets/ dist/gis-eyetracker-mipt/assets
-cp -r poppler-0.68.0/ dist/gis-eyetracker-mipt/poppler-0.68.0
+source ../version.txt
+dev=""
+name="gis-eyetracker-mipt${dev}"
+echo "compiling version ${name}.v${major}.${major}.${patch}"
 
-mv dist/gis-eyetracker-mipt dist/gis-eyetracker-mipt.v1.0.${v}
-powershell "Compress-Archive dist/gis-eyetracker-mipt.v1.0.${v} dist/gis-eyetracker-mipt.v1.0.${v}.zip"
+pyinstaller gis-eye-tracker-mipt${dev}.spec
+cp *.kv dist/${name}/
+cp *.dll dist/${name}/
+cp *.json dist/${name}/
+cp -r settings dist/${name}/settings
+cp -r assets/ dist/${name}/assets
+cp -r poppler-0.68.0/ dist/${name}/poppler-0.68.0
+
+echo "{\"main\": { \"name\": \"${name}\", \"version\" :  [${major}, ${major}, ${patch}]}}" > dist/${name}/assets/version.json
+
+mkdir dist/v${major}-${minor}-${patch}
+
+mv dist/${name}/* dist/v${major}-${minor}-${patch}
+mv dist/v${major}-${minor}-${patch} dist/${name}/v${major}-${minor}-${patch}
+
+assets/shortcut.ps1 "dist\\${name}\GIS Eyetracker MIPT.lnk" "dist\\${name}\v${major}-${minor}-${patch}\\${name}.exe"
+
+
+mv dist/${name} dist/${name}.v${major}.${minor}.${patch}
+
+powershell "Compress-Archive dist/${name}.v${major}.${minor}.${patch} dist/${name}.v${major}.${minor}.${patch}.zip"
+
+
+if ! command -v gdrive-windows-x64.exe &> /dev/null
+then
+    echo "gdrive-windows-x64.exe not found, you will upload manually"
+    exit
+fi
+
+upload_result=$(gdrive-windows-x64.exe upload --parent ${gdrive_parent} dist/${name}.v${major}.${minor}.${patch}${dev}.zip)
+
+echo "${upload_result}${dev}.v${major}.${major}.${patch}" >> ../releases-heroku/releases${dev}.changelog
+
+cd ../releases-heroku/
+git add -A
+git commit -m "uploaded new dev v${major}.${major}.${patch}"
+git push

@@ -6,6 +6,7 @@ import os
 import cv2
 import filecmp
 from PIL import Image
+
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 ERROR = -1
@@ -15,12 +16,6 @@ LOCALE = {}
 with open("_locale.json", "r", encoding="utf8") as f:
     LOCALE = json.load(f)
 
-# LOCALE["__empty"] = {
-#     "ru": "",
-#     "en": ""
-# }
-
-# timestamp = lambda x: time.mktime(time.strptime(x[0], "%H:%M:%S")) + float("0." + x[1])
 
 def get_app_dir():
     APP_PATH = os.path.dirname(__file__)
