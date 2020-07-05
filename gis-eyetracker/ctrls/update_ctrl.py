@@ -54,16 +54,18 @@ class UpdateCtrl():
         }
 
     def check_updates(self, target="main"):
-        print(target)
         
         # if updates available tell and change button to click to update
         with open(os.path.join(APP_DIR, "assets", "updates.json")) as fp:
             updates_links = json.load(fp)
+            fp.close()
         
         # get current version
         with open(os.path.join(APP_DIR, "assets", "version.json")) as fp:
             current_version_inf = json.load(fp)
+            fp.close()
             current_version = current_version_inf.get(target, {})
+
             self.update_name = current_version.get("name", None)
             major, minor, patch = current_version.get("version", [0, 0, 0])
             self.update_version = "v{}.{}.{}".format(major, minor, patch )
@@ -86,6 +88,7 @@ class UpdateCtrl():
                 with open(filename) as rfp:
                     # get the list of updates
                     lines = rfp.readlines()
+                    rfp.close()
                     if len(lines) < 3:
                         file_log("[INFO] no update available")
                         return 1
@@ -139,21 +142,20 @@ class UpdateCtrl():
                 if os.path.isfile(target):
                     os.remove(target)
 
-                fromDirectory = os.path.dirname(APP_DIR, "user")
-                toDirectory = os.path.dirname(dir_target, "user")
+                dir_list = os.listdir(dir_target)
+                
+                extracted_dir = None
+                for extracted_dir in dir_list:
+                    extracted_dir = os.path.join(dir_target, extracted_dir)
+                    if os.path.isdir(extracted_dir):
+                        if self.update_name in extracted_dir:
+                            break
 
-                copy_tree(fromDirectory, toDirectory)
+                if extracted_dir is not None:
+                    fromDirectory = os.path.join(APP_DIR, "user")
+                    toDirectory = os.path.join(extracted_dir, "user")
 
-                exe_path = os.path.join(dir_target, self.update_name)
-                args = [os.path.join(APP_DIR, "assets", "shortcut.ps1"), short_cut_name, exe_path]
-
-                if platform.system() == 'Windows':
-                    startupinfo = subprocess.STARTUPINFO()
-                    startupinfo.dwFlags = subprocess.CREATE_NEW_CONSOLE | subprocess.STARTF_USESHOWWINDOW
-                    startupinfo.wShowWindow = subprocess.SW_HIDE
-                    kwargs['startupinfo'] = startupinfo
-
-                    status_output_full = subprocess.call(args)
+                    copy_tree(fromDirectory, toDirectory)
 
                 cb()
 
