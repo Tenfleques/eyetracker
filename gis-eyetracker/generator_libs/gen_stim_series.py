@@ -27,6 +27,14 @@ import json
 import copy
 import os
 from kivy.uix.image import Image
+import threading
+import cv2
+from  kivy.graphics.texture import Texture
+from generator_libs.video_player_kivy import *
+
+
+play_func = None
+
 
 class gen_SERIES(BoxLayout):
     def __init__(self, work_folder, **kwargs):
@@ -43,8 +51,8 @@ class gen_SERIES(BoxLayout):
         
         self.files = FileChooserListView(filters = ['*.meta', '*.meta_s'],\
                                          rootpath = self.work_folder+'output', \
-                                         multiselect = False)#\
-                                         #on_submit = self.press_select_image)
+                                         multiselect = False,
+                                         on_submit = self.press_double_click)
         
         self.rv = RV()
         
@@ -69,16 +77,17 @@ class gen_SERIES(BoxLayout):
         self.video_lay.add_widget(meta_lay)
         self.video_lay.add_widget(ser_lay)
         
-        self.control_lay.add_widget(Button(text = 'Просмотр стимула', size_hint = [.8, 1.0], on_press = self.press_preview))
-        self.control_lay.add_widget(Button(text = 'Загрузить', on_press = self.press_add))
-        self.control_lay.add_widget(Button(text = 'Установить\nдлительность', halign = 'center',on_press = self.press_setduration))
+        #self.control_lay.add_widget(Button(text = 'Просмотр стимула', size_hint = [.8, 1.0], on_press = self.press_preview))
+        #self.control_lay.add_widget(Button(text = 'Загрузить', on_press = self.press_add))
+        #self.control_lay.add_widget(Button(text = 'Установить\nдлительность', halign = 'center',on_press = self.press_setduration))
         self.control_lay.add_widget(Button(text = 'Переместить вверх', on_press = self.press_moveUp))
         self.control_lay.add_widget(Button(text = 'Переместить вниз', on_press = self.press_moveDown))
         self.control_lay.add_widget(Button(text = 'Удалить стимул', on_press = self.press_moveOut))
         self.control_lay.add_widget(Button(text = 'Сохранить серию', on_press = self.press_Save))
         self.control_lay.add_widget(Button(text = 'Очистить серию', on_press = self.press_Clear))
         
-        
+        global play_func
+        play_func = self.press_preview
         
         self.add_widget(self.video_lay)
         self.add_widget(self.control_lay)
@@ -104,20 +113,72 @@ class gen_SERIES(BoxLayout):
             #video.state = 'play'
             #self.anch.open()
             #Clock.schedule_once(self.my_callback, video_duration)
-            os.system(path)
+            #os.system(path)
+            player = MyPlayerWidget(self.anch)
+            self.anch.add_widget(player)
+            #player.button.on_press = self.anch.dismiss
+            player.start_play(path)
+            self.anch.open()
             return;
         
         else:
             image = Image(source = path)
-            self.anch.add_widget(image)
+            bshow = BoxLayout(orientation = 'vertical')
+            bshow.add_widget(image)
+            bshow.add_widget(Button(text =  'Закрыть', size_hint = [1.0,0.05], on_press = self.anch.dismiss))
+            
+            self.anch.add_widget(bshow)
             self.anch.open()
-            Clock.schedule_once(self.my_callback, video_duration)
+            #Clock.schedule_once(self.my_callback, video_duration)
             return
         
     def my_callback(self, dt):
         self.anch.clear_widgets()
         self.anch.dismiss()
         
+    
+    def play_video(self, video, image):
+        cap = cv2.VideoCapture(video) 
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        print(fps)
+        # Check if camera opened successfully 
+        if (cap.isOpened()== False):  
+          print("Error opening video  file") 
+        
+        cnt = 0
+        # Read until video is completed 
+        while(cap.isOpened()): 
+          cnt
+          # Capture frame-by-frame 
+          ret, frame = cap.read() 
+          if ret == True: 
+           
+            # Display the resulting frame 
+            #cv2.imshow('Frame', frame) 
+           
+            buf = frame.tostring()
+            texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+            texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+    
+            image.texture = texture
+            
+            
+            
+            # Press Q on keyboard to  exit 
+            if cv2.waitKey(int(1000 / fps)):
+              break
+           
+          # Break the loop 
+          else:  
+            break
+         
+        # When everything done, release  
+        # the video capture object 
+        cap.release() 
+           
+        # Closes all the frames 
+        cv2.destroyAllWindows() 
+    
     
     def gen_series_name(self):
         
@@ -177,6 +238,10 @@ class gen_SERIES(BoxLayout):
         
         pass
         
+    
+    def press_double_click(self, instance, selection, touch):
+        self.press_add(None)
+    
     def press_setduration(self, instance):
         
         if self.rv.selected_idx == None:
@@ -322,7 +387,7 @@ Builder.load_string('''
         touch_multiselect: False
 ''')
 
-
+import datetime
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior,
                                  RecycleBoxLayout):
     ''' Adds selection and focus behaviour to the view. '''
@@ -333,7 +398,7 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
     index = None
     selected = BooleanProperty(False)
     selectable = BooleanProperty(True)
-
+    dt_double_click = datetime.timedelta(milliseconds = 300)
     def refresh_view_attrs(self, rv, index, data):
         ''' Catch and handle the view changes '''
         self.index = index
@@ -349,14 +414,125 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
 
     def apply_selection(self, rv, index, is_selected):
         ''' Respond to the selection of items in the view. '''
-        self.selected = is_selected
+ 
+        if (is_selected):
+            press_time = datetime.datetime.now()
+            double_click = ((press_time-rv.last_sel_time)<self.dt_double_click)
+            #print('time:',(press_time-rv.last_sel_time))
+            #print('dt:', self.dt_double_click)
+            #print('sel:', self.selected)
+            if(rv.selected_idx == index)and(double_click):
+                rv.last_sel_time = press_time
+                #self.press_setduration(rv)
+                self.press_contextMenu(rv)
+                
+                
+                
+                
+                
+                
+            else:
+                rv.last_sel_time = press_time
         
+        self.selected = is_selected
+         
         if is_selected:
             rv.selected_idx = index
             #print("selection changed to {0}".format(rv.data[index]))
         else:
             pass
            # print("selection removed for {0}".format(rv.data[index]))
+        
+    pp1 = Popup(title = 'Контекстное меню', size_hint = [0.3,0.3])   
+    menu_loaded = False
+    
+    
+    def press_contextMenu(self, rv):
+        
+        
+        self.pp1 = Popup(title = 'Контекстное меню', size_hint = [0.3,0.3])
+        blay = BoxLayout(orientation = 'vertical')
+        
+        func = partial(self.press_setduration, rv)
+        
+        
+        
+        blay.add_widget(Button(text = 'Показ стимула', on_press = self.press_preview))
+        blay.add_widget(Button(text = 'Длительность', on_press = func))
+        
+        
+        func_del = partial(self.press_moveOut, rv)
+        blay.add_widget(Button(text = 'Удалить', on_press = func_del))
+        blay.add_widget(Button(text = 'Закрыть меню', on_press = self.pp1.dismiss))
+               
+        self.pp1.add_widget(blay)
+        self.menu_loaded = True
+        
+        self.pp1.open()
+    
+    
+    
+    
+    def press_setduration(self, rv, instance):
+        
+        if rv.selected_idx == None:
+            pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
+            bb1 = Button(text = 'Пожалуйста, выберите стимул из серии', on_press = pp1.dismiss)
+            pp1.add_widget(bb1)
+            pp1.open()
+            return
+        print(rv.selected_idx)
+        
+        if rv.data[rv.selected_idx]['type']=='video':
+            pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
+            bb1 = Button(text = 'Вы не можете установить длительность для видео', on_press = pp1.dismiss)
+            pp1.add_widget(bb1)
+            pp1.open()
+            return
+        
+        
+        currtime = rv.data[rv.selected_idx]['duration']
+        pp2 = Popup(title = 'Введите желаемую длительность в секундах', size_hint = [0.3,0.2])
+        blay = BoxLayout(orientation = 'vertical')
+        dur_text = TextInput(input_filter = 'float', text = str(currtime))
+        blay.add_widget(dur_text)
+        
+        func = partial(self.set_duration, pp2, dur_text, rv.selected_idx, rv)
+        blay.add_widget(Button(text =  'Установить', on_press = func, size_hint = [1.0,0.2]))
+        pp2.add_widget(blay)
+        pp2.open();
+        self.pp1.dismiss()
+        
+    def set_duration(self, pp, dur_text, index_sel, rv, instance):
+        duration = float(dur_text.text)
+        rv.data[index_sel]['duration'] = duration
+        shownname = rv.data[index_sel]['name']+'   ['+rv.data[index_sel]['type']+']['+str(duration)+' sec]'
+        data = rv.data[index_sel]
+        data['text']=shownname
+        print(data)
+        rv.data[index_sel] = data
+        pp.dismiss()
+        
+        
+    def press_preview(self, instance):
+        global play_func
+        self.pp1.dismiss()
+        play_func(instance)
+        
+        
+        
+    def press_moveOut(self, rv, instance):
+        if rv.selected_idx == None:
+            pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
+            bb1 = Button(text = 'Пожалуйста, выберите стимул из серии', on_press = pp1.dismiss)
+            pp1.add_widget(bb1)
+            pp1.open()
+            return
+        
+        idx = rv.selected_idx
+        rv.data = rv.data[:idx]+rv.data[idx+1:]
+        rv.selected_idx = None
+        self.pp1.dismiss()
 
 
 class RV(RecycleView):
@@ -364,6 +540,7 @@ class RV(RecycleView):
         super(RV, self).__init__(**kwargs)
         self.data = []
         self.selected_idx = None
+        self.last_sel_time = datetime.datetime.now()
 
 class main(App):
     def build(self):
