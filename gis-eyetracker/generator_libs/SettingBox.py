@@ -52,6 +52,11 @@ class Parameter(BoxLayout):
         elif(inputtype == 'text'):
             pass
         
+        
+        if(self.orientation == 'vertical'):
+            print("vert")
+            self.ids['l_val'].size_hint = [1.0, 0.7]
+        
         pass
         
     def press(self):

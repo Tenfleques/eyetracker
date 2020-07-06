@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.filechooser import FileChooserIconView
@@ -7,6 +8,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.core.window import Window
 from kivy.uix.button import Button
+from kivy.uix.slider import Slider
 
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
@@ -74,6 +76,22 @@ def transliterate(name):
 GlobVideoSet = None
 GlobVideoSetMenu = None
 
+class Smoothing_Slider(Slider):
+    def __init__(self, root, **kwargs):
+        super(Smoothing_Slider,self).__init__(**kwargs)
+        self.root = root
+
+    def create_img(self):
+        self.root.press_select(sigma=self.value)
+
+
+
+Builder.load_string("""
+<Smoothing_Slider>:
+   on_value : root.create_img()
+""")
+
+
 class gen_TRAJECT(BoxLayout):
     
     DATA_LOADED = False 
@@ -99,7 +117,7 @@ class gen_TRAJECT(BoxLayout):
         
         super(gen_TRAJECT, self).__init__(**kwargs)
         #left part
-        self.blay1 = SettingBox(orientation = 'vertical', size_hint = [0.3, 1.0])
+        self.blay1 = SettingBox(id='box1', orientation = 'vertical', size_hint = [0.3, 1.0])
         
         self.blay1.add_widget(Label(text = 'Файл с изображением:', size_hint = [1.0, 0.05]))
         
@@ -115,10 +133,11 @@ class gen_TRAJECT(BoxLayout):
         
         self.blay1.add_widget(self.image_preview)
         self.blay1.add_widget(Button(text = 'По часовой стрелке', on_press = self.press_clockwise, size_hint = [1.0, 0.3]))
-        self.blay1.add_widget(Button(text = 'Постобработка контура: включена', on_press = self.press_preproc, size_hint = [1.0, 0.3]))
-        self.blay1.add_widget(Button(text = 'Загрузить изображение \nи сгенерировать контур', on_press = self.press_select, size_hint = [1.0, 0.3]))
+        # self.blay1.add_widget(Button(text = 'Постобработка контура: включена', on_press = self.press_preproc, size_hint = [1.0, 0.3]))
+        self.blay1.add_widget(Smoothing_Slider(id='sm_slider', root=self, min=0, max=15, step=0.5 , size_hint = [1.0, 0.3]))
+        # self.blay1.add_widget(Button(text = 'Загрузить изображение \nи сгенерировать контур', on_press = self.press_select, size_hint = [1.0, 0.3]))
         
-        
+
         self.add_widget(self.blay1)
         
         blay2 = BoxLayout(orientation = 'vertical')
@@ -168,7 +187,7 @@ class gen_TRAJECT(BoxLayout):
         blay2.add_widget(blay3)
         self.add_widget(blay2)
         self.spacing = 2;
-    
+
     def gen_series_name(self, name_pref):
         
         number = 0
@@ -208,11 +227,17 @@ class gen_TRAJECT(BoxLayout):
         #self.speed_painter.reinit();
         #self.speed_painter.redraw();
         self.ImageIsSelected = True
-    
+        self.press_select(sigma=0)
+        self.children[1].children[0].value = 0
+
     cnter=1;
-    def press_select(self, instance):
+    def press_select(self, sigma=5):
         
-        
+        if sigma == 0:
+            self.preproc = False
+        else:
+            self.preproc = True
+
         print('touch')
         if len(self.files.selection)==0:
             pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
@@ -229,7 +254,7 @@ class gen_TRAJECT(BoxLayout):
             return
         
         image = cv2.imread(self.selected_image)
-        image, counters = process_image(image, self.preproc)
+        image, counters = process_image(image, self.preproc, sigma=sigma)
         
         
         self.cnter = self.cnter+1
@@ -288,6 +313,13 @@ class gen_TRAJECT(BoxLayout):
         if (max_speed<min_speed):
             pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
             bb1 = Button(text = 'Максимальная скорость меньше минимальной', on_press = pp1.dismiss)
+            pp1.add_widget(bb1)
+            pp1.open()
+            return
+        
+        if (min_speed<=0.0):
+            pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
+            bb1 = Button(text = 'Минимальная скорость должна быть\n больше нуля', on_press = pp1.dismiss)
             pp1.add_widget(bb1)
             pp1.open()
             return
