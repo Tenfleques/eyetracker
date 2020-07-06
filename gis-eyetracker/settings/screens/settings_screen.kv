@@ -8,7 +8,7 @@
         BackgroundGridLayout:
             rows: 4
             GridLayout:
-                rows: 3
+                rows: 4
                 BackgroundGridLayout:
                     rows: 1
                     size_hint_y: None
@@ -17,6 +17,23 @@
                     NormalLabel:
                         markup:True
                         text: "[b]" + root.get_local_str('_app_extensions') + "[/b]"
+                BackgroundGridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: None
+                    height: 40
+                    NormalButton:
+                        text: root.get_local_str("_check_updates")
+                        on_release: root.check_updates(self)
+                        id: btn_update_ctrl
+                        size_hint: (None, None)
+                        width: '300dp'
+                        height: '25dp'
+                    NormalLabel:
+                        id:lbl_update_available
+                        markup: True
+                        text: ""
+                        
                 BackgroundGridLayout:
                     rows: 1
                     cols: 2

@@ -359,3 +359,7 @@ user
 */build
 */dist
 */user
+gis-eyetracker-mipt*
+gdrive-windows-x64.exe
+credentials.json
+client_secrets.json

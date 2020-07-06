@@ -1,0 +1,3 @@
+[submodule "gis-eyetracker-releases"]
+	path = gis-eyetracker-releases
+	url = git@github.com:Tenfleques/gis-eyetracker-releases.git

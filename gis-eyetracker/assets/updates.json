@@ -1,0 +1,8 @@
+{
+    "main" : {
+        "url": "https://gis-eyetracker.herokuapp.com/releases"
+    },
+    "openface" : {
+        "url": ""
+    }
+}

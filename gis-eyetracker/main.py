@@ -100,7 +100,7 @@ class GisApp(App):
     def on_start(self):
         app = App.get_running_app()
         self.tracker_app_log("[b]{} 2020 - {} [/b]".format(chr(0x00A9), time.strftime("%Y")), log_t=False)
-        Clock.schedule_once(lambda dt: self.init_all_screens(), 10)
+        Clock.schedule_once(lambda dt: self.init_all_screens(), 5)
         
     def bg_open_face_process(self, cam_video, w, h):
         APP = get_default_from_prev_session('lbl_bin_directory', os.path.join(APP_PATH, "bin"))
