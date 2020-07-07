@@ -13,3 +13,7 @@ pandas
 wget
 lxml
 markdown
+matplotlib
+pdf2image
+filetype
+pyinstaller
