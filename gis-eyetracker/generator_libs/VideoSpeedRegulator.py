@@ -19,6 +19,15 @@ class MyPaintWidget(AnchorLayout):
     lenX = 800
     keylist = []
     offset = 10
+    
+    class pnt:
+        def __init__(self):
+            self.x = -1
+            self.y = -1
+    
+    last_touch = pnt()
+    
+    
     def Loc2Glob(self,coord):
         x = coord[0]+self.pos[0]
         y = coord[1]+self.pos[1]
@@ -71,13 +80,18 @@ class MyPaintWidget(AnchorLayout):
         self.NewCoordinates = {}
         self.lastX = touch.x
         print(self.pos, self.size)
+        self.last_touch = touch
         
     def on_touch_move(self, touch):
+        
         if not self.IsTouchInside(touch):
+            
             print('not inside')
+            self.on_touch_up(self.last_touch, force = True);
             return
         
         self.NewCoordinates[touch.x] = touch.y
+        self.last_touch = touch
         with self.canvas:
             Color(1, 1, 0)
             Ellipse(pos=(touch.x - self.d / 2, touch.y - self.d / 2), size=(self.d, self.d))
@@ -98,8 +112,8 @@ class MyPaintWidget(AnchorLayout):
              
         
 
-    def on_touch_up(self, touch):
-        if not self.IsTouchInside(touch):
+    def on_touch_up(self, touch, force = False):
+        if (not self.IsTouchInside(touch))and(force):
             return
         
         with self.canvas:
@@ -125,7 +139,7 @@ class MyPaintWidget(AnchorLayout):
                 y2 = self.NewCoordinates[x2]
                 
                 Color(0, 0, 0)
-                print('up')
+                #print('up')
                 K = (y2-y1)/(x2-x1)
                 
                 Color(1, 1, 0)

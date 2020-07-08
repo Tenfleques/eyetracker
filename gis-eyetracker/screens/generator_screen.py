@@ -58,9 +58,10 @@ class gen_MAIN(BoxLayout):
         self.padding = [5, 0, 5, 20]
         self.control_lay = BoxLayout(size_hint = [1.0, 0.05])
         self.generator_lay = AnchorLayout()
-        
-        self.add_widget(self.generator_lay)
+        self.padding = 5
         self.add_widget(self.control_lay)
+        self.add_widget(self.generator_lay)
+        
         
         os.makedirs(os.path.join(PATH,'data/'), exist_ok=True)
         os.makedirs(os.path.join(PATH,'data', 'input'), exist_ok=True)
@@ -97,6 +98,8 @@ class gen_MAIN(BoxLayout):
     def press_matrix(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_matrix)
+        self.gen_matrix.files._update_files()
+        self.gen_matrix.selection = []
         
         
     def press_traject(self, instance):

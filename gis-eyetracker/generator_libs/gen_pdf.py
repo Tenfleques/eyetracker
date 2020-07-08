@@ -125,6 +125,10 @@ class gen_PDF(BoxLayout):
             file_name = self.work_folder+'output/'+file.split('\\')[-1][:-4]
             images = convert_from_path(file)
             pix = np.array(images[0])
+            
+            pix = FormatImageText(width, height, pix)
+            
+            
             cv2.imwrite(self.work_folder+'output/'+file.split('\\')[-1][:-4]+'.png', pix)
             
             meta_dict = {}

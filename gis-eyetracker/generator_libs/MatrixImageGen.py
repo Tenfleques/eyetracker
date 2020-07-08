@@ -21,9 +21,16 @@ def get_Matrix_image(M, size, space, width, heigh, font_file):
     print(size_X,size_Y)
     print(start_X,start_Y)
     
+    point = 0;
+    
+    pnts = []
+    
+    
     for i,lmas in enumerate(M):
         for j, let in enumerate(lmas):
             draw.text((start_X+j*dt,start_Y+i*dt),  let, font = font, fill = (0,0,0))
+            pnt = {'x':start_X+j*dt, 'y':start_Y+i*dt}
+            pnts.append(pnt)
             
     img = np.array(img_pil)
-    return img
+    return img, pnts

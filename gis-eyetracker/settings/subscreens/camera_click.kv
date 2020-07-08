@@ -1,0 +1,24 @@
+#:kivy 1.1.0
+<CameraClick>:
+    orientation: 'vertical'
+    index: 0
+    size_hint_x: None
+    width: 480
+    BackgroundBoxLayout:
+        orientation: 'vertical'
+        padding: [0, 0, 20, 0,]
+        Image:
+            id: camera
+            size_hint_y: 1
+            allow_stretch:True
+            keep_ratio:False
+            pos_hint:{'x':.0, 'y':.0}
+        BackgroundBoxLayout:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: 50
+            NormalButton:
+                text: root.get_local_str("_capture")
+                size_hint_y: None
+                height: '48dp'
+                on_press: root.capture()
