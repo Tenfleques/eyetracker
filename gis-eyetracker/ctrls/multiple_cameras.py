@@ -17,15 +17,15 @@ APP_DIR = get_app_dir()
 widget = Builder.load_file(os.path.join(APP_DIR, "settings", "subscreens", "muliticams_calibrator.kv"))
 
 def discover_cameras():
-
+    cap = cv2.VideoCapture()
+    nums_ind = []
     for i in itertools.count(start=0):
-        try:
-            cammm = Camera(play=False, resolution=(640, 480), index = i)
-        except AttributeError:
-            nums_ind = [j for j in range(i)]
+        if cap.open(i):
+            nums_ind.append(i)
+        else:
             break
+    cap.release()
 
-    # return nums_ind + [0] # simulate more cams where there's 1
     return nums_ind
 
 class MultipleCameras(BoxLayout):
@@ -36,7 +36,7 @@ class MultipleCameras(BoxLayout):
 
     def start_all(self):
         ids = discover_cameras()
-
+        
         for cam_index in ids:
             
             widget = CameraClick(index=cam_index)
