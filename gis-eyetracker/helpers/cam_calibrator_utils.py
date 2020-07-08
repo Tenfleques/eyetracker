@@ -150,7 +150,7 @@ class Calibrator:
             K = np.load(self.main_folder+str(camera_index)+'K.npy')
             D = np.load(self.main_folder+str(camera_index)+'D.npy')
             
-        #print(K)
+        print(K)
 
         rvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(N_OK)]
         tvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(N_OK)]
