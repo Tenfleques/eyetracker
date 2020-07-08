@@ -3,6 +3,7 @@ import math
 import numpy as np
 import cv2 as cv
 import copy
+import json
 
 def calculateDistance(x1,y1,x2,y2):
     dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
@@ -113,6 +114,9 @@ def GenerateVideoSVG(name, image, counturs, speed_list, width, height, fps):
     
     print(v_fps, dt)
     framecount= 0;
+    
+    trajectory_points = []
+    
     while True:
         
         passed_distance = ball.dist(L)
@@ -134,12 +138,20 @@ def GenerateVideoSVG(name, image, counturs, speed_list, width, height, fps):
         X_o,Y_o = P
         center_coordinates = (int(offset_x+X_o*scale),int(offset_y+Y_o*scale))
         
+        pnt = {'x':center_coordinates[0], 'y': center_coordinates[1]}
+        trajectory_points.append(pnt)
+        
         back = copy.deepcopy(background)
         frame = cv.circle(back, center_coordinates, radius, color, thickness)
         out.write(frame)
         framecount = framecount+1
         
+    
     out.release()  
+    
+    
+    with open(name+'.stimulus.json', 'w') as outfile:
+        json.dump(trajectory_points, outfile)
     
     #duration = dt*cnter_frames
     #fout = open("data_tmp/"+name+'.meta','w')
