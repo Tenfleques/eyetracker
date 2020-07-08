@@ -79,6 +79,7 @@ class CameraClick(BoxLayout):
         camera = self.ids['camera']
 
         nparr = np.fromstring(self.ids['camera'].texture.pixels, dtype=np.uint8)
-        a = np.reshape(nparr, (480,640,4))
+        
+        a = np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4))
 
         CAL.fit_calibrator_from_stream(a, camera_index = self.index)

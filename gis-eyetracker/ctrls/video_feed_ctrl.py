@@ -157,12 +157,19 @@ class VideoCanvas(Image):
             self.stop()
             return
         # do the callback for video frame, e.g add some color or some text, real time rendering
-        rel_h = int(min(frame.shape[0], self.height))
+
+        rel_h = int(bg_frame.shape[0])
+        #if bg_frame.shape[0] > frame.shape[0]:
+        #    rel_h = int(frame.shape[0])
+            
         rel_w = int(rel_h * frame.shape[1] * 1.0/frame.shape[0])
-
-        frame = cv2.resize(frame, (rel_w, rel_h))
-        bg_frame[:rel_h, :rel_w, :] = frame
-
+        
+        try:
+            frame = cv2.resize(frame, (rel_w, rel_h))
+            bg_frame[:rel_h, :rel_w, :] = frame
+        except Exception as err:
+            print(err)
+        
         bg_frame = cb(bg_frame)
 
         buf_raw = cv2.flip(bg_frame, 0)
