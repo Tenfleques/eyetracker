@@ -156,3 +156,15 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 6. More space in the main views on the tracker and the playback screens
 7. User can hide the frame details pane to gain more space
 8. User can define log directory and also the log level for the kivy operations. Tracker and Playback logs are in seperate file.
+
+
+### v1.1.0 July 6 2020
+
+[gis-eyetracker-mipt.v1.1.0](https://drive.google.com/file/d/1kOsUCWgWnSEHD4sLnUOuIXkKcrYyMkcJ/view?usp=sharing)
+
+[gis-eyetracker-mipt.v1.1.0](https://drive.google.com/file/d/1kX0k_seqdG1aPuRD7wDJyvCaJNwaRJzd/view?usp=sharing)
+
+1. v1.1.0 checking for updates in the settings page and downloading of an available update
+
+2. v1.1.0 brings more automation in the compiling process
+

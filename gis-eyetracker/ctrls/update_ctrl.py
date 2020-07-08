@@ -68,7 +68,6 @@ class UpdateCtrl():
 
             self.update_name = current_version.get("name", None)
             major, minor, patch = current_version.get("version", [0, 0, 0])
-            self.update_version = "v{}.{}.{}".format(major, minor, patch )
 
 
         resource_details = updates_links.get(target, {})
@@ -77,7 +76,7 @@ class UpdateCtrl():
         if resource_details.get("url", None):
             user_tmp_folder = os.path.join(APP_DIR, "user", "tmp")
             os.makedirs(user_tmp_folder, exist_ok=True)
-            user_tmp_file = os.path.join(user_tmp_folder, "releases-dev.changelog") 
+            user_tmp_file = os.path.join(user_tmp_folder, "releases.changelog") 
 
             try:
                 if os.path.isfile(user_tmp_file):
@@ -93,16 +92,21 @@ class UpdateCtrl():
                         file_log("[INFO] no update available")
                         return 1
 
-                    latest = lines[-1].strip().split("v")[-1]
+                    latest = lines[-1]
                     if latest:
-                        latest_arr = latest.split(".")
-                        if len(latest_arr) == 3:
-                            if major != latest_arr[0] or minor != latest_arr[1] or patch != latest_arr[0]:
-                                # we have an update
+                        try:
+                            latest_arr = [int(i.strip()) for i in latest.split(".")]
+                        except Exception as cast_err:
+                            file_log("[ERROR] failed to cast new update version numbers")
+                            return -1
 
-                                latest_str = lines[-2].split(" ")
+                        if len(latest_arr) == 3:
+                            if major != latest_arr[0] or minor != latest_arr[1] or patch != latest_arr[2]:
+                                # we have an update
+                                self.update_version = "v{}.{}.{}".format(latest_arr[0], latest_arr[1], latest_arr[2] )
+                                latest_str = lines[-2]
                                 if len(latest_str) > 5:
-                                    self.update_id = latest_str[1]
+                                    self.update_id = latest_str
                                     self.update_fname = "v{}.{}.{}.zip".format(latest_arr[0], latest_arr[1], latest_arr[2])
                                 else: 
                                     file_log("[ERROR] failed to parse new update link")
