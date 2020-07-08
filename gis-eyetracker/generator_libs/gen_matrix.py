@@ -151,6 +151,7 @@ class gen_MATRIX(BoxLayout):
         blay2.add_widget(self.image_lay)
         blay2.add_widget(blay3)
         self.add_widget(blay2)
+        self.pnts = []
     
     def press_select(self, instance):
         print('touch')
@@ -186,6 +187,8 @@ class gen_MATRIX(BoxLayout):
     
     matrix_shown = False
     
+    
+    
     def press_showmatrix(self,instance):
         GlobVideoSet.update()
         #duration = float(self.dur_input.text)
@@ -216,7 +219,8 @@ class gen_MATRIX(BoxLayout):
         M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
 
         print('MATRIX_GEN, FONT:',self.font)
-        image = get_Matrix_image(M, font_size, font_space, width, height, self.font)  
+        
+        image,  self.pnts  = get_Matrix_image(M, font_size, font_space, width, height, self.font)  
         
         im_out = self.tmp+'matrix'+str(self.curr_pict_id)+'.png'
         
@@ -329,13 +333,15 @@ class gen_MATRIX(BoxLayout):
         
         for i,word in enumerate(word_list):
             image = None
+            pnts = None 
             
             if (i==0)and(word==self.word.text)and(self.matrix_shown):
                 im_out = self.tmp+'matrix'+str(self.curr_pict_id)+'.png'
                 image = cv2.imread(im_out)
+                pnts = self.pnts
             else:
                 M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
-                image = get_Matrix_image(M, font_size, font_space, width, height, self.font)
+                image,pnts = get_Matrix_image(M, font_size, font_space, width, height, self.font)
             
             word_trans = transliterate(word)
             
@@ -353,6 +359,10 @@ class gen_MATRIX(BoxLayout):
             meta_dict['duration']=10.0
             with open(self.work_folder+'output/'+file_name_pref+'.meta', 'w') as f:
                     json.dump(meta_dict, f)
+                    
+            with open(self.work_folder+'output/'+file_name_pref+'.stimulus.json', 'w') as f:
+                    json.dump(pnts, f)      
+                    
             #file_name = file_name.encode('utf-8')
             #cv2.imwrite(file_name+'.png', image)
             #scipy.misc.toimage(image, cmin=0.0, cmax=...).save(file_name+'.png')

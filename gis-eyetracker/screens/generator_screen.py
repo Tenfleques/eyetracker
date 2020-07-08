@@ -98,6 +98,8 @@ class gen_MAIN(BoxLayout):
     def press_matrix(self,instance):
         self.generator_lay.clear_widgets()
         self.generator_lay.add_widget(self.gen_matrix)
+        self.gen_matrix.files._update_files()
+        self.gen_matrix.selection = []
         
         
     def press_traject(self, instance):
