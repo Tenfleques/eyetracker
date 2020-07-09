@@ -4,7 +4,8 @@ name="gis-eyetracker-mipt${dev}"
 root_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 echo "compiling version ${name}.v${major}.${major}.${patch}" 
 
-pyinstaller ${name}.spec
+
+python -m PyInstaller ${name}.spec
 
 echo "copying support files..."
 cp *.kv dist/${name}/
@@ -29,7 +30,7 @@ mv dist/${dev}v${major}.${minor}.${patch} dist/${name}/${name}.v${major}.${minor
 
 powershell "Compress-Archive dist/${name} dist/${name}.v${major}.${minor}.${patch}.zip;"
 
-cp ../README.nd ../gis-eyetracker-releases/
+cp ../README.md ../gis-eyetracker-releases/
 
 echo "uploading to google drive"
 

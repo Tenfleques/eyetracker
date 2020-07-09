@@ -32,7 +32,7 @@ os.makedirs(log_dir, exist_ok=True)
 
 # load user previous session settings
 try:
-    if not os.path.isdir(user_dir):
+    if not os.path.isfile(prev_session_file_path):
         os.makedirs(user_dir, exist_ok=True)
         SESSION_PREFS = {}
         with open(prev_session_file_path, "w") as session_f:
