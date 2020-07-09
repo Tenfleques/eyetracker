@@ -168,3 +168,11 @@ https://drive.google.com/drive/folders/19hDrP7U7ChThVpxspUiiXnMFEnzLJSI5?usp=sha
 
 2. v1.1.0 brings more automation in the compiling process
 
+### v1.1.0 July 6 2020
+
+[gis-eyetracker-mipt.v1.1.1](https://drive.google.com/file/d/1kOsUCWgWnSEHD4sLnUOuIXkKcrYyMkcJ/view?usp=sharing)
+
+[gis-eyetracker-mipt.v1.1.1](https://drive.google.com/file/d/1kX0k_seqdG1aPuRD7wDJyvCaJNwaRJzd/view?usp=sharing)
+
+1. v1.1.1 patches universality bugs
+

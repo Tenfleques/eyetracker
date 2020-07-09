@@ -21,6 +21,8 @@ from screens.splash_screen import SplashScreen
 from screens.cam_config_screen import CamConfigScreen
 from ctrls.open_face_ctrl import OpenFaceController
 
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
+
 Window.set_icon('./assets/icon.png')
 Window.size = (600, 400)
 
@@ -81,6 +83,7 @@ class GisApp(App):
         Window.borderless = False
         Config.set('graphics', 'borderless', 'False')
         self.tracker_app_log("", log_t=False)
+        Window.maximize()
         Window.show()
         app.root.ids["screen_manager"].transition = FadeTransition()
 

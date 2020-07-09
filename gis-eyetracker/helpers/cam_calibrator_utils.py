@@ -5,9 +5,12 @@ import numpy as np
 import os
 import glob
 import itertools
+from helpers import get_app_dir
+
+APP_PATH = get_app_dir()
 
 class Calibrator:
-    def __init__(self, img_format = 'jpg', CHECKERBOARD = (6,9), verbose = False, main_folder = './' ):
+    def __init__(self, img_format = 'jpg', CHECKERBOARD = (6,9), verbose = False, main_folder = os.path.join(APP_PATH, "user", "configs", "camera") ):
         self.img_format = img_format
         self.CHECKERBOARD = CHECKERBOARD # size of Chess board
         self.verbose = verbose # algorithm Versatility
@@ -173,8 +176,8 @@ class Calibrator:
             print("D=np.array(" + str(D.tolist()) + ")")
 
             print(self.main_folder+str(camera_index)+'K')
-            np.save(self.main_folder+str(camera_index)+'K', K)
-            np.save(self.main_folder+str(camera_index)+'D', D)
+            np.save(os.path.join(self.main_folder, '{}K'.format(camera_index)), K)
+            np.save(os.path.join(self.main_folder, '{}D'.format(camera_index)), D)
 
         except cv2.error:
             print("BAD IMAGE! Please take the other photo.")
