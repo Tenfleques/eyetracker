@@ -178,6 +178,10 @@ def get_default_from_prev_session(key, default='', config_path=None):
             with open(config_path, "r") as session_f:
                 data_obj = json.load(session_f)
                 session_f.close()
+    else:
+        with open(prev_session_file_path, "r") as session_f:
+            data_obj = json.load(session_f)
+            session_f.close()
 
     if key in data_obj.keys():
         return str(data_obj.get(key))

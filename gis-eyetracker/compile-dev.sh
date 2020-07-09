@@ -29,6 +29,7 @@ mv dist/${dev}v${major}.${minor}.${patch} dist/${name}/${name}.v${major}.${minor
 
 powershell "Compress-Archive dist/${name} dist/${name}.v${major}.${minor}.${patch}.zip;"
 
+cp ../README.nd ../gis-eyetracker-releases/
 
 echo "uploading to google drive"
 

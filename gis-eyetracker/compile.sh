@@ -29,12 +29,14 @@ mv dist/${dev}v${major}.${minor}.${patch} dist/${name}/${name}.v${major}.${minor
 
 powershell "Compress-Archive dist/${name} dist/${name}.v${major}.${minor}.${patch}.zip;"
 
+cp ../README.nd ../gis-eyetracker-releases/
 
-#echo "uploading to google drive"
+echo "uploading to google drive"
 
-#python ${root_path}/upload_to_gdrive.py --parent ${gdrive_parent} -p dist/${name}.v${major}.${minor}.${patch}${dev}.zip --result ${root_path}/../gis-eyetracker-releases/releases${dev}.changelog
 
-#echo "${major}.${major}.${patch}" >> ../gis-eyetracker-releases/releases${dev}.changelog
+python ${root_path}/upload_to_gdrive.py --parent ${gdrive_parent} -p dist/${name}.v${major}.${minor}.${patch}${dev}.zip --result ${root_path}/../gis-eyetracker-releases/releases${dev}.changelog
 
-# cd ../gis-eyetracker-releases/ && git add -A && git commit -m "uploaded new dev" && git push origin
+echo "${major}.${major}.${patch}" >> ../gis-eyetracker-releases/releases${dev}.changelog
+
+cd ../gis-eyetracker-releases/ && git add -A && git commit -m "uploaded new dev" && git push origin
 
