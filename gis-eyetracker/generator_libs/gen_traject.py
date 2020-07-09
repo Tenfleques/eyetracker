@@ -27,7 +27,7 @@ from generator_libs.VideoGenerator import *
 from generator_libs.SettingBox import *
 from pathlib import Path
 
-
+from functools import partial
 import scipy.misc
 from pdf2image import convert_from_path, convert_from_bytes
 from PIL import Image as PilImage
@@ -231,6 +231,7 @@ class gen_TRAJECT(BoxLayout):
         self.children[1].children[0].value = 0
 
     cnter=1;
+    pp_opened = False
     def press_select(self, sigma=5):
         
         if sigma == 0:
@@ -239,18 +240,25 @@ class gen_TRAJECT(BoxLayout):
             self.preproc = True
 
         print('touch')
-        if len(self.files.selection)==0:
+        if (len(self.files.selection)==0)and (not self.pp_opened):
             pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
-            bb1 = Button(text = 'Пожалуйста, выберите изображение \nдвойным щелчком по файлу в списке', halign = 'center',on_press = pp1.dismiss)
+            func = partial(self.press_pp1_close, pp1)
+            bb1 = Button(text = 'Пожалуйста, выберите изображение \nдвойным щелчком по файлу в списке', halign = 'center',on_press = func)
             pp1.add_widget(bb1)
             pp1.open()
+            self.pp_opened = True
             return
         
-        if (not self.ImageIsSelected):
+        if (not self.ImageIsSelected)and (not self.pp_opened):
             pp1 = Popup(title = 'Ошибка', size_hint = [0.3,0.3])
-            bb1 = Button(text = 'Пожалуйста, выберите изображение \nдвойным щелчком по файлу в списке', halign = 'center', on_press = pp1.dismiss)
+            func = partial(self.press_pp1_close, pp1)
+            bb1 = Button(text = 'Пожалуйста, выберите изображение \nдвойным щелчком по файлу в списке', halign = 'center', on_press = func)
             pp1.add_widget(bb1)
             pp1.open()
+            self.pp_opened = True
+            return
+        
+        if  self.pp_opened:
             return
         
         image = cv2.imread(self.selected_image)
@@ -271,8 +279,14 @@ class gen_TRAJECT(BoxLayout):
         self.speed_painter.reinit();
         self.speed_painter.redraw();
         
+        
+    def press_pp1_close(self, pp, instance):
+        self.pp_opened = False
+        pp.dismiss()
+        
     def press_postproc(self, instance):
         pass
+    
     
     def press_settings(self, instance):
         GlobVideoSetMenu.open()

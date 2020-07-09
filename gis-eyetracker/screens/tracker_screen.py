@@ -164,10 +164,6 @@ class TrackerScreen(Screen):
             # emergency close
             self.stop(True)
             return
-        
-        # fires up camera
-        camera_up = self.camera_feed_ctrl.start(output_path=output_dir, camera_index=0, save_images=False)
-        
         # clear stored frame indices
         self.video_feed_ctrl.reset()
         if self.cumulative_sim_video is not None:
@@ -181,6 +177,9 @@ class TrackerScreen(Screen):
             return
         # create the new session dir
         os.makedirs(output_dir, exist_ok=True)
+
+        # fires up camera
+        camera_up = self.camera_feed_ctrl.start(output_path=output_dir, camera_index=0, save_images=False)
 
         # cancel everything if camera failed to start
         if not camera_up:
