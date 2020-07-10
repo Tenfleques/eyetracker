@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import ImageFont, ImageDraw, Image
-def get_Matrix_image(M, size, space, width, heigh, font_file):
+def get_Matrix_image(M, size, space, width, heigh, font_file, position):
     background = np.full((heigh,width,3),255).astype(dtype = 'uint8')
     dt = size+space
     #fontpath = font_file 
@@ -25,11 +25,20 @@ def get_Matrix_image(M, size, space, width, heigh, font_file):
     
     pnts = []
     
+    print('Pos:',position)
     
     for i,lmas in enumerate(M):
         for j, let in enumerate(lmas):
             draw.text((start_X+j*dt,start_Y+i*dt),  let, font = font, fill = (0,0,0))
-            pnt = {'x':start_X+j*dt, 'y':start_Y+i*dt}
+            pnt = {'letter': let, 'x':start_X+j*dt+int(size/2), 'y':start_Y+i*dt+int(size/2)}
+            
+            print(let,(i,j))
+            
+            if (i,j) in position:
+                pnt['marked'] = True
+            else:
+                pnt['marked'] = False
+            
             pnts.append(pnt)
             
     img = np.array(img_pil)
