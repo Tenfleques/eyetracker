@@ -164,8 +164,7 @@ class TrackerScreen(Screen):
             # emergency close
             self.stop(True)
             return
-        
-                # clear stored frame indices
+        # clear stored frame indices
         self.video_feed_ctrl.reset()
         if self.cumulative_sim_video is not None:
             self.cumulative_sim_video.release()
@@ -181,7 +180,7 @@ class TrackerScreen(Screen):
 
         # fires up camera
         camera_up = self.camera_feed_ctrl.start(output_path=output_dir, camera_index=0, save_images=False)
-        
+
         # cancel everything if camera failed to start
         if not camera_up:
             self.__tracker_app_log(self.get_local_str("_problem_waiting_camera"))
