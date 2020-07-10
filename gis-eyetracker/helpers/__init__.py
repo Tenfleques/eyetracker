@@ -32,7 +32,7 @@ os.makedirs(log_dir, exist_ok=True)
 
 # load user previous session settings
 try:
-    if not os.path.isdir(user_dir):
+    if not os.path.isfile(prev_session_file_path):
         os.makedirs(user_dir, exist_ok=True)
         SESSION_PREFS = {}
         with open(prev_session_file_path, "w") as session_f:
@@ -178,6 +178,10 @@ def get_default_from_prev_session(key, default='', config_path=None):
             with open(config_path, "r") as session_f:
                 data_obj = json.load(session_f)
                 session_f.close()
+    else:
+        with open(prev_session_file_path, "r") as session_f:
+            data_obj = json.load(session_f)
+            session_f.close()
 
     if key in data_obj.keys():
         return str(data_obj.get(key))
