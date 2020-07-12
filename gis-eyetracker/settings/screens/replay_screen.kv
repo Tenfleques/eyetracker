@@ -238,7 +238,8 @@
                                 markup:True
                                 id: toggle_expand_frame_details
                                 size_hint_x: None
-                                text: "[b]" + "[ref=toggle_collapse_frame_details] + [/ref][/b]"
+                                halign: 'center'
+                                text: "[b][size=15][ref=toggle_collapse_frame_details] + [/ref][/size][/b]"
                                 on_ref_press: root.on_ref_press_expand()
                             
                         BoxLayout:
@@ -249,7 +250,7 @@
                             NormalLabel:
                                 markup:True
                                 id: toggle_collapse_frame_details
-                                text: "[b]" + root.get_local_str("_frame_details") + " [ref=toggle_collapse] [size=20]-[/size] [/ref][/b]"
+                                text: "[b] [ref=toggle_collapse]" + root.get_local_str("_frame_details") + " - [/ref][/b]"
                                 on_ref_press: root.on_ref_press_collapse()
                             FrameDetails:
                                 id: frame_details

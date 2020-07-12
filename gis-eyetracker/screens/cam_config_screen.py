@@ -4,7 +4,7 @@ from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 import json
 import os
-from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session
+from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session, file_log
 
 from ctrls.cam_config import CamConfig
 from ctrls.multiple_cameras import MultipleCameras

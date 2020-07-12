@@ -52,6 +52,17 @@ class SettingsScreen(Screen):
         # self.ids["bg_canvas"].texture = texture
 
         # check for updates
+        
+        start_dir = get_default_from_prev_session('lbl_logs_directory',self.get_user_dir(["logs"]))
+        self.set_default_from_prev_session('lbl_logs_directory', start_dir)
+        start_dir = get_default_from_prev_session('lbl_bin_directory',self.get_app_dir(["bin"]))
+        self.set_default_from_prev_session('lbl_bin_directory', start_dir)
+        start_dir = get_default_from_prev_session('lbl_src_stimuli_directory',self.get_user_dir(["data","output"]))
+        self.set_default_from_prev_session('lbl_src_stimuli_directory', start_dir)
+        start_dir = get_default_from_prev_session('lbl_src_sessions_directory',self.get_user_dir(["data","sessions"]))
+        self.set_default_from_prev_session('lbl_src_sessions_directory', start_dir)
+
+        
         self.check_updates()
         return True
 

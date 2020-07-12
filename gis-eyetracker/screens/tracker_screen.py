@@ -19,6 +19,7 @@ from ctrls.camera_feed_ctrl import CameraFeedCtrl
 from ctrls.tracker_ctrl import TrackerCtrl
 from ctrls.loaddialog import LoadDialog
 from ctrls.video_feed_ctrl import VideoCanvas
+from ctrls.dataset_ctrl import DatasetCtrl
 
 from kivy.core.window import Window
 from kivy.clock import Clock
@@ -348,6 +349,16 @@ class TrackerScreen(Screen):
             proc_2 = Thread(target=self.process_open_face_video, )
             proc_2.start()
             self.processes.append(proc_2)
+
+            # create dataset files 
+            dataset_ctrl = DatasetCtrl(output_dir)
+            proc_3 = Thread(target=dataset_ctrl.split_video_camera, )
+            proc_3.start()
+            self.processes.append(proc_3)
+
+            proc_4 = Thread(target=dataset_ctrl.create_stimuli_timeline, )
+            proc_4.start()
+            self.processes.append(proc_4)
 
         except Exception as ex:
             file_log("[ERROR] an error occurred {}".format(ex))

@@ -71,15 +71,48 @@ class CameraClick(BoxLayout):
 
     def capture(self):
         '''
-    	Take a photo when you push "capture"
-    	'''
-
+        Take a photo when you push "capture"
+        '''
+        
         CAL = Calibrator()
         
         camera = self.ids['camera']
 
-        nparr = np.fromstring(self.ids['camera'].texture.pixels, dtype=np.uint8)
-        
-        a = np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4))
+        try:
+            nparr = np.frombuffer(self.ids['camera'].texture.pixels, dtype=np.uint8)
+        except AttributeError:
+            print("Please turn on the camera before take a photos!")
+            TURN_CAMERA = "Please turn on the camera before taking a photos!" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            return
 
-        CAL.fit_calibrator_from_stream(a, camera_index = self.index)
+        img = cv2.flip(cv2.cvtColor(np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4)),cv2.COLOR_RGBA2BGR), 0)
+        CAL.fit_calibrator(img, camera_index = self.index)
+        
+
+#################################################################################################################################################
+
+    def transform(self):
+        CAL = Calibrator()
+
+        try:
+            nparr = np.fromstring(self.ids['camera'].texture.pixels, dtype=np.uint8)
+        except AttributeError:
+            print("Please turn on the camera before take a photos!")
+            TURN_CAMERA = "Please turn on the camera before take a photos!" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            return
+
+        camera = self.ids['camera']
+
+        img = cv2.flip(cv2.cvtColor(np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4)),cv2.COLOR_RGBA2BGR), 0)
+
+        CAL.transform_img_from_stream(img, camera_index = self.index)
+
+#################################################################################################################################################
+
+    def reset_cal(self):
+
+        CAL = Calibrator()
+        CAL.reset_calibration(self.index)
+        print("Camera calibration settings reset.")
+        SETTING_RESET = "Camera calibration settings reset." #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
