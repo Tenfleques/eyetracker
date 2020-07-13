@@ -4,7 +4,8 @@ import time
 import os
 from collections import deque
 import numpy as np
-from PIL import ImageGrab
+#from PIL import ImageGrab
+import pyscreenshot as ImageGrab
 import copy
 from threading import Thread
 from multiprocessing import Process
