@@ -11,15 +11,19 @@ import glob
 import itertools
 import copy
 
-from helpers import get_app_dir
+from helpers import get_app_dir, file_log, get_local_str_util
 
 APP_PATH = get_app_dir()
 
+def ui_log(text="", level=0):
+    print(text)
+
 class Calibrator:
+    
 
-    def __init__(self, img_format = 'png', CHECKERBOARD = (6,9), verbose = False, calibration_folder = os.path.join(APP_PATH, "user", "configs", "camera"), subpix_criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 100, 1e-7), \
+    def __init__(self, img_format = 'png', CHECKERBOARD = (6,9), verbose = False, ui_log_user=ui_log, calibration_folder = os.path.join(APP_PATH, "user", "configs", "camera"), subpix_criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 100, 1e-7), \
                     calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC+cv2.fisheye.CALIB_CHECK_COND+cv2.fisheye.CALIB_FIX_SKEW ):
-
+        self.ui_log = ui_log_user
         self.img_format = img_format
         self.CHECKERBOARD = CHECKERBOARD # size of Chess board
         self.verbose = verbose # algorithm Versatility
@@ -63,8 +67,11 @@ class Calibrator:
             cv2.cornerSubPix(gray, corners, (3,3), (-1,-1), self.subpix_criteria)
             imgpoints.append(corners)
         else:
-            print("BAD IMAGE: The chessboard is not visible in the photo! Please take the other photo.")
-            CHESSBOARD_NOT_VISIBLE = "BAD IMAGE: The chessboard is not visible in the photo! Please take the other photo." # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("BAD IMAGE: The chessboard is not visible in the photo! Please take the other photo.")
+            CHESSBOARD_NOT_VISIBLE = get_local_str_util("_the_chessboard_is_not_visible_in_the_photo_please_take_the_other_photo")
+            self.ui_log(text=CHESSBOARD_NOT_VISIBLE, level=1)
+            
+            #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             return False
 
         K = np.zeros((3, 3))
@@ -86,13 +93,17 @@ class Calibrator:
                     self.subpix_criteria#(cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
                 )
 
-            print("The image passed the initial selection.")
-            INITIAL_SELECTION = "The image passed the initial selection." # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("The image passed the initial selection.")
+            INITIAL_SELECTION = get_local_str_util("_The_image_passed_the_initial selection")
+            self.ui_log(text=INITIAL_SELECTION, level=0)
+             # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             return True
 
         except cv2.error:
-            print("BAD IMAGE: The chessboard is not visible in the photo! Please take the other photo.")
-            CHESSBOARD_NOT_VISIBLE = "BAD IMAGE: The chessboard is not visible in the photo! Please take the other photo." # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<    
+            file_log("BAD IMAGE: The chessboard is not visible in the photo! Please take the other photo.")
+            CHESSBOARD_NOT_VISIBLE = get_local_str_util("_BAD_IMAGE_The_chessboard_is_not_visible_in_the_photo_Please_take_the_other_photo.")
+            self.ui_log(text=CHESSBOARD_NOT_VISIBLE, level=1)
+            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<    
             return False    
 
     #################################################################################################################################################
@@ -102,8 +113,10 @@ class Calibrator:
         CONTROL_PHOTOS = self.control_photo(img)
 
         if not os.path.isdir(interesting_folder) and CONTROL_PHOTOS:
-            print("No data for this camera! I create an empty template!")
-            NO_DATA_FOR_CAMERA = "No data for this camera! I create an empty template!" # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("No data for this camera! I create an empty template!")
+            NO_DATA_FOR_CAMERA = get_local_str_util("_No_data_for_this_camera_I_create_an_empty_template")
+            self.ui_log(text=NO_DATA_FOR_CAMERA, level=1)
+             # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             os.mkdir(interesting_folder)
             #np.save(interesting_folder+'K', np.zeros((3, 3)))
             #np.save(interesting_folder+'D', np.zeros((4, 1)))
@@ -131,11 +144,11 @@ class Calibrator:
         objpoints = [] # 3d point in real world space
         imgpoints = [] # 2d points in image plane.
 
-        print(interesting_folder+'*.'+self.img_format)
+        file_log(interesting_folder+'*.'+self.img_format)
         images = glob.glob(interesting_folder+'*.'+self.img_format)
 
         for fname in images:
-            print(fname)
+            file_log(fname)
             img = cv2.imread(fname)
 
             if _img_shape == None:
@@ -172,18 +185,24 @@ class Calibrator:
                     self.subpix_criteria#(cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
                 )
 
-            print("SUCCESS: New conversion matrix counted successfully.")
-            SUCCESS_COUNT_MATRIX = "SUCCESS: New conversion matrix counted successfully." #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("SUCCESS: New conversion matrix counted successfully.")
+            SUCCESS_COUNT_MATRIX = get_local_str_util("_SUCCESS_New_conversion_matrix_counted_successfully")
+            self.ui_log(text=SUCCESS_COUNT_MATRIX, level=0)
+            #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
             np.save(interesting_folder+'K', K)
             np.save(interesting_folder+'D', D)
 
-            print("SUCCESS: New conversion matrix saved successfully.")
-            SUCCESS_SAVE_MATRIX = "SUCCESS: New conversion matrix saved successfully." #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("SUCCESS: New conversion matrix saved successfully.")
+            SUCCESS_SAVE_MATRIX = get_local_str_util("_SUCCESS_New_conversion_matrix_saved_successfully")
+            self.ui_log(SUCCESS_SAVE_MATRIX)
+            #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         except cv2.error:
-            print("Something wrong. Please try to reset the calibration and repeat all the steps again.")
-            SOMETHING_WRONG = "Something is wrong. Please try to reset the calibration and repeat all the steps again." #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("Something wrong. Please try to reset the calibration and repeat all the steps again.")
+            SOMETHING_WRONG = get_local_str_util("_Something_is_wrong_please_try_to_reset_the_calibration_and_repeat_all_the_steps_again")
+            self.ui_log(text=SOMETHING_WRONG, level=1)
+            #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
     def transform_img_from_stream(self, img, camera_index = 0, balance=0.0, dim2=None, dim3=None):
@@ -194,8 +213,10 @@ class Calibrator:
         interesting_folder = os.path.join(self.calibration_folder, "data_calib_camera_"+str(camera_index))+'/'
         
         if ("data_calib_camera_"+str(camera_index) not in os.listdir(self.calibration_folder)) or (('K.npy' not in os.listdir(interesting_folder)) or ('D.npy' not in os.listdir(interesting_folder))):
-            CAMERA_NOT_CALIB = "This camera was not calibrated!" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            print("This camera was not calibrated!")
+            CAMERA_NOT_CALIB = get_local_str_util("_This_camera_was_not_calibrated")
+            self.ui_log(text=CAMERA_NOT_CALIB, level=1)
+            #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("This camera was not calibrated!")
             
             new_img = img
             
@@ -215,7 +236,7 @@ class Calibrator:
 
             # This is how scaled_K, dim2 and balance are used to determine the final K used to un-distort image. OpenCV document failed to make this clear!
             new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(K, D, dim2, np.eye(3), balance=balance)
-            print("K = ", K, "new_K = ", new_K)
+            file_log("K = ", K, "new_K = ", new_K)
             map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), new_K, dim3, cv2.CV_16SC2)
             new_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
 

@@ -139,6 +139,10 @@
         "en": "error occurred while checking update",
         "ru": "произошла ошибка при проверке обновления"
     },
+    "_exporting_session_to_dataset": {
+        "en": "exporting session to dataset",
+        "ru": "экспорт сеанса в датасет"
+    },
     "_select_src_sessions_directory": {
         "en": "select the recording sessions directory",
         "ru": "выберите каталог сеансов записи"
@@ -271,6 +275,10 @@
         "en": "user data",
         "ru": "данные пользователя"
     },
+    "_export_to_dataset_all_sessions": {
+        "en": "export all sessions to dataset formats",
+        "ru": "экспортировать все сеансы в форматы датасетов"
+    },
     "_user_interface": {
         "en": "user interface",
         "ru": "пользовательский интерфейс"
@@ -347,6 +355,18 @@
         "en": "capture",
         "ru": "снимать"
     },
+    "_transform_photo": {
+        "en": "transform photo",
+        "ru": "трансформировать фото"
+    },
+    "_reset_calibration": {
+        "en": "reset calibration",
+        "ru": "сброс калибровки"
+    },
+    "_close_camera": {
+        "en": "close camera",
+        "ru": "закрыть камеру"
+    },
     "_waiting_for_camera": {
         "en": "waiting for the camera connection",
         "ru": "в ожидании подключения камеры"
@@ -403,13 +423,13 @@
         "en": "video export is finished",
         "ru": "экспорт видео завершен"
     },
-    "_connected_tracker": {
-        "en": "tracker connected",
-        "ru": "трекер подключен"
-    },
     "_failed_to_connect_tracker": {
         "en": "failed to connect tracker",
         "ru": "не удалось подключить трекер"
+    },
+    "_connected_tracker": {
+        "en": "tracker connected",
+        "ru": "трекер подключен"
     },
     "_stopped_tracking": {
         "en": "stopped tracking",
@@ -434,6 +454,14 @@
     "_error_saving_tracker_session": {
         "en": "error saving tracker data",
         "ru": "ошибка сохранения данных трекера"
+    },
+    "_please_turn_on_the_camera_before_taking_a_photos": {
+        "en": "please turn on the camera before taking a photo",
+        "ru": "пожалуйста, включите камеру перед съемкой"
+    },
+    "_Camera_calibration_settings_reset": {
+        "en": "camera calibration settings reset",
+        "ru": "сброс настроек калибровки камеры"
     },
     "_select_directory": {
         "en": "select output directory",

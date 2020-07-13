@@ -1,6 +1,8 @@
 import os 
 import json 
 
+from helpers import file_log
+
 class DatasetCtrl:
     data_dir = None
     def __init__(self, data_dir):
@@ -63,6 +65,30 @@ class DatasetCtrl:
 
         return stimuli_timeline
 
+def updates_cb(**kwargs):
+    for i in kwargs:
+        print(kwargs[i])
+
+def make_datasets_from_data_dir(directory, updates_cb=updates_cb):
+    d_sources = [os.path.join(directory, i) for i in os.listdir(directory) if os.path.isdir(os.path.join(directory, i))]
+    k = 1
+    total = len(d_sources) * 2
+    for i in d_sources:
+        if os.path.isdir(i):
+            try:
+
+                name = i.split(os.sep)[-1]
+                dataset_ctrl = DatasetCtrl(i)
+                
+                dataset_ctrl.split_video_camera()
+                updates_cb(name=name, current=k, total=total)
+                k += 1
+                dataset_ctrl.create_stimuli_timeline()
+                updates_cb(name=name, current=k, total=total)
+                k += 1
+            except Exception as err:
+                print(err)
+                file_log(err)
 
 if __name__ == "__main__":
     dataset_ctrl = DatasetCtrl("/Volumes/GoogleDrive/My Drive/data/eyetracker-recordings/exp-2020-06-10_11-54-14")

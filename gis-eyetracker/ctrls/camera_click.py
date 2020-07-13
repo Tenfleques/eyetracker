@@ -12,7 +12,7 @@ import os
 import numpy as np
 
 from helpers.cam_calibrator_utils import Calibrator
-from helpers import get_local_str_util, get_app_dir
+from helpers import get_local_str_util, get_app_dir, file_log
 
 APP_DIR = get_app_dir()
 widget = Builder.load_file(os.path.join(APP_DIR, "settings", "subscreens", "camera_click.kv"))
@@ -69,36 +69,46 @@ class CameraClick(BoxLayout):
 
         self.ids['camera'].texture = texture
 
+    def ui_log(self, text="", level=0):
+
+        if level == 0: # info 
+            self.ids["cam_config_user_feedback"].text = "[color=000000]{}[/color]".format(text)
+        if level == 1: # danger
+            self.ids["cam_config_user_feedback"].text = "[color=ff0000]{}[/color]".format(text)
+
     def capture(self):
         '''
         Take a photo when you push "capture"
         '''
         
-        CAL = Calibrator()
+        CAL = Calibrator(ui_log_user=self.ui_log)
         
         camera = self.ids['camera']
 
         try:
             nparr = np.frombuffer(self.ids['camera'].texture.pixels, dtype=np.uint8)
         except AttributeError:
-            print("Please turn on the camera before take a photos!")
-            TURN_CAMERA = "Please turn on the camera before taking a photos!" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("Please turn on the camera before take a photos!")
+            TURN_CAMERA = self.get_local_str("_please_turn_on_the_camera_before_taking_a_photos")
+            self.ui_log(text=TURN_CAMERA, level=1)
+            #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             return
 
         img = cv2.flip(cv2.cvtColor(np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4)),cv2.COLOR_RGBA2BGR), 0)
         CAL.fit_calibrator(img, camera_index = self.index)
         
-
 #################################################################################################################################################
 
     def transform(self):
-        CAL = Calibrator()
+        CAL = Calibrator(ui_log_user=self.ui_log)
 
         try:
             nparr = np.fromstring(self.ids['camera'].texture.pixels, dtype=np.uint8)
         except AttributeError:
-            print("Please turn on the camera before take a photos!")
-            TURN_CAMERA = "Please turn on the camera before take a photos!" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            file_log("Please turn on the camera before take a photos!")
+            TURN_CAMERA = self.get_local_str("_please_turn_on_the_camera_before_taking_a_photos")
+            self.ui_log(text=TURN_CAMERA, level=1)
+            #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             return
 
         camera = self.ids['camera']
@@ -111,8 +121,10 @@ class CameraClick(BoxLayout):
 
     def reset_cal(self):
 
-        CAL = Calibrator()
+        CAL = Calibrator(ui_log_user=self.ui_log)
         CAL.reset_calibration(self.index)
-        print("Camera calibration settings reset.")
-        SETTING_RESET = "Camera calibration settings reset." #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        file_log("Camera calibration settings reset.")
+        SETTING_RESET = self.get_local_str("_Camera_calibration_settings_reset")
+        self.ui_log(text=SETTING_RESET, level=0)
+        #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
