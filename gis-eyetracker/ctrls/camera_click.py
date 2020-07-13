@@ -18,68 +18,104 @@ APP_DIR = get_app_dir()
 widget = Builder.load_file(os.path.join(APP_DIR, "settings", "subscreens", "camera_click.kv"))
 
 class CameraClick(BoxLayout):
-    is_playing = True
-    video_cap = None
-    video_interval = None
-    index = ObjectProperty(None)
+	is_playing = True
+	video_cap = None
+	video_interval = None
+	index = ObjectProperty(None)
 
-    def build(self):
-        pass
+	def build(self):
+		pass
 
-    @staticmethod
-    def get_local_str(key):
-        # gets the localized string for literal text on the UI
-        return get_local_str_util(key)
+	@staticmethod
+	def get_local_str(key):
+		# gets the localized string for literal text on the UI
+		return get_local_str_util(key)
 
-    def on_stop(self):
-        self.stop_interval()
+	def on_stop(self):
+		self.stop_interval()
 
-    def start_interval(self):
-        self.video_cap = cv2.VideoCapture(self.index)
-        fps = self.video_cap.get(cv2.CAP_PROP_FPS)
-        interval = max(fps, 5)/1000
-        self.update_image(None)
-        self.video_interval = Clock.schedule_interval(self.update_image, interval)
+	def start_interval(self):
+		self.video_cap = cv2.VideoCapture(self.index)
+		fps = self.video_cap.get(cv2.CAP_PROP_FPS)
+		interval = max(fps, 5)/1000
+		self.update_image(None)
+		self.video_interval = Clock.schedule_interval(self.update_image, interval)
 
-    def stop_interval(self):
-        if self.video_interval is not None:
-            self.video_interval.cancel()
-        
-        if self.video_cap is not None:
-            self.video_cap.release()
+	def stop_interval(self):
+		if self.video_interval is not None:
+			self.video_interval.cancel()
+		
+		if self.video_cap is not None:
+			self.video_cap.release()
 
-    def update_image(self, dt):
-        if not self.is_playing:
-            return 0
+	def update_image(self, dt):
+		if not self.is_playing:
+			return 0
 
-        if self.video_cap is None:
-            self.stop_interval()
-            return 0
-        
-        ret, frame = self.video_cap.read()
-        if not ret:
-            self.stop_interval()
-            return 0
+		if self.video_cap is None:
+			self.stop_interval()
+			return 0
+		
+		ret, frame = self.video_cap.read()
+		if not ret:
+			self.stop_interval()
+			return 0
 
-        frame = cv2.flip(frame, 0)
+		frame = cv2.flip(frame, 0)
 
-        buf = frame.tostring()
-        texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+		buf = frame.tostring()
+		texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+		texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
-        self.ids['camera'].texture = texture
+		self.ids['camera'].texture = texture
 
-    def capture(self):
-        '''
-    	Take a photo when you push "capture"
-    	'''
+	#################################################################################################################################################
 
-        CAL = Calibrator()
-        
-        camera = self.ids['camera']
+	def capture(self):
+		'''
+		Take a photo when you push "capture"
+		'''
+		
+		CAL = Calibrator()
+		
+		camera = self.ids['camera']
 
-        nparr = np.fromstring(self.ids['camera'].texture.pixels, dtype=np.uint8)
-        
-        a = np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4))
+		try:
+			nparr = np.fromstring(self.ids['camera'].texture.pixels, dtype=np.uint8)
+		except AttributeError:
+			print("Please turn on the camera before take a photos!")
+			TURN_CAMERA = "Please turn on the camera before taking a photos!" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			return
 
-        CAL.fit_calibrator_from_stream(a, camera_index = self.index)
+		img = cv2.flip(cv2.cvtColor(np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4)),cv2.COLOR_RGBA2BGR), 0)
+		CAL.fit_calibrator(img, camera_index = self.index)
+
+
+	#################################################################################################################################################
+
+	def transform(self):
+		CAL = Calibrator()
+
+		try:
+			nparr = np.fromstring(self.ids['camera'].texture.pixels, dtype=np.uint8)
+		except AttributeError:
+			print("Please turn on the camera before take a photos!")
+			TURN_CAMERA = "Please turn on the camera before take a photos!" #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			return
+
+		camera = self.ids['camera']
+
+		img = cv2.flip(cv2.cvtColor(np.reshape(nparr, (int(camera.texture.height),int(camera.texture.width), 4)),cv2.COLOR_RGBA2BGR), 0)
+
+		CAL.transform_img_from_stream(img, camera_index = self.index)
+
+	#################################################################################################################################################
+
+	def reset_cal(self):
+
+		CAL = Calibrator()
+		CAL.reset_calibration(self.index)
+		print("Camera calibration settings reset.")
+		SETTING_RESET = "Camera calibration settings reset." #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+	#################################################################################################################################################

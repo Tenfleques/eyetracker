@@ -1,4 +1,5 @@
-from PIL import ImageGrab
+#from PIL import ImageGrab
+import pyscreenshot as ImageGrab
 import tkinter as tk
 root = tk.Tk()
 
@@ -27,7 +28,8 @@ curr_dpi = w*96/width_px
 print('Current DPI is %f' % (curr_dpi))
 input()
 
-from PIL import ImageGrab
+#from PIL import ImageGrab
+import pyscreenshot as ImageGrab
 screen_grab = ImageGrab.grab()
 w, h = screen_grab.size
 
