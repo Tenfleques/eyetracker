@@ -15,6 +15,7 @@ from kivy.uix.popup import Popup
 from ctrls.loaddialog import LoadDialog
 from ctrls.select_box import SelectBox
 from ctrls.update_ctrl import UpdateCtrl
+from ctrls.dataset_ctrl import make_datasets_from_data_dir
 from threading import Thread
 
 APP_DIR = os.path.dirname(__file__)
@@ -52,6 +53,17 @@ class SettingsScreen(Screen):
         # self.ids["bg_canvas"].texture = texture
 
         # check for updates
+        
+        start_dir = get_default_from_prev_session('lbl_logs_directory',self.get_user_dir(["logs"]))
+        self.set_default_from_prev_session('lbl_logs_directory', start_dir)
+        start_dir = get_default_from_prev_session('lbl_bin_directory',self.get_app_dir(["bin"]))
+        self.set_default_from_prev_session('lbl_bin_directory', start_dir)
+        start_dir = get_default_from_prev_session('lbl_src_stimuli_directory',self.get_user_dir(["data","output"]))
+        self.set_default_from_prev_session('lbl_src_stimuli_directory', start_dir)
+        start_dir = get_default_from_prev_session('lbl_src_sessions_directory',self.get_user_dir(["data","sessions"]))
+        self.set_default_from_prev_session('lbl_src_sessions_directory', start_dir)
+
+        
         self.check_updates()
         return True
 
@@ -121,6 +133,30 @@ class SettingsScreen(Screen):
         app = App.get_running_app()
         app.root.screen_manager.current = 'replay_screen'
 
+    def export_sessions_directory_to_dataset(self):
+        sessions_dir = get_default_from_prev_session('lbl_src_sessions_directory',self.get_user_dir(["data","sessions"]))
+
+        proc = Thread(target=make_datasets_from_data_dir, args=(sessions_dir, self.sessions_export_cb))
+        proc.start()
+        self.processes.append(proc)
+
+    def sessions_export_cb(self, **kwargs):
+        session_exporting = kwargs.get("name", "")
+        log_text = "{}: {}".format(self.get_local_str("_exporting_session_to_dataset"), session_exporting)
+
+        current = kwargs.get("current", "")
+        total = kwargs.get("total", "")
+        progress = ""
+        if current and total:
+            progress = "{}/{}".format(current, total)
+            self.ids["dataset_export_progress"].max = total
+            self.ids["dataset_export_progress"].value = current
+
+        self.ids["lbl_src_sessions_exporting"].text = "{} {}".format(log_text, progress)
+        
+
+        self.__tracker_app_log("{} {}".format(log_text, progress))
+
     @staticmethod
     def get_user_dir(in_dirs=[]):
         st = os.path.join(APP_DIR, "user")
@@ -164,7 +200,11 @@ class SettingsScreen(Screen):
             file_log("[ERROR] {}".format(er))
 
     def on_stop(self):
-        pass
+        file_log("[INFO] closing settings processes")
+        for proc in self.processes:
+            # join all other running processes
+            proc.join()
+        file_log("[INFO] closed all settings processes ")
     
     # loading directory dialog
     def dismiss_popup(self):

@@ -131,7 +131,7 @@ class UpdateCtrl():
                 target = os.path.dirname(APP_DIR)
 
                 dir_target = "{}.{}".format(os.path.join(target, self.update_name), self.update_version)
-                short_cut_name = os.path.join(target, "GIS Eyetracker MIPT.lnk")
+                # short_cut_name = os.path.join(target, "GIS Eyetracker MIPT.lnk")
                 
                 target = os.path.join(target, self.update_fname)
 

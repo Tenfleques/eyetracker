@@ -68,12 +68,14 @@ def file_log(log_string):
     timestr = time.strftime("%H:%M:%S")
     logfilename = time.strftime("%Y-%m-%d")
     
-    log_string = "{} {} {}".format(timestr, log_string, os.linesep)
+    log_string = "{} {} {}".format(timestr, log_string, "\n")
 
     log_file = os.path.join(log_dir, "{}.log".format(logfilename))
     with open(log_file, "a") as logfp:
         logfp.write(log_string)
         logfp.close()
+    
+    print(log_string)
     return
 
 

@@ -29,6 +29,7 @@ def discover_cameras():
     return nums_ind
 
 class MultipleCameras(BoxLayout):
+    discovered_cams = []
     @staticmethod
     def get_local_str(key):
         # gets the localized string for literal text on the UI
@@ -38,10 +39,13 @@ class MultipleCameras(BoxLayout):
         ids = discover_cameras()
         
         for cam_index in ids:
+            if cam_index in self.discovered_cams:
+                continue
             
             widget = CameraClick(index=cam_index)
             widget.start_interval()
             self.ids["cameras_zone"].add_widget(widget)
+            self.discovered_cams.append(cam_index)
 
 
 class TestCamera(App):

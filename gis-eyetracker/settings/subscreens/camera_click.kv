@@ -6,15 +6,19 @@
     width: 480
     BackgroundBoxLayout:
         orientation: 'vertical'
-        padding: [0, 0, 20, 0,]
+        # padding: [0, 0, 20, 0,]
+        size_hint_y: None
+        height: 400
         Image:
             id: camera
             size_hint_y: 1
             allow_stretch:True
-            keep_ratio:False
+            keep_ratio:True
             pos_hint:{'x':.0, 'y':.0}
-        BackgroundBoxLayout:
-            orientation: 'vertical'
+    BackgroundGridLayout:
+        rows: 5
+        GridLayout:
+            rows: 1
             size_hint_y: None
             height: 50
             NormalButton:
@@ -22,3 +26,36 @@
                 size_hint_y: None
                 height: '48dp'
                 on_press: root.capture()
+        GridLayout:
+            rows: 1
+            size_hint_y: None
+            height: 50
+            NormalButton:
+                text: root.get_local_str('_transform_photo')
+                size_hint_y: None
+                height: '48dp'
+                on_press: root.transform()
+        GridLayout:
+            rows: 1
+            size_hint_y: None
+            height: 50
+            NormalButton:
+                text: root.get_local_str('_reset_calibration')
+                size_hint_y: None
+                height: '48dp'
+                on_press: root.reset_cal()
+        GridLayout:
+            rows: 1
+            size_hint_y: None
+            height: 50
+            NormalButton:
+                text: root.get_local_str('_close_camera')
+                size_hint_y: None
+                height: '48dp'
+                on_press: root.stop_interval()
+        GridLayout:
+            rows: 1
+            NormalLabel:
+                id: cam_config_user_feedback
+                text: ''
+                markup: True

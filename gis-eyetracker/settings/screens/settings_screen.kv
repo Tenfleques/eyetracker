@@ -51,7 +51,7 @@
                         text: "{} [b][color=ff0000]**[/color][/b]".format(root.get_default_from_prev_session('lbl_bin_directory',root.get_app_dir(["bin"])))
 
             GridLayout:
-                rows: 3
+                rows: 4
                 BackgroundGridLayout:
                     rows: 1
                     size_hint_y: None
@@ -76,7 +76,7 @@
                         text: root.get_default_from_prev_session('lbl_src_stimuli_directory',root.get_user_dir(["data","output"]))
                 BackgroundGridLayout:
                     rows: 1
-                    cols: 2
+                    cols: 3
                     size_hint_y: None
                     height: 40
                     NormalButton:
@@ -84,10 +84,36 @@
                         on_release: root.show_load_select_src_sessions_directory()
                         size_hint: (None, None)
                         width: '300dp'
-                        height: '25dp'
+                        height: '25dp'                        
                     NormalLabel:
                         id:lbl_src_sessions_directory
                         text: root.get_default_from_prev_session('lbl_src_sessions_directory',root.get_user_dir(["data","sessions"]))
+                BackgroundGridLayout:
+                    rows: 2
+                    size_hint_y: None
+                    height: 40
+                    GridLayout:
+                        rows: 1
+                        cols: 2
+                        NormalButton:
+                            text: root.get_local_str("_export_to_dataset_all_sessions")
+                            on_release: root.export_sessions_directory_to_dataset()
+                            size_hint: (None, None)
+                            width: '300dp'
+                            height: '25dp'
+                        NormalLabel:
+                            id:lbl_src_sessions_exporting
+                            text: ''
+                            markup: True
+                    GridLayout:
+                        rows: 1
+                        ProgressBar:
+                            id:dataset_export_progress
+                            size_hint_y: None
+                            height: 40
+                            value: 0
+                            max: 100
+
             GridLayout:
                 rows: 2
                 BackgroundGridLayout:

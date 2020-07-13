@@ -1,16 +1,45 @@
 #:kivy 1.1.0
 
 <CamConfigScreen>:
+    settings_screen_manager: settings_screen_manager
     BackgroundBoxLayout:
-        TabbedPanel:
-            # pos_hint: {'center_x': .5, 'center_y': .5}
-            do_default_tab: False
-            tab_width: self.parent.width / 4
-            TabbedPanelItem:
-                text: root.get_local_str("_cam_postion")
-                CamConfig:
-                    id: cam_config_distances
-            TabbedPanelItem:
-                text: root.get_local_str("_cam_config")
-                MultipleCameras:
-                    id: multi_cams_config
+        GridLayout:
+            cols:2
+            BackgroundGridLayout:
+                background_color: (.9, .9, .9, 1)
+                rows: 3
+                size_hint_x: .2
+                padding: [0, 5, 0, 0]
+                GridLayout:
+                    rows: 1
+                    padding: [5, 5, 5, 5]
+                    size_hint_y: None
+                    height: 40
+                    NormalButton:
+                        text: root.get_local_str("_cam_postion")
+                        on_release: root.settings_screen_manager.current = 'cam_postion_screen'
+                GridLayout:
+                    rows: 1
+                    padding: [5, 5, 5, 5]
+                    size_hint_y: None
+                    height: 40
+                    NormalButton:
+                        text: root.get_local_str("_cam_config")
+                        on_release: root.settings_screen_manager.current = 'cam_config_screen'
+                GridLayout:
+                    rows: 1
+                    padding: [5, 5, 5, 5]
+            GridLayout:
+                rows: 1
+                ScreenManager:
+                    id: settings_screen_manager
+                    Screen:
+                        id: cam_postion_screen
+                        name: 'cam_postion_screen'
+                        CamConfig:
+                            id: cam_config_distances
+                    Screen:
+                        id: cam_config_screen
+                        name: 'cam_config_screen'
+                        MultipleCameras:
+                            id: multi_cams_config

@@ -67,13 +67,17 @@ class TrackerCtrl:
 
     def __init__(self, dll_path="./TobiiEyeLib.dll"):
         if platform.system() == 'Windows':
-            self.tracker_lib = cdll.LoadLibrary(dll_path)
-            self.tracker_lib.start.restype = c_int
+            try:
+                self.tracker_lib = cdll.LoadLibrary(dll_path)
+                self.tracker_lib.start.restype = c_int
 
-            self.tracker_lib.save_json.restype = c_size_t
-            self.tracker_lib.save_json.argtypes = [CString]
-            self.tracker_lib.get_json.argtypes = [CString, c_size_t]
-            self.tracker_lib.get_meta_json.argtypes = [CString, c_size_t]
+                self.tracker_lib.save_json.restype = c_size_t
+                self.tracker_lib.save_json.argtypes = [CString]
+                self.tracker_lib.get_json.argtypes = [CString, c_size_t]
+                self.tracker_lib.get_meta_json.argtypes = [CString, c_size_t]
+            except Exception as err:
+                self.tracker_lib = None
+                file_log(err)
 
             self.save_json = self.__save_json_win
             self.get_json = self.__get_json_win
@@ -107,6 +111,11 @@ class TrackerCtrl:
             print("[ERROR] {}".format(er))
 
     def start(self):
+        if self.tracker_lib is None:
+            file_log("[ERROR] failed to load tracker device")
+            self.__tracker_app_log(get_local_str_util("_failed_to_connect_tracker"), "tracker_log")
+            return -100
+
         started = self.tracker_lib.start()
         if started == 0:
             file_log("[INFO] started the tracker device")
@@ -124,7 +133,9 @@ class TrackerCtrl:
         file_log("[INFO] stopping the recording of tracker device data")
         try:
             self.is_up = False
-            self.tracker_lib.stop()
+            
+            if self.tracker_lib is not None:
+                self.tracker_lib.stop()
             self.__tracker_app_log(get_local_str_util("_stopped_tracking"), "tracker_log")
         except Exception as e:
             file_log("[ERROR] an error occurred while stopping the tracker session {}    ".format(e))
@@ -134,7 +145,9 @@ class TrackerCtrl:
         file_log("[INFO] stopping the tracker device")
         try:
             self.is_up = False
-            self.tracker_lib.kill()
+            if self.tracker_lib is not None:
+                self.tracker_lib.kill()
+
             self.__tracker_app_log(get_local_str_util("_disconnected_tracker"), "tracker_log")
         except Exception as e:
             file_log("[ERROR] an error occurred while stopping the tracker device {}    ".format(e))
@@ -143,7 +156,8 @@ class TrackerCtrl:
     def __save_json_win(self, path="./data/results.json"):
         b_path = path.encode()
         try:
-            saved = self.tracker_lib.save_json(b_path)
+            if self.tracker_lib is not None:
+                saved = self.tracker_lib.save_json(b_path)
             session_name = path.split(os.sep)[-2]
             self.__tracker_app_log("{}: {}".format(get_local_str_util("_saved_tracker"), session_name), "tracker_log")
             return saved
@@ -152,16 +166,21 @@ class TrackerCtrl:
             self.__tracker_app_log("{}: {}".format(get_local_str_util("_error_saving_tracker_session"), err), "tracker_log")
 
     def __get_json_win(self):
-        required_size = self.tracker_lib.get_json(c_char_p(None), -1)
-        buf = create_string_buffer(required_size)
-        self.tracker_lib.get_json(buf, required_size)
-        return buf.value
+        if self.tracker_lib is not None:
+            required_size = self.tracker_lib.get_json(c_char_p(None), -1)
+            buf = create_string_buffer(required_size)
+            self.tracker_lib.get_json(buf, required_size)
+            return buf.value
+        return {}
 
     def __get_meta_json_win(self):
-        required_size = self.tracker_lib.get_meta_json(c_char_p(None), -1)
-        buf = create_string_buffer(required_size)
-        self.tracker_lib.get_meta_json(buf, required_size)
-        return buf.value.decode("utf-8")
+        if self.tracker_lib is not None:
+            required_size = self.tracker_lib.get_meta_json(c_char_p(None), -1)
+            buf = create_string_buffer(required_size)
+            self.tracker_lib.get_meta_json(buf, required_size)
+            return buf.value.decode("utf-8")
+
+        return ""
 
     @staticmethod
     def __get_meta_json_mac():

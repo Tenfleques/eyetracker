@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
+from kivy.clock import Clock
 import json
 import os
 from helpers import get_local_str_util, get_default_from_prev_session, set_default_from_prev_session, get_app_dir
@@ -26,8 +27,8 @@ class CamConfig(Screen):
         config_path = os.path.join(APP_DIR, "user", "configs", "camera", "cam_config.json")
         return get_default_from_prev_session(key, default, config_path=config_path)
 
-    @staticmethod
-    def get_scheme_image():
+    def get_scheme_image(self):
+        Clock.schedule_once(lambda dt: self.gen(),2)
         return os.path.join(APP_DIR, "assets", "ui", "scheme.jpg")
 
     @staticmethod
@@ -43,7 +44,10 @@ class CamConfig(Screen):
         d = {}
         vallist = ['width', 'height', 'x_offset', 'y_offset']
         for v in vallist:
-            d[v] = int(self.ids[v].text)
+            if self.ids[v].text:
+                d[v] = int(self.ids[v].text)
+            else:
+                d[v] = 10
         
         config_path = os.path.join(APP_DIR, "user", "configs", "camera", "cam_config.json")
 
