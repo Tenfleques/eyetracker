@@ -216,11 +216,11 @@ class gen_MATRIX(BoxLayout):
             pp1.open()
             return
             
-        M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
-
+        M, position = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
+        self.word_position = position
         print('MATRIX_GEN, FONT:',self.font)
         
-        image,  self.pnts  = get_Matrix_image(M, font_size, font_space, width, height, self.font)  
+        image,  self.pnts  = get_Matrix_image(M, font_size, font_space, width, height, self.font, position)  
         
         im_out = self.tmp+'matrix'+str(self.curr_pict_id)+'.png'
         
@@ -269,8 +269,8 @@ class gen_MATRIX(BoxLayout):
                 Y_start_actual = random.randint(0,Y_size-1)
                 
             
-        M = self.GenerateMatrix(word, X_size, Y_size, X_start_actual, Y_start_actual, local_orientation)
-        return M
+        M, position = self.GenerateMatrix(word, X_size, Y_size, X_start_actual, Y_start_actual, local_orientation)
+        return M, position
             
             
     def GenerateMatrix(self, word, sizeX, sizeY, startX, startY, orientation):
@@ -279,16 +279,20 @@ class gen_MATRIX(BoxLayout):
         
         posX = startX
         posY = startY
+        
+        word_position = []
+        
         for k,w in enumerate(word):
             
             if (posX<sizeX)and(posY<sizeY):
                 M[posY][posX] = w
+                word_position.append((posY,posX))
             if orientation=='vertical':
                 posY = posY+1
             else:
                 posX = posX+1
                 
-        return M
+        return M, word_position
         
     
     
@@ -340,8 +344,9 @@ class gen_MATRIX(BoxLayout):
                 image = cv2.imread(im_out)
                 pnts = self.pnts
             else:
-                M = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
-                image,pnts = get_Matrix_image(M, font_size, font_space, width, height, self.font)
+                
+                M, position = self.AdjustAndGenerateMatrix(word, X_size, Y_size, X_start, Y_start, self.word_orientation) 
+                image,pnts = get_Matrix_image(M, font_size, font_space, width, height, self.font, position)
             
             word_trans = transliterate(word)
             

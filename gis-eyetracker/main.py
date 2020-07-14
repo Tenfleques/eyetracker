@@ -8,7 +8,8 @@ from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideT
 from kivy.clock import Clock, mainthread
 from kivy.config import ConfigParser
 import time 
-from PIL import ImageGrab
+# from PIL import ImageGrab
+import pyscreenshot as ImageGrab
 import os
 from threading import Thread
 
