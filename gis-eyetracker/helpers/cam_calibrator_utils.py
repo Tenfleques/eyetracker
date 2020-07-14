@@ -13,6 +13,12 @@ import glob
 import itertools
 import copy
 
+import platform
+if platform.system() == 'Linux':
+    import pyscreenshot as ImageGrab
+else:
+    from PIL import ImageGrab
+
 from helpers import get_app_dir, file_log, get_local_str_util
 
 APP_PATH = get_app_dir()

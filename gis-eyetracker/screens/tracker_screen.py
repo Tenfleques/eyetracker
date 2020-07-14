@@ -27,9 +27,13 @@ import cv2
 import filetype
 
 import platform
+if platform.system() == 'Linux':
+    import pyscreenshot as ImageGrab
+else:
+    from PIL import ImageGrab
+
 from collections import deque
-#from PIL import ImageGrab
-import pyscreenshot as ImageGrab
+
 from kivy.config import Config
 
 Config.set('graphics', 'kivy_clock', 'free_all')

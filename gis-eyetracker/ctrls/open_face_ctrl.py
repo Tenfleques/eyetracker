@@ -4,10 +4,15 @@ import subprocess
 import json
 import pandas as pd
 import os
-#from PIL import ImageGrab
-import pyscreenshot as ImageGrab
+
 from helpers import file_log, recurse_directory_files
 import platform
+
+if platform.system() == 'Linux':
+    import pyscreenshot as ImageGrab
+else:
+    from PIL import ImageGrab
+
 import sys
 from io import StringIO
 
