@@ -36,17 +36,27 @@ class CameraClick(BoxLayout):
 
     def start_interval(self):
         self.video_cap = cv2.VideoCapture(self.index)
+
         fps = self.video_cap.get(cv2.CAP_PROP_FPS)
         interval = max(fps, 5)/1000
         self.update_image(None)
         self.video_interval = Clock.schedule_interval(self.update_image, interval)
 
-    def stop_interval(self):
+    def stop_interval(self, restart_btn=None):
         if self.video_interval is not None:
             self.video_interval.cancel()
-        
+
         if self.video_cap is not None:
             self.video_cap.release()
+            self.video_cap = None
+
+            if restart_btn is not None:
+                restart_btn.text = self.get_local_str('_start_camera')
+        else:
+            if restart_btn is not None:
+                restart_btn.text = self.get_local_str('_close_camera')
+                self.start_interval()
+
 
     def update_image(self, dt):
         if not self.is_playing:

@@ -1,6 +1,6 @@
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
-from helpers import get_local_str_util
+from helpers import get_local_str_util, file_log
 
 
 class SelectBox(Button):
@@ -9,11 +9,16 @@ class SelectBox(Button):
     @staticmethod
     def btn_release_cb(dropdown, btn, cb):
         dropdown.select(btn.text)
-        cb()
+        dropdown.dismiss()
+        try:
+            cb()
+        except Exception as err:
+            file_log("[ERROR] callback after selecting {}", err)
         return 
     
     def this_btn_on_release(self, ctrl, dropdown):
         dropdown.open(ctrl)
+        
 
     def set_options(self, options):
         self.options = options

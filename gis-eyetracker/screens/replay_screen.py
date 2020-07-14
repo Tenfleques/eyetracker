@@ -97,6 +97,16 @@ class ReplayScreen(Screen):
         self.stop_all()
         file_log("closing... replay screen")
 
+    def save_experiment_comment(self):
+        text = self.ids["experiment_comments"].text
+        if not os.path.isdir(self.session_directory):
+            return 
+
+        with open(os.path.join(self.session_directory, "comments.txt"), "w") as fp:
+            fp.write(text)
+            fp.close()
+        
+        
     def stop_all(self):
         file_log("[INFO] closing processes in replay screen")
         self.stop()
@@ -337,13 +347,28 @@ class ReplayScreen(Screen):
 
     def init_video_player(self):
         # check the directory in the computer's filesystem
+        current_chosen_directory = os.path.join(self.get_default_from_prev_session('lbl_src_sessions_directory', self.get_user_dir()), self.ids["select_box_neighboring_sessions"].text)
 
-        if self.session_directory is None:
-            self.session_directory = os.path.join(self.get_default_from_prev_session('lbl_src_sessions_directory', self.get_user_dir()), self.ids["select_box_neighboring_sessions"].text)
+        if not self.session_directory == current_chosen_directory or self.session_directory is None:
+            self.ids["experiment_comments"].text = ""
+            self.__tracker_app_log("", "camera_log")
+            self.__tracker_app_log("", "app_log")
+            self.__tracker_app_log("", "stimuli_video_log")
+            self.__tracker_app_log("", "tracker_log")
+            self.ids["video_export_progress"].value = 0
+
+        self.session_directory = current_chosen_directory
 
         ready = os.path.isdir(self.session_directory)
         if not ready:
             return None, None, None
+
+        comments_file = os.path.join(self.session_directory, "comments.txt")
+
+        if os.path.isfile(comments_file):
+            with open(comments_file, "r") as fp:
+                self.ids["experiment_comments"].text = fp.read()
+                fp.close()
 
         if self.video_feed_ctrl is None:
             self.video_feed_ctrl = self.ids["replay_video_canvas"]
@@ -384,7 +409,7 @@ class ReplayScreen(Screen):
                 self.set_button_play_start()
                 return
         
-        initialized  = self.init_video_player()
+        # initialized  = self.init_video_player()
         # toggle play button to stop
         self.set_button_play_start()
 
@@ -479,11 +504,10 @@ class ReplayScreen(Screen):
             if not os.path.isdir(path):
                 path = os.path.dirname(path)
 
-        self.session_directory = path
         self.ids["select_box_neighboring_sessions"].set_options(self.populate_neighbor_sessions())
 
         if self.video_feed_ctrl is not None:
             self.video_feed_ctrl.stop()
             self.video_feed_ctrl.reset()
 
-        self.input_dir_ready()
+        self.init_video_player()

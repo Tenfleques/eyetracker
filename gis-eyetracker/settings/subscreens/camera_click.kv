@@ -52,7 +52,7 @@
                 text: root.get_local_str('_close_camera')
                 size_hint_y: None
                 height: '48dp'
-                on_press: root.stop_interval()
+                on_press: root.stop_interval(self)
         GridLayout:
             rows: 1
             NormalLabel:
