@@ -191,6 +191,14 @@
         "en": "frame details during experiment",
         "ru": "детали кадра во время эксперимента"
     },
+    "_experiment_comments": {
+        "en": "experiment comments",
+        "ru": "комментарии к эксперименту"
+    },
+    "_save_comment": {
+        "en": "save comment",
+        "ru": "сохранить комментарий"
+    },
     "_select_session": {
         "en": "select the recorded session",
         "ru": "выберите записанный сеанс"
@@ -454,6 +462,10 @@
     "_error_saving_tracker_session": {
         "en": "error saving tracker data",
         "ru": "ошибка сохранения данных трекера"
+    },
+    "_start_camera": {
+        "en": "start camera",
+        "ru": "запустить камеру"
     },
     "_please_turn_on_the_camera_before_taking_a_photos": {
         "en": "please turn on the camera before taking a photo",

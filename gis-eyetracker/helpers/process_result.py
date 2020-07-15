@@ -4,8 +4,13 @@ import time
 import os
 from collections import deque
 import numpy as np
-#from PIL import ImageGrab
-import pyscreenshot as ImageGrab
+
+import platform
+if platform.system() == 'Linux':
+    import pyscreenshot as ImageGrab
+else:
+    from PIL import ImageGrab
+    
 import copy
 from threading import Thread
 from multiprocessing import Process

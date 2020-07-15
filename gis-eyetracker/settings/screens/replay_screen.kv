@@ -60,6 +60,8 @@
                             BackgroundGridLayout:
                                 rows: 2
                                 background_color: (.6, .6, .6, 1)
+                                size_hint_y: None
+                                height: 250
                                 BoxLayout:
                                     orientation: 'horizontal'
                                     size_hint_y: None
@@ -249,13 +251,45 @@
                             id: frame_details_parent
                             NormalLabel:
                                 markup:True
+                                size_hint_y: None
+                                height: 30
                                 id: toggle_collapse_frame_details
                                 text: "[b] [ref=toggle_collapse]" + root.get_local_str("_frame_details") + " - [/ref][/b]"
                                 on_ref_press: root.on_ref_press_collapse()
                             FrameDetails:
                                 id: frame_details
                                 size_hint_x: None
+                                size_hint_y: None
+                                height: 220
                                 width: 280
+                            BackgroundGridLayout:
+                                rows: 2
+                                BackgroundGridLayout:
+                                    background_color: (.8, .8, .8, 1)
+                                    rows: 1
+                                    size_hint_y: None
+                                    height: 30
+                                    padding: [0, 0, 0, 0]
+                                    NormalLabel:
+                                        markup:True
+                                        text: "[b]" + root.get_local_str('_experiment_comments') + "[/b]"
+
+                                BackgroundGridLayout:
+                                    rows: 2
+                                    padding: [2, 2, 5, 3]
+                                    GridLayout:
+                                        rows: 1
+                                        padding: [0, 0, 0, 3]
+                                        TextInput:
+                                            id: experiment_comments
+                                            size_hint: (1,1)
+                                    GridLayout:
+                                        rows: 1
+                                        size_hint_y: None
+                                        height: 25
+                                        NormalButton:
+                                            text: root.get_local_str('_save_comment')
+                                            on_release: root.save_experiment_comment()
                     
 
             BackgroundGridLayout:

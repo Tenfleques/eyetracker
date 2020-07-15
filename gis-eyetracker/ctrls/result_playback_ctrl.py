@@ -8,8 +8,13 @@ from kivy.core.window import Window
 import cv2
 import json
 import numpy as np
-#from PIL import ImageGrab
-import pyscreenshot as ImageGrab
+
+import platform
+if platform.system() == 'Linux':
+    import pyscreenshot as ImageGrab
+else:
+    from PIL import ImageGrab
+    
 import os
 import time
 import math
